@@ -537,6 +537,28 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 #plArtist{cursor:pointer}
 #plArtist:hover{color:var(--text);text-decoration:underline;text-underline-offset:2px}
 @media(max-width:600px){#plMini{display:none}}
+
+/* ============ ANÚNCIO ============ */
+.ad-bar{display:none;align-items:center;gap:10px}
+.ap-player.ad .pl-track{display:none}
+.ap-player.ad .ad-bar{display:flex}
+.ap-player.ad .pl-mid{flex-direction:row;gap:16px;padding:0}
+.ad-tag{font-family:var(--fd);font-size:.72rem;font-weight:600;color:#ffd166;border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.08);padding:3px 10px;border-radius:99px;white-space:nowrap}
+#plSkip{font-family:var(--fd);font-weight:600;font-size:.88rem;padding:8px 16px;border-radius:99px;border:1px solid var(--line);color:var(--muted);background:var(--surface-2);white-space:nowrap;transition:background .2s,color .2s,border-color .2s}
+#plSkip.pronto{background:var(--cyan);color:#08201c;border-color:var(--cyan);animation:pulsar 1.4s ease-in-out infinite}
+@keyframes pulsar{50%{box-shadow:0 0 0 7px rgba(0,245,212,.2)}}
+@media(prefers-reduced-motion:reduce){#plSkip.pronto{animation:none}}
+#adDica{display:none;position:absolute;top:0;left:0;right:42px;height:38px;align-items:center;gap:6px;padding:0 12px;font-size:.84rem;font-family:var(--fd);color:var(--text);z-index:2}
+#adDica b{color:var(--cyan)}
+.pl-art.ad{background:#000}
+.pl-art.ad #adDica{display:flex}
+.pl-art.ad #ytHolder{top:38px}
+.pl-art.big.ad{width:440px}
+@media(max-width:900px){.pl-art.big.ad{width:auto;aspect-ratio:auto}}
+@media(max-width:600px){
+  .ap-player.ad #plAdd,.ap-player.ad #plLike,.ap-player.ad .icobtn.sk,.ap-player.ad .ad-tag{display:none}
+  #plSkip{padding:8px 13px;font-size:.84rem}
+}
 </style>
 </head>
 <body>
@@ -598,6 +620,7 @@ button{background:none;border:none;cursor:pointer;color:inherit}
     <div class="pl-info">
       <div class="pl-art" id="plArt" title="Clique para ver o vídeo">
         <button id="plX" aria-label="Fechar vídeo">×</button>
+        <div id="adDica">Toque em <b>Pular</b> no canto de baixo do vídeo ↘</div>
         <div id="ytHolder"><div id="ytFrame"></div></div>
         <svg id="plImg" viewBox="0 0 100 100" aria-hidden="true"></svg>
       </div>
@@ -616,6 +639,7 @@ button{background:none;border:none;cursor:pointer;color:inherit}
         <div class="pl-bar" id="plBar"><i id="plFill"></i></div>
         <div class="pl-times"><span id="plNow">0:00</span><span id="plDur">0:00</span></div>
       </div>
+      <div class="ad-bar" aria-live="polite"><span class="ad-tag">Anúncio</span><button id="plSkip">Pular anúncio</button></div>
     </div>
     <div class="pl-right">
       <button class="icobtn" id="plAdd" aria-label="Adicionar à playlist" title="Adicionar à playlist"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -2106,21 +2130,62 @@ function setUI(v){
   atualizarMini();
   try{ if("mediaSession" in navigator) navigator.mediaSession.playbackState=v?"playing":"paused"; }catch(e){}
 }
-/* ---------- vídeo visível (para o botão "Pular anúncio" do YouTube) ---------- */
-let videoAuto=false, tiquesZero=0;
+/* ---------- anúncios do YouTube ----------
+   O Underfy não consegue apertar o "Pular" do YouTube (o vídeo roda numa área protegida dele).
+   O que ele faz: percebe o anúncio (a música "tocando" com o tempo parado por 3 s), mostra
+   a etiqueta Anúncio e o botão Pular anúncio na barra, conta até o YouTube liberar o pulo e,
+   no toque, abre o vídeo grande apontando onde fica o botão. Quando a música anda, tudo some. */
+let videoAuto=false, parado=0, ultimoT=-1, emAnuncio=false, adDesde=0, adTimer=null;
 const videoAberto=()=>document.getElementById("plArt").classList.contains("big");
+const iframeYT=()=>document.querySelector("#ytHolder iframe");
 function abrirVideo(auto){ videoAuto=!!auto; document.getElementById("plArt").classList.add("big"); }
-function fecharVideo(){ videoAuto=false; document.getElementById("plArt").classList.remove("big"); }
+function fecharVideo(){
+  videoAuto=false;
+  const art=document.getElementById("plArt"); art.classList.remove("big","ad"); art.style.height="";
+  const f=iframeYT(); if(f) f.style.cssText="";
+}
+function abrirVideoAnuncio(){
+  const art=document.getElementById("plArt");
+  art.classList.add("big","ad"); videoAuto=true;
+  const w=art.clientWidth, h=Math.round(w*9/16);
+  art.style.height=(h+38)+"px";
+  const f=iframeYT(); if(f) f.style.cssText="top:0;left:0;transform:none;width:"+w+"px;height:"+h+"px";
+}
+window.addEventListener("resize",()=>{ const art=document.getElementById("plArt"); if(art&&art.classList.contains("ad")) abrirVideoAnuncio(); });
+function pintarSkip(){
+  const b=document.getElementById("plSkip"); if(!b) return;
+  const falta=Math.max(0,2-Math.floor((Date.now()-adDesde)/1000));
+  b.textContent=falta?"Pular anúncio em "+falta:"Pular anúncio";
+  b.classList.toggle("pronto",!falta);
+  if(!falta){ clearInterval(adTimer); adTimer=null; }
+}
+function entrarAnuncio(){
+  emAnuncio=true; adDesde=Date.now();
+  document.querySelector(".ap-player").classList.add("ad");
+  clearInterval(adTimer); adTimer=setInterval(pintarSkip,250); pintarSkip();
+}
+function sairAnuncio(){
+  if(!emAnuncio) return;
+  emAnuncio=false; clearInterval(adTimer); adTimer=null;
+  document.querySelector(".ap-player").classList.remove("ad");
+  const b=document.getElementById("plSkip"); if(b) b.classList.remove("pronto");
+  if(videoAuto) fecharVideo();
+}
 function vigiarAnuncio(t,c){
   if(!t.real) return;
-  if(c<0.3){
-    tiquesZero++;
-    /* 3 s "tocando" sem a música andar: é anúncio. Mostra o vídeo para dar para apertar Pular. */
-    if(tiquesZero===6&&!videoAberto()){ abrirVideo(true); toast("Anúncio do YouTube. Quando aparecer, toque em “Pular” no vídeo."); }
+  if(ultimoT>=0&&Math.abs(c-ultimoT)<0.05){
+    parado++;
+    if(parado===6&&!emAnuncio) entrarAnuncio();
   } else {
-    tiquesZero=0;
-    if(videoAuto&&c>1) fecharVideo();
+    if(emAnuncio&&ultimoT>=0&&Math.abs(c-ultimoT)>=0.2) sairAnuncio();
+    parado=0;
   }
+  ultimoT=c;
+}
+function apertarSkip(){
+  if(!videoAberto()||!document.getElementById("plArt").classList.contains("ad")) abrirVideoAnuncio();
+  const d=document.getElementById("adDica");
+  if(d){ d.animate&&d.animate([{opacity:.3},{opacity:1}],{duration:350,iterations:2}); }
 }
 function prog(){
   const t=T(atual); if(!t) return;
@@ -2152,7 +2217,7 @@ function tocar(id){
   document.getElementById("plLike").classList.toggle("on",DADOS.curtidas.includes(id));
   setArt(t);
   if(t.au) descobrir(t.au);
-  tiquesZero=0;
+  parado=0; ultimoT=-1; sairAnuncio();
   DADOS.ultima=id; DADOS.recentes=[id].concat((DADOS.recentes||[]).filter(x=>x!==id)).slice(0,24); salvar();
   atualizarMini(); sessaoMidia();
   if(t.real){
@@ -2312,6 +2377,7 @@ function ligarPlayer(){
   document.getElementById("plPlay").onclick=alternar;
   document.getElementById("plMini").onclick=()=>abrirMini();
   document.getElementById("plAdd").onclick=()=>modalAddPl();
+  document.getElementById("plSkip").onclick=apertarSkip;
   document.getElementById("plArtist").onclick=()=>{ const t=T(atual)||T(DADOS.ultima); const k=t&&t.arts&&t.arts[0]; if(k) ACOES.artistaR(k); };
   document.getElementById("fotoInput").onchange=e=>aplicarFoto(e.target.files&&e.target.files[0]);
   document.getElementById("plNext").onclick=()=>proxima(1);

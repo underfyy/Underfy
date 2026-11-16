@@ -16,6 +16,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://i.ytimg.com">
+<link rel="preconnect" href="https://www.youtube.com">
+<link rel="preconnect" href="https://www.google.com">
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -392,16 +394,6 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 @media(max-width:900px){.pl-info{width:auto;flex:1}}
 .pl-art{width:50px;height:50px;flex:0 0 50px;border-radius:6px;overflow:hidden;position:relative;background:var(--surface-2);cursor:pointer}
 .pl-art img,.pl-art svg{width:100%;height:100%;object-fit:cover;display:block}
-#ytHolder{position:absolute;inset:0;display:none;pointer-events:none}
-.pl-art.big #ytHolder{pointer-events:auto}
-#plX{display:none;position:absolute;top:6px;right:6px;z-index:3;width:30px;height:30px;border-radius:99px;background:rgba(18,14,22,.88);color:#fff;font-size:18px;line-height:1;place-items:center;border:1px solid var(--line)}
-.pl-art.big #plX{display:grid}
-#plX:hover{background:var(--purple)}
-#ytHolder.on{display:block}
-#ytHolder iframe{position:absolute;top:50%;left:50%;width:300px;height:169px;border:0;transform:translate(-50%,-50%) scale(.296);transform-origin:center}
-.pl-art.big{position:fixed;right:20px;bottom:96px;width:320px;height:180px;z-index:150;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.7);border:1px solid var(--line)}
-.pl-art.big #ytHolder iframe{transform:translate(-50%,-50%) scale(1.067)}
-@media(max-width:900px){.pl-art.big{right:12px;left:12px;width:auto;bottom:auto;top:66px;height:auto;aspect-ratio:16/9}.pl-art.big #ytHolder iframe{transform:translate(-50%,-50%) scale(1.2)}}
 .pl-info strong{display:block;font-family:var(--fd);font-size:.89rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pl-info .sub{font-size:.77rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .pl-mid{flex:1;display:flex;align-items:center;gap:9px;justify-content:center;min-width:0;flex-direction:column;padding:10px 0}
@@ -548,17 +540,67 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 #plSkip.pronto{background:var(--cyan);color:#08201c;border-color:var(--cyan);animation:pulsar 1.4s ease-in-out infinite}
 @keyframes pulsar{50%{box-shadow:0 0 0 7px rgba(0,245,212,.2)}}
 @media(prefers-reduced-motion:reduce){#plSkip.pronto{animation:none}}
-#adDica{display:none;position:absolute;top:0;left:0;right:42px;height:38px;align-items:center;gap:6px;padding:0 12px;font-size:.84rem;font-family:var(--fd);color:var(--text);z-index:2}
-#adDica b{color:var(--cyan)}
-.pl-art.ad{background:#000}
-.pl-art.ad #adDica{display:flex}
-.pl-art.ad #ytHolder{top:38px}
-.pl-art.big.ad{width:440px}
-@media(max-width:900px){.pl-art.big.ad{width:auto;aspect-ratio:auto}}
 @media(max-width:600px){
   .ap-player.ad #plAdd,.ap-player.ad #plLike,.ap-player.ad .icobtn.sk,.ap-player.ad .ad-tag{display:none}
   #plSkip{padding:8px 13px;font-size:.84rem}
 }
+
+/* ============ TOCANDO AGORA ============ */
+.np{margin-top:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);overflow:hidden;transition:box-shadow .25s,border-color .25s}
+.np.vazio{position:fixed;left:-9999px;top:0;width:214px;margin:0;visibility:hidden}
+.np:not(.vazio)~.lvl-box{display:none}
+.np-head{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px;min-height:40px}
+.np-tit{font-family:var(--fd);font-weight:600;font-size:.82rem;white-space:nowrap}
+.np-src{font-family:var(--fd);font-size:.66rem;color:var(--muted);border:1px solid var(--line);padding:1px 8px;border-radius:99px;white-space:nowrap}
+.np-btn{margin-left:auto;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:var(--muted)}
+.np-btn:hover{color:var(--text);background:var(--surface-3)}
+.np-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.np-video{position:relative;width:100%;aspect-ratio:1;background:#000}
+.np-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.np-video #npCapa{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.np.arquivo .np-video iframe{visibility:hidden}
+.np.carregando .np-video::after{content:"";position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:99px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--cyan);animation:girar .8s linear infinite;z-index:2;pointer-events:none}
+.np-ad{display:none;flex-direction:column;gap:2px;padding:9px 12px;background:rgba(0,245,212,.08);border-top:1px solid rgba(0,245,212,.3);font-size:.78rem;color:var(--muted)}
+.np-ad span{font-family:var(--fd);color:#ffd166;font-weight:600}
+.np-ad b{color:var(--cyan);font-weight:600}
+.np.ad{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(0,245,212,.35),0 0 34px rgba(0,245,212,.2)}
+.np.ad .np-ad{display:flex}
+.np.flash{animation:npflash .45s ease 3}
+@keyframes npflash{50%{box-shadow:0 0 0 6px rgba(0,245,212,.55),0 0 40px rgba(0,245,212,.45)}}
+.np-ext{display:block;padding:8px 12px;font-size:.76rem;color:var(--muted);border-top:1px solid var(--line)}
+.np-ext:hover{color:var(--text)}
+.np-ext[hidden]{display:none}
+.np.grande{position:fixed;right:20px;bottom:96px;width:480px;z-index:150;margin:0;box-shadow:0 22px 60px rgba(0,0,0,.65)}
+.np.grande .np-video{aspect-ratio:16/9}
+@keyframes girar{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.np.flash{animation:none}.np.carregando .np-video::after{animation-duration:2.4s}}
+@media(max-width:900px){
+  .np{position:fixed;right:12px;bottom:var(--npb,150px);width:202px;z-index:140;margin:0;box-shadow:0 16px 40px rgba(0,0,0,.6)}
+  .np.grande{left:12px;right:12px;width:auto;bottom:var(--npb,150px)}
+  .np-head{min-height:36px;padding:5px 6px 5px 10px}
+  .np-tit{display:none}
+  .np-ext{display:none}
+  body.np-on .ap-page{padding-bottom:300px}
+}
+/* botão de play carregando */
+.fab.carregando svg{opacity:0}
+.fab.carregando{position:relative}
+.fab.carregando::after{content:"";position:absolute;inset:9px;border-radius:99px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;animation:girar .8s linear infinite}
+/* volume */
+.pl-vol{display:flex;align-items:center;gap:8px}
+#plVolIco svg{width:19px;height:19px}
+#plVolIco .onda{transition:opacity .15s}
+#plVolIco.mudo .onda{opacity:0}
+#plVol{-webkit-appearance:none;appearance:none;width:92px;height:4px;border-radius:99px;background:linear-gradient(90deg,var(--purple) var(--v,85%),var(--surface-3) var(--v,85%));cursor:pointer}
+#plVol::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:99px;background:var(--text);border:0}
+#plVol::-moz-range-thumb{width:13px;height:13px;border-radius:99px;background:var(--text);border:0}
+@media(max-width:1100px){.pl-right .wave{display:none}}
+@media(max-width:900px){.pl-vol{display:none}}
+/* aviso com botões */
+.toast.acao{pointer-events:auto;border-radius:16px;flex-direction:column;align-items:flex-start;gap:9px;border-color:#ffd166}
+.toast-acts{display:flex;gap:8px;flex-wrap:wrap}
+.toast-acts button{font-family:var(--fd);font-weight:600;font-size:.82rem;padding:6px 13px;border-radius:99px;border:1px solid var(--line);background:var(--surface-2);color:var(--text)}
+.toast-acts button:first-child{background:var(--purple);border-color:var(--purple)}
 </style>
 </head>
 <body>
@@ -594,6 +636,13 @@ button{background:none;border:none;cursor:pointer;color:inherit}
       <span class="wordmark">Underfy</span>
     </div>
     <nav class="ap-nav" id="nav"></nav>
+    <section class="np vazio" id="np" aria-label="Tocando agora">
+      <div class="np-head"><span class="np-tit">Tocando agora</span><span class="np-src" id="npSrc"></span>
+        <button class="np-btn" id="npSize" aria-label="Aumentar vídeo" title="Aumentar ou diminuir"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 15v5h-5"/></svg></button></div>
+      <div class="np-video"><div id="ytFrame"></div><img id="npCapa" alt="" hidden></div>
+      <div class="np-ad" role="status"><span>Anúncio do YouTube</span><b id="npAdTxt">Toque em Pular no canto do vídeo ↘</b></div>
+      <a class="np-ext" id="npExt" target="_blank" rel="noopener" hidden>Abrir no YouTube ↗</a>
+    </section>
     <div class="lvl-box desk-only" id="lvlBox"></div>
   </aside>
 
@@ -618,11 +667,8 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 
   <div class="ap-player">
     <div class="pl-info">
-      <div class="pl-art" id="plArt" title="Clique para ver o vídeo">
-        <button id="plX" aria-label="Fechar vídeo">×</button>
-        <div id="adDica">Toque em <b>Pular</b> no canto de baixo do vídeo ↘</div>
-        <div id="ytHolder"><div id="ytFrame"></div></div>
-        <svg id="plImg" viewBox="0 0 100 100" aria-hidden="true"></svg>
+      <div class="pl-art" id="plArt" role="button" tabindex="0" title="Mostrar o vídeo">
+        <svg viewBox="0 0 100 100" aria-hidden="true"></svg>
       </div>
       <div style="min-width:0">
         <strong id="plTitle">Underfy</strong>
@@ -642,6 +688,8 @@ button{background:none;border:none;cursor:pointer;color:inherit}
       <div class="ad-bar" aria-live="polite"><span class="ad-tag">Anúncio</span><button id="plSkip">Pular anúncio</button></div>
     </div>
     <div class="pl-right">
+      <div class="pl-vol"><button class="icobtn" id="plVolIco" aria-label="Volume (tocar para silenciar)"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="onda" d="M16 9a4 4 0 010 6M18.5 6.5a7.5 7.5 0 010 11"/></svg></button>
+        <input type="range" id="plVol" min="0" max="100" step="1" aria-label="Volume"></div>
       <button class="icobtn" id="plAdd" aria-label="Adicionar à playlist" title="Adicionar à playlist"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
       <button class="icobtn" id="plMini" aria-label="Mini player flutuante" title="Mini player flutuante"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><rect x="12" y="11" width="7" height="6" rx="1"/></svg></button>
       <button class="icobtn" id="plLike" aria-label="Curtir"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9a4 4 0 017-2.6A4 4 0 0119 11c0 4.6-7 9-7 9z"/></svg></button>
@@ -926,18 +974,6 @@ const GENEROS=[
    5. OBRAS DA PLATAFORMA (música, poema, microconto, arte)
    ================================================================= */
 const obras=[
- {id:"m1",tipo:"musica",t:"Concreto Molhado",au:"naya",art:0,dur:"3:26",sub:"Colab de 4 artistas",gen:["rap","poesia"]},
- {id:"m2",tipo:"musica",t:"Fumaça no Viaduto",au:"base",art:1,dur:"2:48",sub:"88 BPM · Ré menor",gen:["rap","lofi"],vaga:"procura voz"},
- {id:"m3",tipo:"musica",t:"Assis 3 da Manhã",au:"teo",art:2,dur:"3:02",sub:"140 BPM · drill",gen:["trap","dark"],vaga:"procura mixagem"},
- {id:"m4",tipo:"musica",t:"Litoral Sujo",au:"lu",art:3,dur:"2:14",sub:"Esboço de melodia",gen:["dark","lofi"],vaga:"procura arranjo"},
- {id:"m5",tipo:"musica",t:"Maracatu de Bolso",au:"rafa",art:4,dur:"4:11",sub:"Colab de 2 artistas",gen:["rap","experimental"]},
- {id:"m6",tipo:"musica",t:"Ruído de Fundo",au:"lu",art:5,dur:"3:05",sub:"Voz e fita",gen:["dark","lofi"]},
- {id:"m7",tipo:"musica",t:"Vinil de Feira",au:"base",art:6,dur:"3:40",sub:"Sample de cavaquinho",gen:["rap","lofi"],vaga:"procura letra"},
- {id:"m8",tipo:"musica",t:"Sem Sinal",au:"neko",art:7,dur:"2:33",sub:"Guitarra e ruído",gen:["emo","experimental"],vaga:"procura voz"},
- {id:"m9",tipo:"musica",t:"Último Trem",au:"lunna",art:8,dur:"3:47",sub:"Ao vivo no ensaio",gen:["emo","rock"]},
- {id:"m10",tipo:"musica",t:"Corda Bamba",au:"dri",art:9,dur:"2:52",sub:"Sanfona distorcida",gen:["experimental","rock"],vaga:"procura voz"},
- {id:"m11",tipo:"musica",t:"Chuva no Ver-o-Peso",au:"mig",art:10,dur:"4:02",sub:"Gravado na rua",gen:["lofi","experimental"]},
- {id:"m12",tipo:"musica",t:"Baixo Alto",au:"iza",art:11,dur:"3:19",sub:"Trio, uma tomada",gen:["rock","dark"]},
 
  {id:"p1",tipo:"poema",t:"Cidade Morta",au:"naya",art:12,gen:["poesia","dark"],
   texto:"A cidade dorme de olho aberto.\nQuem não tem casa decorou o horário\nde cada luz que apaga."},
@@ -1009,14 +1045,16 @@ function indexarArtistas(){
   [...ARTS.values()].sort((a,b)=>b.fama-a.fama).forEach(x=>{
     const peso=id=>{ const ar=CAT[id].arts||[]; return ar.length===1?0:ar[0]===x.k?1:2; };
     const cand=x.ids.slice().sort((a,b)=>peso(a)-peso(b));
-    const id=cand.find(i=>peso(i)<2&&!usadas.has(CAT[i].vid))||cand.find(i=>!usadas.has(CAT[i].vid));
+    const id=cand.find(i=>CAT[i].vid&&peso(i)<2&&!usadas.has(CAT[i].vid))||cand.find(i=>CAT[i].vid&&!usadas.has(CAT[i].vid));
     if(id){ x.vid=CAT[id].vid; usadas.add(x.vid); }
+    else { const c=x.ids.map(i=>CAT[i].capa).find(Boolean); if(c) x.capa=c; }
   });
 }
 const AR=k=>ARTS.get(k);
 /* foto do artista: a capa exclusiva dele, ou um círculo com as iniciais */
 function fotoArt(a){
   if(a.vid) return ytImg(a.vid,"round");
+  if(a.capa) return '<img class="cover round" loading="lazy" alt="" src="'+esc(a.capa)+'">';
   const n=sorte(a.k)*360|0;
   return '<svg class="cover round" viewBox="0 0 100 100" role="img" aria-label="'+esc(a.nome)+'"><defs><linearGradient id="ga-'+a.k+'" x1="0" y1="0" x2="1" y2="1">'+
     '<stop offset="0" stop-color="hsl('+(270+n%40)+',62%,52%)"/><stop offset="1" stop-color="hsl('+(160+n%30)+',85%,40%)"/></linearGradient></defs>'+
@@ -1052,7 +1090,7 @@ function motivo(k,g){
 }
 function recomendar(n,excluir){
   const g=perfilGosto(), dia=new Date().toDateString(), rec=(DADOS.recentes||[]).slice(0,6), ex=new Set(excluir||[]);
-  return idsReais.filter(id=>!ex.has(id)).map(id=>{
+  return idsReais.filter(id=>!ex.has(id)&&!CAT[id].indisponivel).map(id=>{
     const t=CAT[id]; let sc=0, best=null, bv=0;
     (t.arts||[]).forEach(k=>{ const v=g.w.get(k)||0; sc+=v; if(v>bv){ bv=v; best=k; } });
     if(g.vazio) sc+=(t.arts||[]).reduce((m,k)=>Math.max(m,AR(k).fama),0)/90;
@@ -1068,10 +1106,44 @@ let idsReais=[];
 function montarCatalogo(){
   Object.keys(CAT).forEach(k=>{ if(CAT[k].real) delete CAT[k]; });
   idsReais=REAL.map(r=>{ const id="y-"+r.vid; const pl=PLAYLISTS[r.pl||0]||PLAYLISTS[0]; CAT[id]={id:id,vid:r.vid,t:r.t,a:r.a||"Trap BR",sub:"",pl:r.pl||0,real:true}; return id; });
+  /* músicas próprias autorizadas: se for a mesma música de um vídeo do YouTube, o arquivo toca no lugar dele */
+  PROPRIAS.forEach(p=>{
+    const chave=norm(p.t)+"|"+norm(nomesDe(p.a,p.t)[0]||p.a);
+    const yid=idsReais.find(id=>(p.vid&&CAT[id].vid===p.vid)||norm(CAT[id].t)+"|"+norm(nomesDe(CAT[id].a,CAT[id].t)[0]||CAT[id].a)===chave);
+    if(yid){ Object.assign(CAT[yid],{src:p.src,fonte:p.fonte,aut:p.aut}); if(p.capa) CAT[yid].capa=p.capa; return; }
+    const id="u-"+(norm(p.a)+"-"+norm(p.t)).slice(0,60);
+    if(CAT[id]) return;
+    CAT[id]={id:id,t:p.t,a:p.a,src:p.src,fonte:p.fonte,aut:p.aut,capa:p.capa,vid:p.vid,sub:"",real:true};
+    idsReais.push(id);
+  });
   indexarArtistas(); recHome=null;
 }
+/* ---------- músicas próprias autorizadas ----------
+   Lidas de musicas/catalogo.json (no mesmo repositório do site). Cada item precisa de
+   titulo, artista, arquivo (.mp3, .wav, .ogg, .m4a, .aac ou .flac) e autorizacao (quem autorizou e quando).
+   Item sem autorização não entra. */
+let PROPRIAS=[];
+const RX_AUDIO=/^(https:\/\/|musicas\/)[^\s"'<>()]+\.(mp3|wav|ogg|m4a|aac|flac)(\?[^\s"'<>()]*)?$/i;
+const RX_CAPA=/^(https:\/\/|musicas\/)[^\s"'<>()]+\.(jpe?g|png|webp)(\?[^\s"'<>()]*)?$/i;
+function validarPropria(x){
+  if(!x||typeof x!=="object") return null;
+  const t=String(x.titulo||"").trim().slice(0,120), a=String(x.artista||"").trim().slice(0,120);
+  const src=String(x.arquivo||"").trim(), aut=String(x.autorizacao||"").trim(), capa=String(x.capa||"").trim();
+  if(!t||!a||!aut||!RX_AUDIO.test(src)) return null;
+  return {t:t,a:a,src:src,aut:aut.slice(0,200),capa:RX_CAPA.test(capa)?capa:"",
+    fonte:x.fonte==="EXTERNAL_AUTHORIZED"?"EXTERNAL_AUTHORIZED":"UNDERFY_STORAGE",
+    vid:/^[\w-]{11}$/.test(String(x.youtube||""))?x.youtube:null};
+}
+async function carregarProprias(){
+  try{
+    const r=await fetch("musicas/catalogo.json",{cache:"no-cache"});
+    if(!r.ok) return;
+    const l=await r.json(); if(!Array.isArray(l)) return;
+    PROPRIAS=l.slice(0,500).map(validarPropria).filter(Boolean);
+    if(PROPRIAS.length){ montarCatalogo(); if(USER) render(); }
+  }catch(e){}
+}
 let recHome=null;
-obras.filter(o=>o.tipo==="musica").forEach(o=>CAT[o.id]={id:o.id,t:o.t,a:A(o.au).nome,sub:o.sub,art:o.art,dur:o.dur,vaga:o.vaga,au:o.au});
 const T=id=>CAT[id];
 montarCatalogo();
 
@@ -1124,7 +1196,7 @@ document.addEventListener("error",e=>{
   if(s===0){el.dataset.step="1";el.src=thumb(el.dataset.vid,"hq720");}
   else if(s===1){el.dataset.step="2";el.src=thumb(el.dataset.vid,"mqdefault");}
 },true);
-const capaFaixa=(tr,cls)=>tr.real?ytImg(tr.vid,cls):svgCover(tr.art,cls);
+const capaFaixa=(tr,cls)=>tr.capa?'<img class="cover '+(cls||"")+'" loading="lazy" alt="" src="'+esc(tr.capa)+'">':tr.vid?ytImg(tr.vid,cls):svgCover(tr.art||3,cls);
 const capaObra=(o,cls)=>svgCover(o.art,cls);
 
 /* =================================================================
@@ -1405,8 +1477,8 @@ VIEWS.inicio=()=>{
 
   /* destaque: a melhor recomendação do momento */
   const r0=recs[0], t0=T(r0.id), k0=(t0.arts||[])[0];
-  h+='<section class="hero" style="--hero:url('+thumb(t0.vid,"hqdefault")+')"'+fila("rec",recs.map(x=>x.id))+'>'+
-     '<div class="hero-art">'+ytImg(t0.vid)+'</div><div class="hero-txt"><span class="hero-tag">'+esc(r0.motivo)+'</span>'+
+  h+='<section class="hero" style="--hero:url('+capaUrl(t0)+')"'+fila("rec",recs.map(x=>x.id))+'>'+
+     '<div class="hero-art">'+capaFaixa(t0)+'</div><div class="hero-txt"><span class="hero-tag">'+esc(r0.motivo)+'</span>'+
      '<h2>'+esc(t0.t)+'</h2><p>'+esc(t0.a)+'</p></div><div class="hero-acts">'+
      '<button class="btn btn-primary" data-a="tocar" data-v="'+t0.id+'">'+playIco+' Tocar</button>'+
      (k0?'<button class="btn btn-ghost" data-a="artistaR" data-v="'+k0+'">Ver artista</button>':'')+'</div></section>';
@@ -1450,7 +1522,7 @@ VIEWS.artistaR=()=>{
   const seg=(DADOS.seguindoArt||[]).includes(a.k);
   const parc=[...a.parc.entries()].sort((x,y)=>y[1]-x[1]).map(([k])=>AR(k)).filter(Boolean).slice(0,10);
   let h='<button class="back" data-a="voltar">← voltar</button>';
-  h+='<section class="hero ar-head" style="--hero:url('+thumb(a.vid||CAT[a.ids[0]].vid,"hqdefault")+')"><div class="hero-art">'+fotoArt(a)+'</div>'+
+  h+='<section class="hero ar-head" style="--hero:url('+(a.vid?thumb(a.vid,"hqdefault"):a.capa||capaUrl(CAT[a.ids[0]]))+')"><div class="hero-art">'+fotoArt(a)+'</div>'+
      '<div class="hero-txt"><span class="hero-tag">Artista</span><h1>'+esc(a.nome)+'</h1>'+
      '<p>'+a.ids.length+(a.ids.length>1?" músicas":" música")+' no Underfy'+(parc.length?' · gravou com '+parc.length+(parc.length>1?" artistas":" artista"):'')+'</p></div>'+
      '<div class="hero-acts"><button class="btn btn-primary" data-a="tocarArt" data-v="'+a.k+'">'+playIco+' Tocar</button>'+
@@ -1476,8 +1548,8 @@ VIEWS.descobrir=()=>{
     '<span class="week-tag">Artista da semana na plataforma</span><h2>'+esc(sem.nome)+'</h2>'+
     '<p class="loc">'+esc(sem.cidade)+', '+sem.uf+' · '+nfmt(sem.ouv)+' reproduções</p>'+
     '<p>'+esc(sem.bio)+'</p><div class="week-acts">'+
-    '<button class="btn btn-primary" data-a="ouvirArtista" data-v="'+sem.id+'">Ouvir agora</button>'+
-    '<button class="btn btn-ghost" data-a="artista" data-v="'+sem.id+'">Ver perfil</button></div></div></div></section>';
+    '<button class="btn btn-primary" data-a="artista" data-v="'+sem.id+'">Ver perfil</button>'+
+    '<button class="btn btn-ghost" data-a="seguir" data-v="'+sem.id+'">'+(DADOS.seguindo.includes(sem.id)?"Seguindo":"Seguir")+'</button></div></div></div></section>';
 
   h+='<div class="vibe-box"><h2 style="font-size:1.2rem;margin-bottom:6px">Descubra sua vibe</h2>'+
     '<p style="color:var(--muted);font-size:.89rem;margin-bottom:18px">Marque quantas quiser.</p><div class="chips">'+
@@ -1518,7 +1590,7 @@ function linhaItem(it,i){
     return '<button class="trow'+(atual===it.id?" playing":"")+'" data-a="tocar" data-v="'+it.id+'">'+
      '<span class="num">'+String(i).padStart(2,"0")+'</span><span class="thumb">'+capaFaixa(t)+'</span>'+
      '<span class="tinfo"><strong>'+esc(t.t)+'</strong><span>'+esc(t.a)+'</span></span>'+
-     '<span class="src">'+(t.real?"YouTube":"música")+'</span></button>';
+     '<span class="src">'+(NOME_FONTE[fonteDe(t)]||"")+'</span></button>';
   }
   const o=O(it.id),a=A(o.au);
   return '<button class="trow" data-a="abrir" data-v="'+o.id+'">'+
@@ -1548,9 +1620,9 @@ VIEWS.buraco=()=>{
    '<div class="fundo">'+avatar(fundo,"lg")+
      '<h3>'+esc(fundo.nome)+'</h3><p class="loc">'+esc(fundo.cidade)+', '+fundo.uf+'</p>'+
      '<p class="ouv">🎧 '+nfmt(fundo.ouv)+' ouvintes</p>'+
-     '<div class="btns"><button class="btn btn-primary" data-a="ouvirArtista" data-v="'+fundo.id+'">Ouvir</button>'+
-     '<button class="btn btn-ghost" data-a="artista" data-v="'+fundo.id+'">Ver perfil</button></div></div>'+
-   '<p style="color:var(--muted);font-size:.83rem;margin-top:22px">Ouvir alguém daqui vale 15 XP. Descobrir cedo é o esporte da casa.</p>'+
+     '<div class="btns"><button class="btn btn-primary" data-a="artista" data-v="'+fundo.id+'">Conhecer</button>'+
+     '<button class="btn btn-ghost" data-a="seguir" data-v="'+fundo.id+'">'+(DADOS.seguindo.includes(fundo.id)?"Seguindo":"Seguir")+'</button></div></div>'+
+   '<p style="color:var(--muted);font-size:.83rem;margin-top:22px">Descobrir alguém daqui vale XP. Descobrir cedo é o esporte da casa.</p>'+
    '</div></div>';
   h+='<h2 class="sec-h">Fundo do poço, por ouvintes</h2>'+
    '<p class="ap-sub">Nenhum destes passou de 1.500 reproduções. Alguns vão passar.</p>'+
@@ -1600,10 +1672,10 @@ function cardObra(o){
 /* ---------- UNDERFEED ---------- */
 let posts=[
  {id:1,au:"naya",tempo:"há 2 h",tipo:"Letra",obra:"p5",txt:"Achei isso num caderno de 2019. Alguém topa transformar em faixa?",procura:"produtor com beat lento, 70 a 80 BPM",likes:128,cm:[{q:"base",t:"Tenho um instrumental parado que é exatamente isso. Te mando hoje."}]},
- {id:2,au:"base",tempo:"há 5 h",tipo:"Instrumental",faixa:"m2",txt:"Sample de cavaquinho que gravei na feira. Precisa de voz.",procura:"vocalista ou rapper para fechar dois versos",likes:341,cm:[{q:"rafa",t:"Essa ficou absurda. Manda o stem."},{q:"lu",t:"Se ninguém pegar até sexta eu pego."}]},
+ {id:2,au:"base",tempo:"há 5 h",tipo:"Instrumental",txt:"Sample de cavaquinho que gravei na feira. Precisa de voz.",procura:"vocalista ou rapper para fechar dois versos",likes:341,cm:[{q:"rafa",t:"Essa ficou absurda. Manda o stem."},{q:"lu",t:"Se ninguém pegar até sexta eu pego."}]},
  {id:3,au:"vera",tempo:"há 8 h",tipo:"Arte",obra:"a1",txt:"Colei na esquina da Sete ontem à noite. Quem quiser usar de capa, é só falar.",procura:"faixa que combine com isso",likes:207,cm:[]},
  {id:4,au:"kaio",tempo:"há 1 d",tipo:"Microconto",obra:"c1",txt:"Escrevi pensando no meu vizinho de verdade. Ele nunca vai ler.",procura:"alguém que leia isso em voz alta sobre uma trilha",likes:96,cm:[{q:"mig",t:"Faço a trilha. Tenho uma textura de fita perfeita."}]},
- {id:5,au:"teo",tempo:"há 2 d",tipo:"Faixa",faixa:"m3",txt:"Interior também tem madrugada. Falta mixagem.",procura:"engenheiro de mixagem",likes:203,cm:[]}
+ {id:5,au:"teo",tempo:"há 2 d",tipo:"Faixa",txt:"Interior também tem madrugada. Falta mixagem.",procura:"engenheiro de mixagem",likes:203,cm:[]}
 ];
 let postsUsuarios=[];
 const achaPost=v=>postsUsuarios.find(x=>x.id==v)||posts.find(x=>x.id==v);
@@ -1748,7 +1820,6 @@ VIEWS.artista=()=>{
   h+='<p class="prof-bio">'+esc(a.bio)+'</p>';
   h+='<div class="stats"><div class="stat"><b>'+nfmt(a.ouv)+'</b><span>reproduções</span></div>'+
    '<div class="stat"><b>+'+a.cres+'%</b><span>nos últimos 30 dias</span></div>'+
-   '<div class="stat"><b>'+mus.length+'</b><span>faixas</span></div>'+
    '<div class="stat"><b>'+txt.length+'</b><span>textos e artes</span></div>'+
    '<div class="stat"><b>'+a.gen.length+'</b><span>estilos</span></div></div>';
   h+='<div class="chips">'+a.gen.map(g=>{const G=GENEROS.find(x=>x.id===g);return '<span class="chip">'+(G?G.em+" "+G.n:g)+'</span>';}).join("")+'</div>';
@@ -1840,7 +1911,7 @@ const ACOES={
   gen:v=>{ filtroGen.includes(v)?filtroGen=filtroGen.filter(x=>x!==v):filtroGen.push(v); render(); },
   limparGen:()=>{ filtroGen=[]; sessao=null; render(); },
   montar:()=>{
-    const fx=Object.keys(CAT).filter(id=>{const o=O(id); return o?o.gen.some(g=>filtroGen.includes(g)):filtroGen.includes("trap")||filtroGen.includes("rap");});
+    const fx=recomendar(24).map(x=>x.id);
     const ob=obras.filter(o=>o.tipo!=="musica"&&o.gen.some(g=>filtroGen.includes(g)));
     const mix=[];
     const emb=a=>a.slice().sort(()=>Math.random()-.5);
@@ -1878,9 +1949,9 @@ const ACOES={
     const peq=s.includes("pequen")||s.includes("desconhec")||s.includes("ninguém");
     let arts=artistas.filter(a=>a.gen.some(g=>gens.includes(g)));
     if(peq) arts=arts.filter(a=>a.ouv<2500);
-    const fx=obras.filter(o=>o.tipo==="musica"&&o.gen.some(g=>gens.includes(g))).map(o=>({k:"faixa",id:o.id}));
+    const fx=(peq?artistasPorFama().filter(a=>a.fama<1000&&a.ids.length===1).map(a=>a.ids[0]).slice(-12):recomendar(5).map(x=>x.id)).map(id=>({k:"faixa",id:id}));
     const tx=obras.filter(o=>o.tipo!=="musica"&&o.gen.some(g=>gens.includes(g))).map(o=>({k:"obra",id:o.id}));
-    const extra=peq?[]:recomendar(3).map(x=>({k:"faixa",id:x.id}));
+    const extra=[];
     iaRes={q:q,itens:fx.slice(0,5).concat(extra).concat(tx.slice(0,3)),arts:arts.slice(0,4)};
     if(!iaRes.itens.length){ toast("Não achei nada com essa vibe ainda."); return; }
     xp(3,"descoberta por vibe"); render();
@@ -1896,13 +1967,6 @@ const ACOES={
   sincronizar:()=>{ toast("Lendo as playlists no YouTube…"); sincronizarPlaylist(true); },
   instalar:()=>instalarApp(),
   mini:()=>abrirMini(),
-  ouvirArtista:v=>{
-    const m=obras.find(o=>o.tipo==="musica"&&o.au===v);
-    descobrir(v);
-    const a=A(v);
-    if(a&&a.ouv<1500) xp(15,"descoberta n'O Buraco");
-    if(m) tocar(m.id); else toast(a.nome+" ainda não subiu faixa. Veja os textos no perfil.");
-  },
   abrir:v=>{
     const o=O(v); if(!o) return;
     descobrir(o.au);
@@ -2092,26 +2156,42 @@ function mostrarQR(){
 /* =================================================================
    15. PLAYER
    ================================================================= */
+/* -----------------------------------------------------------------
+   Fontes de música
+   - YOUTUBE: player oficial, sempre visível no cartão "Tocando agora"
+     (o YouTube exige no mínimo 200 × 200 px para players incorporados).
+   - UNDERFY_STORAGE: arquivo hospedado pelo Underfy (pasta musicas/ do site
+     ou, no futuro, Firebase Storage).
+   - EXTERNAL_AUTHORIZED: arquivo de outra fonte, com autorização registrada.
+   Se a faixa tem arquivo próprio autorizado, ele toca no lugar do YouTube.
+   Nunca tocam duas fontes ao mesmo tempo.
+   ----------------------------------------------------------------- */
 let yt=null,ytPronto=false,ytFalhou=false,pendente=null;
-let atual=null,tocandoAgora=false,tick=null,simSec=0,simTotal=200;
+let atual=null,tocandoAgora=false,tick=null;
 let aleatorio=false,pausaManual=false,ytApi=false,errosSeguidos=0,syncFeito=false;
+let fonteAtual=null,tCarga=null,tAutoPulo=null;
+const audio=new Audio(); audio.preload="metadata";
 const fmt=s=>{s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
-const d2s=d=>{const p=String(d||"").split(":");return p.length===2?(+p[0])*60+(+p[1]):200;};
+const fonteDe=t=>!t?null:t.src?(t.fonte||"UNDERFY_STORAGE"):t.vid?"YOUTUBE":null;
+const NOME_FONTE={YOUTUBE:"YouTube",UNDERFY_STORAGE:"Underfy",EXTERNAL_AUTHORIZED:"Fonte autorizada"};
+let VOL=(()=>{ const v=store.get("underfy.volume"); return typeof v==="number"?Math.min(100,Math.max(0,v)):85; })();
+const $id=id=>document.getElementById(id);
 
 window.onYouTubeIframeAPIReady=function(){
   ytApi=true;
-  yt=new YT.Player("ytFrame",{height:"169",width:"300",videoId:REAL[0].vid,
-   playerVars:{controls:0,disablekb:1,modestbranding:1,rel:0,playsinline:1,fs:0},
+  const vars={playsinline:1,rel:0,controls:1,fs:1};
+  if(/^https?:$/.test(location.protocol)) vars.origin=location.origin;
+  yt=new YT.Player("ytFrame",{width:"100%",height:"100%",playerVars:vars,
    events:{
-     onReady:()=>{ytPronto=true; if(pendente){const p=pendente;pendente=null;tocar(p);}},
+     onReady:()=>{ ytPronto=true; try{ yt.setVolume(VOL); }catch(e){} if(pendente){ const p=pendente; pendente=null; tocar(p); } },
      onStateChange:e=>{
-       if(e.data===1){ errosSeguidos=0; pausaManual=false; setUI(true); }
-       if(e.data===2) setUI(false);
-       if(e.data===0) proxima(1);
+       if(fonteAtual!=="YOUTUBE") return;
+       if(e.data===1){ errosSeguidos=0; pausaManual=false; fimCarga(); setUI(true); }
+       if(e.data===2){ setUI(false); }
+       if(e.data===0){ fimDoTrecho(); proxima(1); }
      },
-     onError:()=>{ const t=T(atual); errosSeguidos++;
-       if(errosSeguidos<=3){ toast("O YouTube não libera “"+(t?t.t:"essa faixa")+"” fora do site dele. Indo para a próxima."); proxima(1); }
-       else{ toast("Várias faixas seguidas falharam. Confira a conexão."); setUI(false); } }
+     onError:e=>{ if(fonteAtual==="YOUTUBE") falhaFaixa(T(atual),e&&e.data); },
+     onAutoplayBlocked:()=>{ if(fonteAtual!=="YOUTUBE") return; fimCarga(); setUI(false); toast("O navegador pediu um toque: aperte o play para começar."); }
    }});
   iniciarSync();
 };
@@ -2120,128 +2200,205 @@ function iniciarSync(){
   if(syncFeito||!ytApi||!USER) return; syncFeito=true;
   setTimeout(()=>{ catPronto.then(()=>sincronizarPlaylist(false)); },1200);
 }
-setTimeout(()=>{ if(!ytPronto) ytFalhou=true; },8000);
+setTimeout(()=>{ if(!ytPronto) ytFalhou=true; },10000);
 
 function setUI(v){
   tocandoAgora=v;
-  document.getElementById("plWave").classList.toggle("static",!v);
-  document.getElementById("plIcon").innerHTML=v?'<path d="M7 4h4v16H7zM13 4h4v16h-4z"/>':'<path d="M7 4l13 8-13 8z"/>';
+  $id("plWave").classList.toggle("static",!v);
+  $id("plIcon").innerHTML=v?'<path d="M7 4h4v16H7zM13 4h4v16h-4z"/>':'<path d="M7 4l13 8-13 8z"/>';
+  $id("plPlay").setAttribute("aria-label",v?"Pausar":"Reproduzir");
   clearInterval(tick); if(v) tick=setInterval(prog,500);
   atualizarMini();
   try{ if("mediaSession" in navigator) navigator.mediaSession.playbackState=v?"playing":"paused"; }catch(e){}
 }
+
+/* ---------- carregando / erro ---------- */
+function iniciarCarga(t){
+  clearTimeout(tCarga); clearTimeout(tAutoPulo);
+  $id("plPlay").classList.add("carregando"); $id("np").classList.add("carregando");
+  tCarga=setTimeout(()=>{ if(atual===t.id&&!tocandoAgora) falhaFaixa(t,"tempo"); },15000);
+}
+function fimCarga(){ clearTimeout(tCarga); $id("plPlay").classList.remove("carregando"); $id("np").classList.remove("carregando"); }
+const MOTIVOS={2:"o endereço desta faixa é inválido",5:"este navegador não conseguiu tocar a faixa",100:"o vídeo foi removido ou ficou privado",
+  101:"quem publicou não deixa tocar fora do YouTube",150:"quem publicou não deixa tocar fora do YouTube",153:"o YouTube recusou a origem do site",
+  tempo:"a faixa demorou demais para carregar",arquivo:"o arquivo de áudio não abriu",semyt:"o player do YouTube não carregou"};
+const linkOrigem=t=>t&&t.vid?"https://www.youtube.com/watch?v="+t.vid:(t&&t.src)||"";
+function falhaFaixa(t,cod){
+  fimCarga(); setUI(false); sairAnuncio();
+  if(!t) return;
+  if(cod!=="tempo"&&cod!=="semyt") t.indisponivel=true;
+  errosSeguidos++;
+  $id("plArtist").textContent=t.a+" · indisponível aqui";
+  const acoes=[];
+  if(linkOrigem(t)) acoes.push({txt:t.vid?"Abrir no YouTube":"Abrir arquivo",fn:()=>window.open(linkOrigem(t),"_blank","noopener")});
+  if(cod==="tempo"||cod==="semyt") acoes.push({txt:"Tentar de novo",fn:()=>tocar(t.id)});
+  else acoes.push({txt:"Próxima",fn:()=>proxima(1)});
+  toastAcao("Não deu para tocar “"+t.t+"”: "+(MOTIVOS[cod]||"erro desconhecido")+".",acoes);
+  /* faixa bloqueada pelo dono: segue para a próxima sozinho (até 3 seguidas, para não ficar em looping) */
+  if(cod!=="tempo"&&cod!=="semyt"&&errosSeguidos<=3){
+    const id=t.id; tAutoPulo=setTimeout(()=>{ if(atual===id) proxima(1); },4500);
+  }
+}
+function toastAcao(msg,acoes){
+  const box=$id("toasts"),t=document.createElement("div");
+  t.className="toast acao"; t.setAttribute("role","alert");
+  t.innerHTML='<span></span><span class="toast-acts"></span>';
+  t.querySelector("span").textContent=msg;
+  const sair=()=>{ t.style.transition="opacity .3s"; t.style.opacity="0"; setTimeout(()=>t.remove(),300); };
+  acoes.forEach(a=>{ const b=document.createElement("button"); b.textContent=a.txt;
+    b.onclick=()=>{ clearTimeout(tAutoPulo); sair(); a.fn(); }; t.querySelector(".toast-acts").appendChild(b); });
+  box.appendChild(t); setTimeout(sair,7000);
+}
+window.addEventListener("offline",()=>toast("Sem conexão. A música volta a tocar quando a internet voltar."));
+window.addEventListener("online",()=>toast("Conexão de volta."));
+
+/* ---------- cartão "Tocando agora" ---------- */
+function capaUrl(t,q){ return !t?"":t.capa||(t.vid?thumb(t.vid,q||"hqdefault"):""); }
+function posicionarNp(){
+  const np=$id("np"), bar=document.querySelector(".ap-player"); if(!np||!bar) return;
+  np.style.setProperty("--npb",(innerHeight-bar.getBoundingClientRect().top+10)+"px");
+}
+window.addEventListener("resize",posicionarNp);
+function pintarNp(t){
+  const np=$id("np"), f=fonteDe(t);
+  np.classList.remove("vazio"); document.body.classList.add("np-on");
+  np.classList.toggle("arquivo",f!=="YOUTUBE");
+  $id("npSrc").textContent=NOME_FONTE[f]||"";
+  const capa=$id("npCapa"); if(f!=="YOUTUBE"){ capa.src=capaUrl(t)||""; capa.hidden=!capa.src; } else capa.hidden=true;
+  const ext=$id("npExt"); ext.href=linkOrigem(t); ext.hidden=!ext.href||f!=="YOUTUBE";
+  posicionarNp();
+}
+function pintarFaixa(t){
+  $id("plTitle").textContent=t.t;
+  $id("plArtist").textContent=t.a+" · "+(NOME_FONTE[fonteDe(t)]||"");
+  $id("plLike").classList.toggle("on",DADOS.curtidas.includes(t.id));
+  const art=$id("plArt"), u=capaUrl(t,"mqdefault");
+  art.innerHTML=u?'<img alt="" src="'+u+'">':svgCover(3).replace('class="cover "','');
+  art.setAttribute("aria-label","Capa de "+t.t);
+}
+function npGrande(v){
+  const np=$id("np"); np.classList.toggle("grande",v);
+  $id("npSize").setAttribute("aria-label",v?"Diminuir vídeo":"Aumentar vídeo");
+  $id("npSize").innerHTML=v?'<svg viewBox="0 0 24 24"><path d="M9 4v5H4M15 20v-5h5"/></svg>':'<svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 15v5h-5"/></svg>';
+  posicionarNp();
+}
+
 /* ---------- anúncios do YouTube ----------
-   O Underfy não consegue apertar o "Pular" do YouTube (o vídeo roda numa área protegida dele).
-   O que ele faz: percebe o anúncio (a música "tocando" com o tempo parado por 3 s), mostra
-   a etiqueta Anúncio e o botão Pular anúncio na barra, conta até o YouTube liberar o pulo e,
-   no toque, abre o vídeo grande apontando onde fica o botão. Quando a música anda, tudo some. */
-let videoAuto=false, parado=0, ultimoT=-1, emAnuncio=false, adDesde=0, adTimer=null;
-const videoAberto=()=>document.getElementById("plArt").classList.contains("big");
-const iframeYT=()=>document.querySelector("#ytHolder iframe");
-function abrirVideo(auto){ videoAuto=!!auto; document.getElementById("plArt").classList.add("big"); }
-function fecharVideo(){
-  videoAuto=false;
-  const art=document.getElementById("plArt"); art.classList.remove("big","ad"); art.style.height="";
-  const f=iframeYT(); if(f) f.style.cssText="";
+   O Underfy não pula o anúncio sozinho: o botão "Pular" é do YouTube e fica dentro do vídeo.
+   Como o vídeo agora está sempre visível, o "Pular" fica ao alcance de um toque.
+   O Underfy percebe o anúncio pela duração do trecho que está tocando
+   (anúncios costumam ter de 6 a 60 s; e o Underfy aprende a duração real de cada música),
+   acende o aviso e aponta onde fica o botão. */
+const LIMITE_AD=61;
+const DURS=store.get("underfy.duracoes")||{};
+let trecho=null, emAnuncio=false, adAuto=false;
+function salvarDurs(){ const ks=Object.keys(DURS); if(ks.length>600) ks.slice(0,ks.length-600).forEach(k=>delete DURS[k]); store.set("underfy.duracoes",DURS); }
+function julgarTrecho(vid,trocou,anterior){
+  const d=trecho.d, k=DURS[vid];
+  let ad;
+  if(k&&!(trocou&&anterior&&!anterior.ad&&d>k+2)) ad=Math.abs(d-k)>2;
+  else if(trocou&&anterior) ad=anterior.ad?false:d<=LIMITE_AD;
+  else ad=d<=LIMITE_AD;
+  /* trocou de trecho e o novo é maior que o anterior "conteúdo": o anterior era um anúncio longo */
+  if(trocou&&anterior&&!anterior.ad&&k&&d>k+2){ ad=false; }
+  trecho.ad=ad;
+  if(ad) entrarAnuncio(); else sairAnuncio();
 }
-function abrirVideoAnuncio(){
-  const art=document.getElementById("plArt");
-  art.classList.add("big","ad"); videoAuto=true;
-  const w=art.clientWidth, h=Math.round(w*9/16);
-  art.style.height=(h+38)+"px";
-  const f=iframeYT(); if(f) f.style.cssText="top:0;left:0;transform:none;width:"+w+"px;height:"+h+"px";
+function vigiarAnuncio(t,c,d){
+  if(!(d>0)) return;
+  if(!trecho){ trecho={d:d,c:c}; julgarTrecho(t.vid,false,null); return; }
+  /* a duração mudou: começou outro trecho (anúncio entrando ou a música voltando) */
+  if(Math.abs(d-trecho.d)>2){ const ant=trecho; trecho={d:d,c:c}; julgarTrecho(t.vid,true,ant); return; }
+  trecho.c=c;
+  /* música confirmada tocando há 15 s: aprende a duração dela */
+  if(!trecho.ad&&c>15&&!DURS[t.vid]&&d>LIMITE_AD){ DURS[t.vid]=Math.round(d); salvarDurs(); }
 }
-window.addEventListener("resize",()=>{ const art=document.getElementById("plArt"); if(art&&art.classList.contains("ad")) abrirVideoAnuncio(); });
-function pintarSkip(){
-  const b=document.getElementById("plSkip"); if(!b) return;
-  const falta=Math.max(0,2-Math.floor((Date.now()-adDesde)/1000));
-  b.textContent=falta?"Pular anúncio em "+falta:"Pular anúncio";
-  b.classList.toggle("pronto",!falta);
-  if(!falta){ clearInterval(adTimer); adTimer=null; }
+function fimDoTrecho(){
+  const t=T(atual);
+  if(trecho&&trecho.ad&&t&&t.vid&&!DURS[t.vid]){ DURS[t.vid]=Math.round(trecho.d); salvarDurs(); }   /* era uma música curta */
+  sairAnuncio();
 }
 function entrarAnuncio(){
-  emAnuncio=true; adDesde=Date.now();
-  document.querySelector(".ap-player").classList.add("ad");
-  clearInterval(adTimer); adTimer=setInterval(pintarSkip,250); pintarSkip();
+  if(emAnuncio) return; emAnuncio=true;
+  document.querySelector(".ap-player").classList.add("ad"); $id("np").classList.add("ad");
+  pintarSkip(0);
 }
 function sairAnuncio(){
-  if(!emAnuncio) return;
-  emAnuncio=false; clearInterval(adTimer); adTimer=null;
-  document.querySelector(".ap-player").classList.remove("ad");
-  const b=document.getElementById("plSkip"); if(b) b.classList.remove("pronto");
-  if(videoAuto) fecharVideo();
+  if(!emAnuncio) return; emAnuncio=false;
+  document.querySelector(".ap-player").classList.remove("ad"); $id("np").classList.remove("ad");
+  $id("plSkip").classList.remove("pronto");
+  if(adAuto){ adAuto=false; npGrande(false); }
 }
-function vigiarAnuncio(t,c){
-  if(!t.real) return;
-  if(ultimoT>=0&&Math.abs(c-ultimoT)<0.05){
-    parado++;
-    if(parado===6&&!emAnuncio) entrarAnuncio();
-  } else {
-    if(emAnuncio&&ultimoT>=0&&Math.abs(c-ultimoT)>=0.2) sairAnuncio();
-    parado=0;
-  }
-  ultimoT=c;
+function pintarSkip(c){
+  const falta=Math.max(0,Math.ceil(5-(c||0)));
+  const b=$id("plSkip");
+  b.textContent=falta?"Pular anúncio em "+falta:"Pular anúncio";
+  b.classList.toggle("pronto",!falta);
+  $id("npAdTxt").textContent=falta?"O YouTube libera o Pular em "+falta+" s":"Toque em Pular no canto do vídeo ↘";
 }
 function apertarSkip(){
-  if(!videoAberto()||!document.getElementById("plArt").classList.contains("ad")) abrirVideoAnuncio();
-  const d=document.getElementById("adDica");
-  if(d){ d.animate&&d.animate([{opacity:.3},{opacity:1}],{duration:350,iterations:2}); }
+  const np=$id("np");
+  if(matchMedia("(max-width:900px)").matches&&!np.classList.contains("grande")){ adAuto=true; npGrande(true); }
+  else np.scrollIntoView({block:"nearest",behavior:"smooth"});
+  np.classList.remove("flash"); void np.offsetWidth; np.classList.add("flash");
 }
+
 function prog(){
   const t=T(atual); if(!t) return;
-  let c,d;
-  if(t.real&&yt&&yt.getDuration){c=yt.getCurrentTime()||0;d=yt.getDuration()||0;vigiarAnuncio(t,c);}
-  else{simSec=(simSec+.5)%simTotal;c=simSec;d=simTotal;}
+  let c=0,d=0;
+  if(fonteAtual==="YOUTUBE"){
+    if(!yt||!yt.getDuration) return;
+    c=yt.getCurrentTime()||0; d=yt.getDuration()||0;
+    vigiarAnuncio(t,c,d);
+    if(emAnuncio){ pintarSkip(c); return; }
+  } else { c=audio.currentTime||0; d=isFinite(audio.duration)?audio.duration:0; }
   if(!d) return;
-  document.getElementById("plFill").style.width=(c/d*100)+"%";
-  document.getElementById("plNow").textContent=fmt(c);
-  document.getElementById("plDur").textContent=fmt(d);
+  $id("plFill").style.width=(c/d*100)+"%";
+  $id("plNow").textContent=fmt(c);
+  $id("plDur").textContent=fmt(d);
   if(mini&&!mini.closed){ const b=mini.document.getElementById("mF"); if(b) b.style.width=(c/d*100)+"%"; }
 }
-function setArt(t){
-  const holder=document.getElementById("ytHolder"),img=document.getElementById("plImg");
-  if(t.real){ holder.classList.add("on"); if(img) img.style.display="none"; }
-  else{
-    holder.classList.remove("on");
-    const tmp=document.createElement("div"); tmp.innerHTML=svgCover(t.art);
-    const n=tmp.firstElementChild; n.id="plImg"; n.classList.remove("cover");
-    n.style.cssText="width:100%;height:100%;display:block";
-    if(img) img.replaceWith(n);
-  }
-}
+
+/* ---------- arquivos de áudio (Underfy e fontes autorizadas) ---------- */
+audio.addEventListener("playing",()=>{ if(fonteAtual==="YOUTUBE") return; errosSeguidos=0; pausaManual=false; fimCarga(); setUI(true); });
+audio.addEventListener("pause",()=>{ if(fonteAtual!=="YOUTUBE") setUI(false); });
+audio.addEventListener("waiting",()=>{ if(fonteAtual!=="YOUTUBE"){ $id("plPlay").classList.add("carregando"); } });
+audio.addEventListener("ended",()=>{ if(fonteAtual!=="YOUTUBE") proxima(1); });
+audio.addEventListener("error",()=>{ if(fonteAtual!=="YOUTUBE"&&audio.getAttribute("src")) falhaFaixa(T(atual),"arquivo"); });
+function pararArquivo(){ try{ audio.pause(); audio.removeAttribute("src"); audio.load(); }catch(e){} }
+function pararYouTube(){ try{ if(yt&&ytPronto) yt.stopVideo(); }catch(e){} }
+
 function tocar(id){
   const t=T(id); if(!t) return;
-  atual=id;
-  document.getElementById("plTitle").textContent=t.t;
-  document.getElementById("plArtist").textContent=t.a;
-  document.getElementById("plLike").classList.toggle("on",DADOS.curtidas.includes(id));
-  setArt(t);
+  const f=fonteDe(t); if(!f) return;
+  atual=id; clearTimeout(tAutoPulo);
+  pintarFaixa(t); pintarNp(t);
   if(t.au) descobrir(t.au);
-  parado=0; ultimoT=-1; sairAnuncio();
+  trecho=null; sairAnuncio();
   DADOS.ultima=id; DADOS.recentes=[id].concat((DADOS.recentes||[]).filter(x=>x!==id)).slice(0,24); salvar();
-  atualizarMini(); sessaoMidia();
-  if(t.real){
-    if(!ytPronto){ if(!ytFalhou){pendente=id;toast("Carregando o player do YouTube…");return;}
-      window.open("https://www.youtube.com/watch?v="+t.vid,"_blank","noopener");
-      toast("Sem conexão com o YouTube. Abri em outra aba."); return; }
-    yt.loadVideoById(t.vid); yt.playVideo(); setUI(true);
+  sessaoMidia();
+  /* nunca duas fontes ao mesmo tempo */
+  fonteAtual=f;
+  if(f==="YOUTUBE") pararArquivo(); else pararYouTube();
+  setUI(false); iniciarCarga(t); atualizarMini();
+  if(f==="YOUTUBE"){
+    if(!ytPronto){ if(!ytFalhou){ pendente=id; return; } falhaFaixa(t,"semyt"); return; }
+    try{ yt.setVolume(VOL); yt.loadVideoById(t.vid); }catch(e){ falhaFaixa(t,"semyt"); }
   } else {
-    if(yt&&ytPronto&&yt.pauseVideo) yt.pauseVideo();
-    simSec=0; simTotal=d2s(t.dur);
-    document.getElementById("plDur").textContent=t.dur||"0:00";
-    setUI(true);
+    audio.src=t.src; audio.volume=VOL/100;
+    audio.play().catch(e=>{
+      if(e&&e.name==="NotAllowedError"){ fimCarga(); setUI(false); toast("O navegador pediu um toque: aperte o play para começar."); }
+      else if(e&&e.name!=="AbortError") falhaFaixa(t,"arquivo");
+    });
   }
   render();
 }
 function proxima(dir){
   const t=T(atual);
-  if(t&&!t.real){
-    const l=obras.filter(o=>o.tipo==="musica").map(o=>o.id);
-    let i=l.indexOf(atual); i=(i<0?0:i+(dir===-1?-1:1)+l.length)%l.length; tocar(l[i]); return;
-  }
-  const L=(FILA&&FILA.includes(atual))?FILA:null;
+  const ok=id=>T(id)&&!T(id).indisponivel;
+  const L=(FILA&&FILA.includes(atual))?FILA.filter(id=>ok(id)||id===atual):null;
   if(aleatorio){
-    const base=L||idsReais;
+    const base=(L||idsReais).filter(ok);
     if(base.length>1){ let r; do{ r=base[Math.floor(Math.random()*base.length)]; }while(r===atual); tocar(r); }
     return;
   }
@@ -2249,19 +2406,30 @@ function proxima(dir){
     const i=L.indexOf(atual)+(dir===-1?-1:1);
     if(i>=0&&i<L.length){ tocar(L[i]); return; }
   }
-  if(dir===-1){ if(t&&t.real&&ytPronto&&yt.seekTo) yt.seekTo(0,true); return; }
+  if(dir===-1){
+    if(fonteAtual==="YOUTUBE"){ try{ yt.seekTo(0,true); }catch(e){} } else { try{ audio.currentTime=0; }catch(e){} }
+    return;
+  }
   /* acabou a fila: segue tocando pelas recomendações, como um rádio */
   const r=recomendar(1,[atual].concat((DADOS.recentes||[]).slice(0,15)))[0];
   FILA=null; if(r) tocar(r.id);
 }
 function alternar(){
-  if(!atual||!T(atual)){ tocar(DADOS.ultima&&T(DADOS.ultima)?DADOS.ultima:idsReais[0]); return; }
-  const t=T(atual);
-  if(t.real){
+  if(!atual||!T(atual)){ const u=DADOS.ultima&&T(DADOS.ultima)?DADOS.ultima:idsReais[0]; if(u) tocar(u); return; }
+  if(fonteAtual==="YOUTUBE"){
     if(!ytPronto) return;
-    const tocando=yt.getPlayerState?yt.getPlayerState()===1:tocandoAgora;
-    if(tocando){ pausaManual=true; yt.pauseVideo(); } else { pausaManual=false; yt.playVideo(); }
-  } else { pausaManual=tocandoAgora; setUI(!tocandoAgora); }
+    const st=yt.getPlayerState?yt.getPlayerState():-1;
+    if(st===1||st===3){ pausaManual=true; yt.pauseVideo(); } else { pausaManual=false; yt.playVideo(); }
+  } else {
+    if(audio.paused){ pausaManual=false; audio.play().catch(()=>{}); } else { pausaManual=true; audio.pause(); }
+  }
+}
+function definirVolume(v){
+  VOL=Math.min(100,Math.max(0,Math.round(v))); store.set("underfy.volume",VOL);
+  try{ if(yt&&ytPronto){ yt.setVolume(VOL); if(VOL>0&&yt.isMuted&&yt.isMuted()) yt.unMute(); } }catch(e){}
+  audio.volume=VOL/100;
+  const r=$id("plVol"); if(r){ r.value=VOL; r.style.setProperty("--v",VOL+"%"); }
+  const i=$id("plVolIco"); if(i) i.classList.toggle("mudo",VOL===0);
 }
 
 /* ---------- controles do sistema (tela de bloqueio, fone, teclado) ---------- */
@@ -2270,7 +2438,7 @@ function sessaoMidia(){
   const t=T(atual); if(!t) return;
   try{
     navigator.mediaSession.metadata=new MediaMetadata({title:t.t,artist:t.a,album:"Underfy",
-      artwork:t.real?[{src:thumb(t.vid,"hqdefault"),sizes:"480x360",type:"image/jpeg"}]:[]});
+      artwork:capaUrl(t)?[{src:capaUrl(t),sizes:"480x360"}]:[]});
     [["play",alternar],["pause",alternar],["previoustrack",()=>proxima(-1)],["nexttrack",()=>proxima(1)]]
       .forEach(([k,f])=>{ try{ navigator.mediaSession.setActionHandler(k,f); }catch(e){} });
   }catch(e){}
@@ -2281,9 +2449,9 @@ let estavaTocando=false;
 document.addEventListener("visibilitychange",()=>{
   if(document.hidden){ estavaTocando=tocandoAgora; return; }
   const t=T(atual);
-  if(estavaTocando&&!pausaManual&&t&&t.real&&ytPronto&&yt.getPlayerState&&yt.getPlayerState()===2){
-    try{ yt.playVideo(); }catch(e){}
-  }
+  if(!estavaTocando||pausaManual||!t) return;
+  if(fonteAtual==="YOUTUBE"&&ytPronto&&yt.getPlayerState&&yt.getPlayerState()===2){ try{ yt.playVideo(); }catch(e){} }
+  else if(fonteAtual!=="YOUTUBE"&&audio.paused&&audio.getAttribute("src")){ audio.play().catch(()=>{}); }
 });
 
 /* ---------- mini player flutuante (Picture-in-Picture de documento) ---------- */
@@ -2293,11 +2461,8 @@ const ICO_PLAY='<path d="M7 4l13 8-13 8z"/>', ICO_PAUSE='<path d="M7 4h4v16H7zM1
 async function abrirMini(){
   if(mini&&!mini.closed){ mini.close(); return; }
   if(!temPiP()){
-    const t=T(atual);
-    if(t&&t.real){
-      const el=document.getElementById("plArt"); el.classList.toggle("big");
-      if(el.classList.contains("big")) toast("Mini player aberto dentro do app. A janela que fica por cima de outros programas funciona no Chrome e no Edge do computador.");
-    } else toast("Toque uma faixa do catálogo para abrir o mini player.");
+    if(atual){ npGrande(!$id("np").classList.contains("grande")); toast("A janela que fica por cima de outros programas funciona no Chrome e no Edge do computador. Aqui o vídeo foi aumentado dentro do app."); }
+    else toast("Toque uma música para abrir o mini player.");
     return;
   }
   try{ mini=await documentPictureInPicture.requestWindow({width:340,height:330}); }
@@ -2348,7 +2513,7 @@ function atualizarMini(){
   g("mI").innerHTML=tocandoAgora?ICO_PAUSE:ICO_PLAY;
   if(mini._id!==atual){
     mini._id=atual;
-    g("mC").innerHTML=t?(t.real?'<img alt="" src="'+thumb(t.vid,"mqdefault")+'">':svgCover(t.art)):svgCover(3);
+    g("mC").innerHTML=t&&capaUrl(t,"mqdefault")?'<img alt="" src="'+capaUrl(t,"mqdefault")+'">':svgCover(3);
     g("mF").style.width="0";
   }
 }
@@ -2378,6 +2543,11 @@ function ligarPlayer(){
   document.getElementById("plMini").onclick=()=>abrirMini();
   document.getElementById("plAdd").onclick=()=>modalAddPl();
   document.getElementById("plSkip").onclick=apertarSkip;
+  document.getElementById("npSize").onclick=()=>npGrande(!$id("np").classList.contains("grande"));
+  const vol=document.getElementById("plVol"); vol.oninput=e=>definirVolume(+e.target.value);
+  let antesMudo=VOL||85;
+  document.getElementById("plVolIco").onclick=()=>{ if(VOL>0){ antesMudo=VOL; definirVolume(0); } else definirVolume(antesMudo||85); };
+  definirVolume(VOL);
   document.getElementById("plArtist").onclick=()=>{ const t=T(atual)||T(DADOS.ultima); const k=t&&t.arts&&t.arts[0]; if(k) ACOES.artistaR(k); };
   document.getElementById("fotoInput").onchange=e=>aplicarFoto(e.target.files&&e.target.files[0]);
   document.getElementById("plNext").onclick=()=>proxima(1);
@@ -2393,15 +2563,14 @@ function ligarPlayer(){
     const t=T(atual); if(!t) return;
     const r=e.currentTarget.getBoundingClientRect();
     const p=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
-    if(t.real&&ytPronto&&yt.getDuration) yt.seekTo(yt.getDuration()*p,true); else simSec=simTotal*p;
+    if(emAnuncio) return;
+    if(fonteAtual==="YOUTUBE"){ if(ytPronto&&yt.getDuration&&yt.getDuration()) yt.seekTo(yt.getDuration()*p,true); }
+    else if(isFinite(audio.duration)) audio.currentTime=audio.duration*p;
     prog();
   };
-  document.getElementById("plArt").onclick=e=>{
-    if(e.target.closest("#plX")){ e.stopPropagation(); fecharVideo(); return; }
-    const t=T(atual);
-    if(!t||!t.real){ toast("Vídeo só nas faixas do catálogo do YouTube."); return; }
-    if(!videoAberto()) abrirVideo(false);
-  };
+  const artClick=()=>{ if(!atual){ toast("Toque uma música para começar."); return; } npGrande(!$id("np").classList.contains("grande")); };
+  document.getElementById("plArt").onclick=artClick;
+  document.getElementById("plArt").onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); artClick(); } };
   document.getElementById("globalSearch").addEventListener("input",e=>{
     busca=e.target.value.trim().toLowerCase();
     if(busca&&view!=="buscar"){ ir("buscar"); document.getElementById("globalSearch").focus(); return; }
@@ -2626,6 +2795,7 @@ document.getElementById("btnQR").onclick=mostrarQR;
    17. BOOT
    ================================================================= */
 (async function(){
+  carregarProprias();
   card().innerHTML='<p class="auth-wait">Conectando ao banco de dados…</p>';
   await DB.iniciar();
   let s=null;
@@ -2634,6 +2804,6 @@ document.getElementById("btnQR").onclick=mostrarQR;
   if(DB.falhou) toast("O banco de dados não respondeu. Usando o modo local por enquanto.");
 })();
 </script>
-<script src="https://www.youtube.com/iframe_api"></script>
+<script src="https://www.youtube.com/iframe_api" async></script>
 </body>
 </html>

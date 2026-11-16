@@ -754,7 +754,12 @@ document.addEventListener("visibilitychange",()=>{ if(document.hidden) salvarJa(
 /* =================================================================
    3. CATÁLOGO REAL (YouTube)
    ================================================================= */
-const PLAYLIST_ID="PLUpQznyjWckpP9OmbM8uMGbfLK0MqVEfT";
+/* Playlists do YouTube que formam o catálogo. Para adicionar outra, inclua uma linha aqui. */
+const PLAYLISTS=[
+ {id:"PLUpQznyjWckpP9OmbM8uMGbfLK0MqVEfT",nome:"Trap BR underground",nota:"o fundo da cena"},
+ {id:"PLfU8kqCtG9UYJZLSa_lkYM2kiTrV8NjD4",nome:"Trap BR 2025/2026",nota:"o que está saindo agora"}
+];
+const PLAYLIST_ID=PLAYLISTS.map(p=>p.id).join(",");
 /* lista de reserva: só aparece se a playlist nunca tiver sido lida (nem pela nuvem, nem neste aparelho) */
 const SEMENTE=[
  {vid:"nnyrTBauCfk",t:"10MIIIL",a:"DESSIIIK"},
@@ -869,7 +874,7 @@ const CAT={};
 let idsReais=[];
 function montarCatalogo(){
   Object.keys(CAT).forEach(k=>{ if(CAT[k].real) delete CAT[k]; });
-  idsReais=REAL.map(r=>{ const id="y-"+r.vid; CAT[id]={id:id,vid:r.vid,t:r.t,a:r.a||"Trap BR",sub:"Trap BR underground",real:true}; return id; });
+  idsReais=REAL.map(r=>{ const id="y-"+r.vid; const pl=PLAYLISTS[r.pl||0]||PLAYLISTS[0]; CAT[id]={id:id,vid:r.vid,t:r.t,a:r.a||"Trap BR",sub:pl.nome,pl:r.pl||0,real:true}; return id; });
 }
 obras.filter(o=>o.tipo==="musica").forEach(o=>CAT[o.id]={id:o.id,t:o.t,a:A(o.au).nome,sub:o.sub,art:o.art,dur:o.dur,vaga:o.vaga,au:o.au});
 const T=id=>CAT[id];
@@ -1020,8 +1025,8 @@ function aplicarCatalogo(faixas,fonte){
   if(USER) render();
 }
 function fonteTxt(){
-  return {playlist:"sincronizado agora com a playlist do YouTube",nuvem:"carregado do banco de dados",
-          cache:"carregado da última sincronização",semente:"lista inicial — a playlist ainda não foi lida neste aparelho"}[FONTE_CAT]||"";
+  return {playlist:"sincronizado agora com as playlists do YouTube",nuvem:"carregado do banco de dados",
+          cache:"carregado da última sincronização",semente:"lista inicial — as playlists ainda não foram lidas neste aparelho"}[FONTE_CAT]||"";
 }
 /* preenche título e artista das faixas que ainda não têm (lista de reserva) */
 async function completarMeta(){
@@ -1032,7 +1037,7 @@ async function completarMeta(){
   return n;
 }
 /* lê os IDs da playlist com um player invisível do próprio YouTube */
-function idsDaPlaylist(){
+function idsDaPlaylist(LISTA){
   return new Promise(res=>{
     if(!window.YT||!YT.Player){ res(null); return; }
     let fim=false, sc=null, visto=0; const t0=Date.now();
@@ -1050,8 +1055,8 @@ function idsDaPlaylist(){
     const iv=setInterval(olhar,400);
     try{
       sc=new YT.Player("scoutFrame",{height:"120",width:"200",
-        playerVars:{listType:"playlist",list:PLAYLIST_ID,playsinline:1,controls:0},
-        events:{onReady:()=>{ try{ sc.cuePlaylist({listType:"playlist",list:PLAYLIST_ID}); }catch(e){} },onError:()=>{}}});
+        playerVars:{listType:"playlist",list:LISTA,playsinline:1,controls:0},
+        events:{onReady:()=>{ try{ sc.cuePlaylist({listType:"playlist",list:LISTA}); }catch(e){} },onError:()=>{}}});
     }catch(e){ acabar(null); }
   });
 }
@@ -1059,16 +1064,22 @@ let sincronizando=false;
 async function sincronizarPlaylist(manual){
   if(sincronizando) return 0; sincronizando=true;
   try{
-    const ids=await idsDaPlaylist();
-    if(!ids||!ids.length){ if(manual) toast("Não consegui ler a playlist do YouTube agora. Tente de novo em instantes."); return 0; }
+    /* lê as playlists uma de cada vez; se uma falhar, mantém as faixas que já tinha dela */
+    const ids=[], origem=new Map(); let falhas=0;
+    for(let k=0;k<PLAYLISTS.length;k++){
+      let l=await idsDaPlaylist(PLAYLISTS[k].id);
+      if(!l||!l.length){ falhas++; l=REAL.filter(r=>(r.pl||0)===k&&r.ok).map(r=>r.vid); }
+      l.forEach(v=>{ if(!origem.has(v)){ origem.set(v,k); ids.push(v); } });
+    }
+    if(!ids.length||falhas===PLAYLISTS.length){ if(manual) toast("Não consegui ler as playlists do YouTube agora. Tente de novo em instantes."); return 0; }
     const conhecidas=new Map(REAL.filter(r=>r.ok).map(r=>[r.vid,r]));
-    const metas=await emLotes(ids,6,async vid=>conhecidas.get(vid)||Object.assign({vid:vid,ok:true},await metaDe(vid)));
+    const metas=await emLotes(ids,6,async vid=>Object.assign({},conhecidas.get(vid)||Object.assign({vid:vid,ok:true},await metaDe(vid)),{pl:origem.get(vid)}));
     const faixas=metas.filter(Boolean);
     if(faixas.length<Math.min(3,ids.length)){ if(manual) toast("O YouTube não devolveu os dados das faixas agora."); return 0; }
-    const mudou=faixas.map(f=>f.vid).join()!==REAL.map(f=>f.vid).join()||REAL.some(r=>!r.ok);
+    const mudou=faixas.map(f=>f.vid+":"+f.pl).join()!==REAL.map(f=>f.vid+":"+(f.pl||0)).join()||REAL.some(r=>!r.ok);
     if(mudou){
       aplicarCatalogo(faixas,"playlist");
-      DB.gravarCatalogo({faixas:faixas.map(f=>({vid:f.vid,t:f.t,a:f.a,ok:true})),playlist:PLAYLIST_ID,em:Date.now()});
+      DB.gravarCatalogo({faixas:faixas.map(f=>({vid:f.vid,t:f.t,a:f.a,pl:f.pl,ok:true})),playlist:PLAYLIST_ID,em:Date.now()});
     } else { FONTE_CAT="playlist"; if(USER&&view==="voce") render(); }
     if(manual) toast(faixas.length+" faixas no catálogo"+(ids.length>faixas.length?" ("+(ids.length-faixas.length)+" não podem tocar fora do YouTube)":"")+".");
     return faixas.length;
@@ -1187,9 +1198,12 @@ VIEWS.inicio=()=>{
 
   const rec=(DADOS.recentes||[]).filter(id=>T(id)).slice(0,12);
   if(rec.length) h+=shelf("Tocadas recentemente","salvo na sua conta",rec.map(tile).join(""));
-  h+='<section class="shelf"><div class="shelf-head"><h2>Trap BR underground</h2>'+
-     '<p class="more"><button class="lk" data-a="ir" data-v="catalogo">ver as '+idsReais.length+' faixas</button></p></div>'+
-     '<div class="rail">'+idsReais.slice(0,20).map(tile).join("")+'</div></section>';
+  [...PLAYLISTS.keys()].reverse().forEach(k=>{
+    const l=idsDaLista(k); if(!l.length) return;
+    h+='<section class="shelf"><div class="shelf-head"><h2>'+esc(PLAYLISTS[k].nome)+'</h2>'+
+       '<p class="more"><button class="lk" data-a="verLista" data-v="'+k+'">ver as '+l.length+' faixas</button></p></div>'+
+       '<div class="rail">'+l.slice(0,20).map(tile).join("")+'</div></section>';
+  });
   h+=shelf("Poesia da cena","toque para ler",porTipo("poema").map(tileObra).join(""));
   h+=shelf("Microcontos","três linhas e um soco",porTipo("microconto").map(tileObra).join(""));
   h+=shelf("Artes visuais","capa, lambe-lambe e zine",porTipo("arte").map(tileObra).join(""));
@@ -1204,12 +1218,18 @@ VIEWS.inicio=()=>{
 const shelf=(t,n,inner)=>'<section class="shelf"><div class="shelf-head"><h2>'+t+'</h2>'+(n?'<p>'+n+'</p>':'')+'</div><div class="rail">'+inner+'</div></section>';
 
 /* ---------- MÚSICAS (catálogo completo) ---------- */
+let filtroLista=null;
+const idsDaLista=k=>idsReais.filter(id=>(T(id).pl||0)===k);
+const listaAtual=()=>filtroLista===null?idsReais:idsDaLista(filtroLista);
 VIEWS.catalogo=()=>{
-  let h='<h1 class="ap-h">Trap BR underground</h1><p class="ap-sub">'+idsReais.length+' faixas da playlist da cena, tocando direto do YouTube. Catálogo '+fonteTxt()+'.</p>';
+  const l=listaAtual(), pl=filtroLista===null?null:PLAYLISTS[filtroLista];
+  let h='<h1 class="ap-h">'+(pl?esc(pl.nome):"Todas as músicas")+'</h1><p class="ap-sub">'+l.length+' faixas'+(pl?" · "+esc(pl.nota):" de "+PLAYLISTS.length+" playlists da cena")+', tocando direto do YouTube. Catálogo '+fonteTxt()+'.</p>';
+  h+='<div class="chips"><button class="chip'+(filtroLista===null?" on":"")+'" data-a="verLista" data-v="">Todas ('+idsReais.length+')</button>'+
+     PLAYLISTS.map((p,k)=>'<button class="chip'+(filtroLista===k?" on":"")+'" data-a="verLista" data-v="'+k+'">'+esc(p.nome)+' ('+idsDaLista(k).length+')</button>').join("")+'</div>';
   h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">'+
-     '<button class="btn btn-primary" data-a="tocar" data-v="'+idsReais[0]+'">Tocar tudo</button>'+
+     '<button class="btn btn-primary" data-a="tocar" data-v="'+(l[0]||"")+'">Tocar tudo</button>'+
      '<button class="btn btn-ghost" data-a="embaralhar">Embaralhar</button></div>';
-  return h+'<div class="tracklist">'+idsReais.map((id,i)=>linhaItem({k:"faixa",id:id},i+1)).join("")+'</div>';
+  return h+'<div class="tracklist">'+l.map((id,i)=>linhaItem({k:"faixa",id:id},i+1)).join("")+'</div>';
 };
 
 /* ---------- DESCOBRIR ---------- */
@@ -1532,7 +1552,7 @@ VIEWS.voce=()=>{
    '<button class="btn btn-ghost" data-a="qr">QR da apresentação</button>'+
    '<button class="btn btn-ghost" data-a="sair">Sair</button></div>';
   h+='<div class="info-box"><strong>Catálogo de músicas</strong>'+idsReais.length+' faixas · '+fonteTxt()+
-   '.<br><button class="btn btn-ghost btn-sm" data-a="sincronizar">Atualizar pela playlist</button></div>';
+   '.<br><button class="btn btn-ghost btn-sm" data-a="sincronizar">Atualizar pelas playlists</button></div>';
   h+='<div class="info-box"><strong>Onde seus dados ficam</strong>'+(nuvem
     ?"Usuário e senha ficam no serviço de autenticação do Firebase, com a senha criptografada: nem a equipe do Underfy consegue ler. Curtidas, playlists, XP, artistas seguidos e histórico ficam no banco de dados, ligados só à sua conta."
     :"O banco de dados na nuvem ainda não foi ligado neste endereço, então a conta e tudo que você faz ficam guardados neste navegador, com a senha protegida por hash.")+'</div>';
@@ -1598,8 +1618,9 @@ const ACOES={
     main().scrollTop=main().scrollHeight*.45;
   },
   tocar:v=>{ aleatorio=false; tocar(v); },
-  embaralhar:()=>{ aleatorio=true; tocar(idsReais[Math.floor(Math.random()*idsReais.length)]); toast("Modo aleatório ligado."); },
-  sincronizar:()=>{ toast("Lendo a playlist no YouTube…"); sincronizarPlaylist(true); },
+  embaralhar:()=>{ aleatorio=true; const l=view==="catalogo"?listaAtual():idsReais; tocar(l[Math.floor(Math.random()*l.length)]); toast("Modo aleatório ligado."); },
+  verLista:v=>{ filtroLista=(v===""||v===undefined)?null:+v; ir("catalogo"); },
+  sincronizar:()=>{ toast("Lendo as playlists no YouTube…"); sincronizarPlaylist(true); },
   instalar:()=>instalarApp(),
   mini:()=>abrirMini(),
   ouvirArtista:v=>{
@@ -1884,7 +1905,7 @@ function tocar(id){
 }
 function proxima(dir){
   const t=T(atual);
-  const lista=(t&&t.real)?idsReais:obras.filter(o=>o.tipo==="musica").map(o=>o.id);
+  const lista=(t&&t.real)?((filtroLista!==null&&(t.pl||0)===filtroLista)?idsDaLista(filtroLista):idsReais):obras.filter(o=>o.tipo==="musica").map(o=>o.id);
   if(!lista.length) return;
   if(aleatorio&&dir!==-1&&lista.length>2){ let r; do{ r=lista[Math.floor(Math.random()*lista.length)]; }while(r===atual); tocar(r); return; }
   let i=lista.indexOf(atual); if(i<0)i=0;

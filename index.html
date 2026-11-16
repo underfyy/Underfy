@@ -648,12 +648,12 @@ const store={
 /* A configuração fica no arquivo firebase-config.js (assim o index.html pode ser trocado sem perder a chave).
    O bloco abaixo só é usado se aquele arquivo não existir. */
 const FIREBASE_CONFIG=(window.UNDERFY_FIREBASE&&window.UNDERFY_FIREBASE.apiKey)?window.UNDERFY_FIREBASE:{
-  apiKey:"AIzaSyAwLw89x1HBs0f10fFQuHqFiFiUVzRbXvM",
-  authDomain:"underfy-f306a.firebaseapp.com",
-  projectId:"underfy-f306a",
-  storageBucket:"underfy-f306a.firebasestorage.app",
-  messagingSenderId:"46856257913",
-  appId:"1:46856257913:web:8833b6d10d0a65d1ccafa8"
+  apiKey:"",
+  authDomain:"",
+  projectId:"",
+  storageBucket:"",
+  messagingSenderId:"",
+  appId:""
 };
 const FB_VER="10.12.2";
 const DOMINIO_CONTA="@underfy.example.com";   /* o usuário vira um e-mail interno; nenhuma mensagem é enviada */
@@ -973,9 +973,27 @@ function indexarArtistas(){
     t.arts=nomesDe(t.a,t.t).map(n=>{ const k=norm(n); if(!ARTS.has(k)) ARTS.set(k,{k:k,nome:n,ids:[],parc:new Map()}); ARTS.get(k).ids.push(id); return k; });
     t.arts.forEach(x=>t.arts.forEach(y=>{ if(x!==y){ const m=ARTS.get(x).parc; m.set(y,(m.get(y)||0)+1); } }));
   });
-  ARTS.forEach(x=>{ const f=FAMOSOS.indexOf(x.k); x.fama=(f>=0?1000-f:0)+x.ids.length*10; x.vid=CAT[x.ids[0]].vid; });
+  ARTS.forEach(x=>{ const f=FAMOSOS.indexOf(x.k); x.fama=(f>=0?1000-f:0)+x.ids.length*10; x.vid=null; });
+  /* cada artista ganha uma capa só dele: primeiro as músicas solo, depois as em que ele vem primeiro.
+     Os mais famosos escolhem antes. Se não sobrar capa exclusiva, fica o avatar com as iniciais. */
+  const usadas=new Set();
+  [...ARTS.values()].sort((a,b)=>b.fama-a.fama).forEach(x=>{
+    const peso=id=>{ const ar=CAT[id].arts||[]; return ar.length===1?0:ar[0]===x.k?1:2; };
+    const cand=x.ids.slice().sort((a,b)=>peso(a)-peso(b));
+    const id=cand.find(i=>peso(i)<2&&!usadas.has(CAT[i].vid))||cand.find(i=>!usadas.has(CAT[i].vid));
+    if(id){ x.vid=CAT[id].vid; usadas.add(x.vid); }
+  });
 }
 const AR=k=>ARTS.get(k);
+/* foto do artista: a capa exclusiva dele, ou um círculo com as iniciais */
+function fotoArt(a){
+  if(a.vid) return ytImg(a.vid,"round");
+  const n=sorte(a.k)*360|0;
+  return '<svg class="cover round" viewBox="0 0 100 100" role="img" aria-label="'+esc(a.nome)+'"><defs><linearGradient id="ga-'+a.k+'" x1="0" y1="0" x2="1" y2="1">'+
+    '<stop offset="0" stop-color="hsl('+(270+n%40)+',62%,52%)"/><stop offset="1" stop-color="hsl('+(160+n%30)+',85%,40%)"/></linearGradient></defs>'+
+    '<rect width="100" height="100" fill="url(#ga-'+a.k+')"/><text x="50" y="50" dy=".35em" text-anchor="middle" font-family="Chakra Petch,sans-serif" font-weight="700" font-size="34" fill="#120E16">'+
+    esc(a.nome.replace(/[^A-Za-zÀ-ÿ0-9 ]/g,"").split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"?")+'</text></svg>';
+}
 const artistasPorFama=()=>[...ARTS.values()].sort((a,b)=>b.fama-a.fama||a.nome.localeCompare(b.nome,"pt-BR"));
 
 /* ---------- algoritmo de recomendação ----------
@@ -1340,7 +1358,7 @@ function railFaixas(titulo,nota,ids,k,extra){
 }
 function tileArt(a){
   const seg=(DADOS.seguindoArt||[]).includes(a.k);
-  return '<button class="tile artist" data-a="artistaR" data-v="'+a.k+'"><div class="tile-cover">'+ytImg(a.vid,"round")+'</div>'+
+  return '<button class="tile artist" data-a="artistaR" data-v="'+a.k+'"><div class="tile-cover">'+fotoArt(a)+'</div>'+
     '<strong>'+esc(a.nome)+'</strong><span class="'+(seg?"slot-open":"")+'">'+(seg?"seguindo":a.ids.length+(a.ids.length>1?" músicas":" música"))+'</span></button>';
 }
 function mosaico(p){
@@ -1403,7 +1421,7 @@ VIEWS.artistaR=()=>{
   const seg=(DADOS.seguindoArt||[]).includes(a.k);
   const parc=[...a.parc.entries()].sort((x,y)=>y[1]-x[1]).map(([k])=>AR(k)).filter(Boolean).slice(0,10);
   let h='<button class="back" data-a="voltar">← voltar</button>';
-  h+='<section class="hero ar-head" style="--hero:url('+thumb(a.vid,"hqdefault")+')"><div class="hero-art">'+ytImg(a.vid,"round")+'</div>'+
+  h+='<section class="hero ar-head" style="--hero:url('+thumb(a.vid||CAT[a.ids[0]].vid,"hqdefault")+')"><div class="hero-art">'+fotoArt(a)+'</div>'+
      '<div class="hero-txt"><span class="hero-tag">Artista</span><h1>'+esc(a.nome)+'</h1>'+
      '<p>'+a.ids.length+(a.ids.length>1?" músicas":" música")+' no Underfy'+(parc.length?' · gravou com '+parc.length+(parc.length>1?" artistas":" artista"):'')+'</p></div>'+
      '<div class="hero-acts"><button class="btn btn-primary" data-a="tocarArt" data-v="'+a.k+'">'+playIco+' Tocar</button>'+
@@ -2398,7 +2416,7 @@ function pintarOnb(){
   else { const sel=[...onbSel].map(AR).filter(Boolean); l=sel.concat(l.filter(a=>!onbSel.has(a.k)).slice(0,Math.max(48-sel.length,24))); }
   g.innerHTML=l.map(a=>{ const on=onbSel.has(a.k);
      return '<button class="onb-art'+(on?" on":"")+'" data-a="onbTog" data-v="'+a.k+'" aria-pressed="'+on+'">'+
-       '<span class="onb-pic">'+ytImg(a.vid,"round")+'<i aria-hidden="true">✓</i></span><strong>'+esc(a.nome)+'</strong></button>'; }).join("")+
+       '<span class="onb-pic">'+fotoArt(a)+'<i aria-hidden="true">✓</i></span><strong>'+esc(a.nome)+'</strong></button>'; }).join("")+
     (!l.length&&q?'<p class="onb-vazio">Nenhum artista com esse nome no Underfy ainda.</p>':'')+
     ((sincronizando||FONTE_CAT==="semente")?'<p class="onb-vazio">Carregando mais artistas…</p>':'');
   pintarOnbBar();

@@ -535,6 +535,7 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 .ap-player.ad .pl-track{display:none}
 .ap-player.ad .ad-bar{display:flex}
 .ap-player.ad .pl-mid{flex-direction:row;gap:16px;padding:0}
+#plSkip .seta{display:inline-block;margin-left:4px}
 .ad-tag{font-family:var(--fd);font-size:.72rem;font-weight:600;color:#ffd166;border:1px solid rgba(255,209,102,.45);background:rgba(255,209,102,.08);padding:3px 10px;border-radius:99px;white-space:nowrap}
 #plSkip{font-family:var(--fd);font-weight:600;font-size:.88rem;padding:8px 16px;border-radius:99px;border:1px solid var(--line);color:var(--muted);background:var(--surface-2);white-space:nowrap;transition:background .2s,color .2s,border-color .2s}
 #plSkip.pronto{background:var(--cyan);color:#08201c;border-color:var(--cyan);animation:pulsar 1.4s ease-in-out infinite}
@@ -559,7 +560,8 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 .np-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .np-video #npCapa{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .np.arquivo .np-video iframe{visibility:hidden}
-.np.carregando .np-video::after{content:"";position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:99px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--cyan);animation:girar .8s linear infinite;z-index:2;pointer-events:none}
+.np-load{display:none;width:14px;height:14px;border-radius:99px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--cyan);animation:girar .8s linear infinite;flex:0 0 14px}
+.np.carregando .np-load{display:block}
 .np-ad{display:none;flex-direction:column;gap:2px;padding:9px 12px;background:rgba(0,245,212,.08);border-top:1px solid rgba(0,245,212,.3);font-size:.78rem;color:var(--muted)}
 .np-ad span{font-family:var(--fd);color:#ffd166;font-weight:600}
 .np-ad b{color:var(--cyan);font-weight:600}
@@ -573,14 +575,28 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 .np.grande{position:fixed;right:20px;bottom:96px;width:480px;z-index:150;margin:0;box-shadow:0 22px 60px rgba(0,0,0,.65)}
 .np.grande .np-video{aspect-ratio:16/9}
 @keyframes girar{to{transform:rotate(360deg)}}
-@media(prefers-reduced-motion:reduce){.np.flash{animation:none}.np.carregando .np-video::after{animation-duration:2.4s}}
+@media(prefers-reduced-motion:reduce){.np.flash{animation:none}.np-load{animation-duration:2.4s}}
+.np-x,.np-arrasta{display:none}
+.np.oculto{display:none}
+/* no computador o cartão fica sempre à vista no pé da lateral */
+@media(min-width:901px){.ap-side .np{position:sticky;bottom:0;flex-shrink:0}.ap-side .np.grande{position:fixed}}
 @media(max-width:900px){
-  .np{position:fixed;right:12px;bottom:var(--npb,150px);width:202px;z-index:140;margin:0;box-shadow:0 16px 40px rgba(0,0,0,.6)}
-  .np.grande{left:12px;right:12px;width:auto;bottom:var(--npb,150px)}
-  .np-head{min-height:36px;padding:5px 6px 5px 10px}
-  .np-tit{display:none}
-  .np-ext{display:none}
-  body.np-on .ap-page{padding-bottom:300px}
+  /* celular: cartão de 200 × 200 (mínimo do YouTube) que a pessoa arrasta para qualquer canto */
+  .np{position:fixed;width:202px;z-index:140;margin:0;box-shadow:0 16px 40px rgba(0,0,0,.6);touch-action:none}
+  .np.c-br{right:12px;bottom:var(--npb,150px)}
+  .np.c-bl{left:12px;bottom:var(--npb,150px)}
+  .np.c-tr{right:12px;top:var(--npt,66px)}
+  .np.c-tl{left:12px;top:var(--npt,66px)}
+  .np.grande{left:12px;right:12px;width:auto}
+  .np.grande.c-tl,.np.grande.c-tr{bottom:auto}
+  .np.grande.c-bl,.np.grande.c-br{top:auto}
+  .np.arrastando{transition:none;opacity:.92}
+  .np-head{min-height:30px;padding:2px 4px 2px 6px;gap:4px;cursor:grab}
+  .np-tit,.np-src,.np-ext{display:none}
+  .np-arrasta{display:block;flex:1;height:26px;background:radial-gradient(circle,var(--muted) 1.2px,transparent 1.6px) center/8px 8px repeat-x;opacity:.55}
+  .np-x{display:grid}
+  .np-btn{margin-left:0;width:30px;height:26px}
+  body.np-on .ap-page{padding-bottom:280px}
 }
 /* botão de play carregando */
 .fab.carregando svg{opacity:0}
@@ -636,9 +652,11 @@ button{background:none;border:none;cursor:pointer;color:inherit}
       <span class="wordmark">Underfy</span>
     </div>
     <nav class="ap-nav" id="nav"></nav>
-    <section class="np vazio" id="np" aria-label="Tocando agora">
-      <div class="np-head"><span class="np-tit">Tocando agora</span><span class="np-src" id="npSrc"></span>
-        <button class="np-btn" id="npSize" aria-label="Aumentar vídeo" title="Aumentar ou diminuir"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 15v5h-5"/></svg></button></div>
+    <section class="np vazio c-br" id="np" aria-label="Tocando agora">
+      <div class="np-head" id="npHead"><span class="np-tit">Tocando agora</span><span class="np-src" id="npSrc"></span><span class="np-load" aria-hidden="true"></span>
+        <span class="np-arrasta" title="Arraste para mudar de canto" aria-hidden="true"></span>
+        <button class="np-btn" id="npSize" aria-label="Aumentar vídeo" title="Aumentar ou diminuir"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 15v5h-5"/></svg></button>
+        <button class="np-btn np-x" id="npX" aria-label="Fechar vídeo e pausar" title="Fechar (pausa a música)"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <div class="np-video"><div id="ytFrame"></div><img id="npCapa" alt="" hidden></div>
       <div class="np-ad" role="status"><span>Anúncio do YouTube</span><b id="npAdTxt">Toque em Pular no canto do vídeo ↘</b></div>
       <a class="np-ext" id="npExt" target="_blank" rel="noopener" hidden>Abrir no YouTube ↗</a>
@@ -2169,7 +2187,7 @@ function mostrarQR(){
 let yt=null,ytPronto=false,ytFalhou=false,pendente=null;
 let atual=null,tocandoAgora=false,tick=null;
 let aleatorio=false,pausaManual=false,ytApi=false,errosSeguidos=0,syncFeito=false;
-let fonteAtual=null,tCarga=null,tAutoPulo=null;
+let fonteAtual=null,tCarga=null,tAutoPulo=null,inicioCarga=0,vigia=null;
 const audio=new Audio(); audio.preload="metadata";
 const fmt=s=>{s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
 const fonteDe=t=>!t?null:t.src?(t.fonte||"UNDERFY_STORAGE"):t.vid?"YOUTUBE":null;
@@ -2216,7 +2234,9 @@ function setUI(v){
 function iniciarCarga(t){
   clearTimeout(tCarga); clearTimeout(tAutoPulo);
   $id("plPlay").classList.add("carregando"); $id("np").classList.add("carregando");
-  tCarga=setTimeout(()=>{ if(atual===t.id&&!tocandoAgora) falhaFaixa(t,"tempo"); },15000);
+  inicioCarga=Date.now();
+  /* arquivo próprio: 20 s sem tocar é erro. YouTube: quem decide é o vigia (anúncio também "demora") */
+  if(fonteDe(t)!=="YOUTUBE") tCarga=setTimeout(()=>{ if(atual===t.id&&!tocandoAgora) falhaFaixa(t,"tempo"); },20000);
 }
 function fimCarga(){ clearTimeout(tCarga); $id("plPlay").classList.remove("carregando"); $id("np").classList.remove("carregando"); }
 const MOTIVOS={2:"o endereço desta faixa é inválido",5:"este navegador não conseguiu tocar a faixa",100:"o vídeo foi removido ou ficou privado",
@@ -2224,7 +2244,7 @@ const MOTIVOS={2:"o endereço desta faixa é inválido",5:"este navegador não c
   tempo:"a faixa demorou demais para carregar",arquivo:"o arquivo de áudio não abriu",semyt:"o player do YouTube não carregou"};
 const linkOrigem=t=>t&&t.vid?"https://www.youtube.com/watch?v="+t.vid:(t&&t.src)||"";
 function falhaFaixa(t,cod){
-  fimCarga(); setUI(false); sairAnuncio();
+  fimCarga(); setUI(false); sairAnuncio(); clearInterval(vigia);
   if(!t) return;
   if(cod!=="tempo"&&cod!=="semyt") t.indisponivel=true;
   errosSeguidos++;
@@ -2255,13 +2275,44 @@ window.addEventListener("online",()=>toast("Conexão de volta."));
 /* ---------- cartão "Tocando agora" ---------- */
 function capaUrl(t,q){ return !t?"":t.capa||(t.vid?thumb(t.vid,q||"hqdefault"):""); }
 function posicionarNp(){
-  const np=$id("np"), bar=document.querySelector(".ap-player"); if(!np||!bar) return;
+  const np=$id("np"), bar=document.querySelector(".ap-player"), top=$id("top"); if(!np||!bar) return;
   np.style.setProperty("--npb",(innerHeight-bar.getBoundingClientRect().top+10)+"px");
+  if(top) np.style.setProperty("--npt",(Math.max(0,top.getBoundingClientRect().bottom)+8)+"px");
+}
+const CANTOS=["c-br","c-bl","c-tr","c-tl"];
+function definirCanto(c){
+  const np=$id("np"); if(!CANTOS.includes(c)) c="c-br";
+  CANTOS.forEach(x=>np.classList.toggle(x,x===c)); store.set("underfy.canto",c);
+}
+function ligarArraste(){
+  const np=$id("np"), h=$id("npHead"); let ini=null;
+  h.addEventListener("pointerdown",e=>{
+    if(!matchMedia("(max-width:900px)").matches||np.classList.contains("grande")||e.target.closest("button")) return;
+    const r=np.getBoundingClientRect(); ini={x:e.clientX,y:e.clientY,l:r.left,t:r.top};
+    np.classList.add("arrastando"); try{ h.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  h.addEventListener("pointermove",e=>{
+    if(!ini) return;
+    np.style.transform="translate("+(e.clientX-ini.x)+"px,"+(e.clientY-ini.y)+"px)";
+  });
+  const soltar=e=>{
+    if(!ini) return;
+    const cx=ini.l+(e.clientX-ini.x)+np.offsetWidth/2, cy=ini.t+(e.clientY-ini.y)+np.offsetHeight/2;
+    ini=null; np.classList.remove("arrastando"); np.style.transform="";
+    definirCanto((cy<innerHeight/2?"c-t":"c-b")+(cx<innerWidth/2?"l":"r"));
+  };
+  h.addEventListener("pointerup",soltar); h.addEventListener("pointercancel",soltar);
+}
+function fecharNp(){
+  /* o YouTube não permite tocar com o vídeo escondido: fechar o vídeo pausa a música */
+  if(fonteAtual==="YOUTUBE"){ pausaManual=true; try{ yt.pauseVideo(); }catch(e){} }
+  $id("np").classList.add("oculto");
+  toast("Vídeo fechado e música pausada. Aperte o play para voltar.");
 }
 window.addEventListener("resize",posicionarNp);
 function pintarNp(t){
   const np=$id("np"), f=fonteDe(t);
-  np.classList.remove("vazio"); document.body.classList.add("np-on");
+  np.classList.remove("vazio","oculto"); document.body.classList.add("np-on");
   np.classList.toggle("arquivo",f!=="YOUTUBE");
   $id("npSrc").textContent=NOME_FONTE[f]||"";
   const capa=$id("npCapa"); if(f!=="YOUTUBE"){ capa.src=capaUrl(t)||""; capa.hidden=!capa.src; } else capa.hidden=true;
@@ -2320,7 +2371,10 @@ function fimDoTrecho(){
 }
 function entrarAnuncio(){
   if(emAnuncio) return; emAnuncio=true;
-  document.querySelector(".ap-player").classList.add("ad"); $id("np").classList.add("ad");
+  document.querySelector(".ap-player").classList.add("ad"); $id("np").classList.add("ad","flash");
+  $id("np").classList.remove("oculto");
+  /* no celular o vídeo cresce durante o anúncio, para o Pular ficar fácil de tocar; depois volta */
+  if(matchMedia("(max-width:900px)").matches&&!$id("np").classList.contains("grande")){ adAuto=true; npGrande(true); }
   pintarSkip(0);
 }
 function sairAnuncio(){
@@ -2331,10 +2385,45 @@ function sairAnuncio(){
 }
 function pintarSkip(c){
   const falta=Math.max(0,Math.ceil(5-(c||0)));
-  const b=$id("plSkip");
-  b.textContent=falta?"Pular anúncio em "+falta:"Pular anúncio";
+  const b=$id("plSkip"), cel=matchMedia("(max-width:900px)").matches;
+  const seta=cel?"↑":"↙";
+  b.innerHTML=falta?"Pular em "+falta+" s":'Pular no vídeo<span class="seta">'+seta+'</span>';
+  b.setAttribute("aria-label",falta?"O YouTube libera o pulo em "+falta+" segundos":"Mostrar o botão Pular do YouTube no vídeo");
   b.classList.toggle("pronto",!falta);
   $id("npAdTxt").textContent=falta?"O YouTube libera o Pular em "+falta+" s":"Toque em Pular no canto do vídeo ↘";
+}
+/* vigia do YouTube: a cada meio segundo, desde o play.
+   Não depende do estado "tocando", porque durante o anúncio o YouTube pode informar outro estado. */
+const DIAG=/[?&#]diag/.test(location.search+location.hash);
+let diagEl=null, diagUlt="";
+function lerYT(){
+  const g=(f,v)=>{ try{ return typeof yt[f]==="function"?yt[f]():v; }catch(e){ return v; } };
+  const vd=g("getVideoData",null);
+  return {st:g("getPlayerState",-9),c:+g("getCurrentTime",0)||0,d:+g("getDuration",0)||0,lf:+g("getVideoLoadedFraction",0)||0,vid:vd&&vd.video_id||"",tit:vd&&vd.title||""};
+}
+function iniciarVigia(){ clearInterval(vigia); vigia=setInterval(vigiar,500); }
+function vigiar(){
+  const t=T(atual);
+  if(!t||fonteAtual!=="YOUTUBE"||!ytPronto||!yt){ clearInterval(vigia); return; }
+  const y=lerYT();
+  if(DIAG) pintarDiag(t,y);
+  /* sem nenhum sinal de vida em 25 s: aí sim é erro de carregamento */
+  if(!tocandoAgora&&Date.now()-inicioCarga>25000&&!(y.d>0)&&!(y.lf>0)&&(y.st===-1||y.st===5||y.st===-9)){ falhaFaixa(t,"tempo"); return; }
+  if(y.st===1||y.st===3||(y.d>0&&y.c>0)){
+    if(y.st===1||y.c>0) fimCarga();
+    vigiarAnuncio(t,y.c,y.d);
+    if(emAnuncio) pintarSkip(y.c);
+  }
+}
+function pintarDiag(t,y){
+  if(!diagEl){
+    diagEl=document.createElement("div");
+    diagEl.style.cssText="position:fixed;left:8px;top:8px;z-index:500;background:rgba(0,0,0,.85);color:#00F5D4;font:12px/1.45 monospace;padding:8px 10px;border-radius:8px;max-width:300px;white-space:pre-wrap;pointer-events:auto";
+    document.body.appendChild(diagEl);
+  }
+  const linha="estado "+y.st+" | tempo "+y.c.toFixed(1)+" | duração "+y.d.toFixed(1)+" | carregado "+y.lf.toFixed(2)+"\nvídeo "+(y.vid||"-")+(y.vid&&y.vid!==t.vid?" (DIFERENTE da música!)":"")+"\nanúncio? "+(emAnuncio?"SIM":"não")+" | duração aprendida "+(DURS[t.vid]||"-");
+  diagEl.textContent="DIAGNÓSTICO DO PLAYER\n"+linha;
+  if(linha!==diagUlt){ diagUlt=linha; (window.__diagLog=window.__diagLog||[]).push(new Date().toLocaleTimeString()+" "+linha.replace(/\n/g," / ")); }
 }
 function apertarSkip(){
   const np=$id("np");
@@ -2348,9 +2437,8 @@ function prog(){
   let c=0,d=0;
   if(fonteAtual==="YOUTUBE"){
     if(!yt||!yt.getDuration) return;
+    if(emAnuncio) return;
     c=yt.getCurrentTime()||0; d=yt.getDuration()||0;
-    vigiarAnuncio(t,c,d);
-    if(emAnuncio){ pintarSkip(c); return; }
   } else { c=audio.currentTime||0; d=isFinite(audio.duration)?audio.duration:0; }
   if(!d) return;
   $id("plFill").style.width=(c/d*100)+"%";
@@ -2379,11 +2467,11 @@ function tocar(id){
   sessaoMidia();
   /* nunca duas fontes ao mesmo tempo */
   fonteAtual=f;
-  if(f==="YOUTUBE") pararArquivo(); else pararYouTube();
+  if(f==="YOUTUBE") pararArquivo(); else { pararYouTube(); clearInterval(vigia); }
   setUI(false); iniciarCarga(t); atualizarMini();
   if(f==="YOUTUBE"){
     if(!ytPronto){ if(!ytFalhou){ pendente=id; return; } falhaFaixa(t,"semyt"); return; }
-    try{ yt.setVolume(VOL); yt.loadVideoById(t.vid); }catch(e){ falhaFaixa(t,"semyt"); }
+    try{ yt.setVolume(VOL); yt.loadVideoById(t.vid); iniciarVigia(); }catch(e){ falhaFaixa(t,"semyt"); }
   } else {
     audio.src=t.src; audio.volume=VOL/100;
     audio.play().catch(e=>{
@@ -2418,6 +2506,7 @@ function alternar(){
   if(!atual||!T(atual)){ const u=DADOS.ultima&&T(DADOS.ultima)?DADOS.ultima:idsReais[0]; if(u) tocar(u); return; }
   if(fonteAtual==="YOUTUBE"){
     if(!ytPronto) return;
+    $id("np").classList.remove("oculto"); posicionarNp();
     const st=yt.getPlayerState?yt.getPlayerState():-1;
     if(st===1||st===3){ pausaManual=true; yt.pauseVideo(); } else { pausaManual=false; yt.playVideo(); }
   } else {
@@ -2543,7 +2632,9 @@ function ligarPlayer(){
   document.getElementById("plMini").onclick=()=>abrirMini();
   document.getElementById("plAdd").onclick=()=>modalAddPl();
   document.getElementById("plSkip").onclick=apertarSkip;
-  document.getElementById("npSize").onclick=()=>npGrande(!$id("np").classList.contains("grande"));
+  document.getElementById("npSize").onclick=()=>{ adAuto=false; npGrande(!$id("np").classList.contains("grande")); };
+  document.getElementById("npX").onclick=fecharNp;
+  definirCanto(store.get("underfy.canto")||"c-br"); ligarArraste();
   const vol=document.getElementById("plVol"); vol.oninput=e=>definirVolume(+e.target.value);
   let antesMudo=VOL||85;
   document.getElementById("plVolIco").onclick=()=>{ if(VOL>0){ antesMudo=VOL; definirVolume(0); } else definirVolume(antesMudo||85); };
@@ -2568,7 +2659,12 @@ function ligarPlayer(){
     else if(isFinite(audio.duration)) audio.currentTime=audio.duration*p;
     prog();
   };
-  const artClick=()=>{ if(!atual){ toast("Toque uma música para começar."); return; } npGrande(!$id("np").classList.contains("grande")); };
+  const artClick=()=>{
+    if(!atual){ toast("Toque uma música para começar."); return; }
+    const np=$id("np");
+    if(np.classList.contains("oculto")){ np.classList.remove("oculto"); posicionarNp(); return; }
+    adAuto=false; npGrande(!np.classList.contains("grande"));
+  };
   document.getElementById("plArt").onclick=artClick;
   document.getElementById("plArt").onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); artClick(); } };
   document.getElementById("globalSearch").addEventListener("input",e=>{

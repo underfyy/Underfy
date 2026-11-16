@@ -393,6 +393,10 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 .pl-art{width:50px;height:50px;flex:0 0 50px;border-radius:6px;overflow:hidden;position:relative;background:var(--surface-2);cursor:pointer}
 .pl-art img,.pl-art svg{width:100%;height:100%;object-fit:cover;display:block}
 #ytHolder{position:absolute;inset:0;display:none;pointer-events:none}
+.pl-art.big #ytHolder{pointer-events:auto}
+#plX{display:none;position:absolute;top:6px;right:6px;z-index:3;width:30px;height:30px;border-radius:99px;background:rgba(18,14,22,.88);color:#fff;font-size:18px;line-height:1;place-items:center;border:1px solid var(--line)}
+.pl-art.big #plX{display:grid}
+#plX:hover{background:var(--purple)}
 #ytHolder.on{display:block}
 #ytHolder iframe{position:absolute;top:50%;left:50%;width:300px;height:169px;border:0;transform:translate(-50%,-50%) scale(.296);transform-origin:center}
 .pl-art.big{position:fixed;right:20px;bottom:96px;width:320px;height:180px;z-index:150;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.7);border:1px solid var(--line)}
@@ -592,7 +596,8 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 
   <div class="ap-player">
     <div class="pl-info">
-      <div class="pl-art" id="plArt" title="Clique para ampliar o vídeo">
+      <div class="pl-art" id="plArt" title="Clique para ver o vídeo">
+        <button id="plX" aria-label="Fechar vídeo">×</button>
         <div id="ytHolder"><div id="ytFrame"></div></div>
         <svg id="plImg" viewBox="0 0 100 100" aria-hidden="true"></svg>
       </div>
@@ -2101,10 +2106,26 @@ function setUI(v){
   atualizarMini();
   try{ if("mediaSession" in navigator) navigator.mediaSession.playbackState=v?"playing":"paused"; }catch(e){}
 }
+/* ---------- vídeo visível (para o botão "Pular anúncio" do YouTube) ---------- */
+let videoAuto=false, tiquesZero=0;
+const videoAberto=()=>document.getElementById("plArt").classList.contains("big");
+function abrirVideo(auto){ videoAuto=!!auto; document.getElementById("plArt").classList.add("big"); }
+function fecharVideo(){ videoAuto=false; document.getElementById("plArt").classList.remove("big"); }
+function vigiarAnuncio(t,c){
+  if(!t.real) return;
+  if(c<0.3){
+    tiquesZero++;
+    /* 3 s "tocando" sem a música andar: é anúncio. Mostra o vídeo para dar para apertar Pular. */
+    if(tiquesZero===6&&!videoAberto()){ abrirVideo(true); toast("Anúncio do YouTube. Quando aparecer, toque em “Pular” no vídeo."); }
+  } else {
+    tiquesZero=0;
+    if(videoAuto&&c>1) fecharVideo();
+  }
+}
 function prog(){
   const t=T(atual); if(!t) return;
   let c,d;
-  if(t.real&&yt&&yt.getDuration){c=yt.getCurrentTime()||0;d=yt.getDuration()||0;}
+  if(t.real&&yt&&yt.getDuration){c=yt.getCurrentTime()||0;d=yt.getDuration()||0;vigiarAnuncio(t,c);}
   else{simSec=(simSec+.5)%simTotal;c=simSec;d=simTotal;}
   if(!d) return;
   document.getElementById("plFill").style.width=(c/d*100)+"%";
@@ -2131,6 +2152,7 @@ function tocar(id){
   document.getElementById("plLike").classList.toggle("on",DADOS.curtidas.includes(id));
   setArt(t);
   if(t.au) descobrir(t.au);
+  tiquesZero=0;
   DADOS.ultima=id; DADOS.recentes=[id].concat((DADOS.recentes||[]).filter(x=>x!==id)).slice(0,24); salvar();
   atualizarMini(); sessaoMidia();
   if(t.real){
@@ -2309,9 +2331,10 @@ function ligarPlayer(){
     prog();
   };
   document.getElementById("plArt").onclick=e=>{
+    if(e.target.closest("#plX")){ e.stopPropagation(); fecharVideo(); return; }
     const t=T(atual);
     if(!t||!t.real){ toast("Vídeo só nas faixas do catálogo do YouTube."); return; }
-    e.currentTarget.classList.toggle("big");
+    if(!videoAberto()) abrirVideo(false);
   };
   document.getElementById("globalSearch").addEventListener("input",e=>{
     busca=e.target.value.trim().toLowerCase();

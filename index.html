@@ -3,8 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Underfy</title>
+<title>Underfy — a cena que ninguém te mostrou</title>
+<meta name="description" content="Plataforma de colaboração entre artistas independentes do underground: música, poesia, microconto e arte visual.">
 <meta name="theme-color" content="#120E16">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Underfy">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 156 110'%3E%3Cpath d='M6 55 L20 55 L26 44 L32 66 L38 38 L44 72 L50 30 L50 66 C50 90 96 90 96 66 L96 26 L103 78 L110 34 L117 70 L124 46 L131 60 L138 55 L150 55' fill='none' stroke='%239D4EDD' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,18 +23,18 @@
   --line:#2E2540; --purple:#9D4EDD; --cyan:#00F5D4;
   --text:#F3EFF5; --muted:#8B8594;
   --radius:14px; --radius-sm:8px;
-  --font-display:"Chakra Petch",system-ui,sans-serif;
-  --font-body:"Barlow","Segoe UI",system-ui,sans-serif;
+  --fd:"Chakra Petch",system-ui,sans-serif;
+  --fb:"Barlow","Segoe UI",system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow:hidden}
-h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;line-height:1.15;letter-spacing:-.01em}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow:hidden}
+h1,h2,h3,h4{font-family:var(--fd);font-weight:600;line-height:1.15;letter-spacing:-.01em}
 button,input,textarea,select{font-family:inherit;font-size:inherit;color:inherit}
 button{background:none;border:none;cursor:pointer;color:inherit}
 :focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:6px}
 ::selection{background:var(--purple);color:#fff}
-[hidden]{display:none !important}
+[hidden]{display:none!important}
 *::-webkit-scrollbar{width:10px;height:10px}
 *::-webkit-scrollbar-track{background:transparent}
 *::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
@@ -36,9 +43,9 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 .mark{display:block;overflow:visible}
 .mark path{fill:none;stroke:currentColor;stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
 .lockup{display:flex;align-items:center;gap:.55em}
-.lockup .wordmark{font-family:var(--font-display);font-weight:700;letter-spacing:.14em;text-transform:uppercase;transform:skewX(-6deg)}
+.lockup .wordmark{font-family:var(--fd);font-weight:700;letter-spacing:.14em;text-transform:uppercase;transform:skewX(-6deg)}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.7rem 1.3rem;border-radius:99px;font-family:var(--font-display);font-weight:600;letter-spacing:.02em;transition:transform .12s ease,background .18s ease,border-color .18s ease,color .18s ease;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.7rem 1.3rem;border-radius:99px;font-family:var(--fd);font-weight:600;letter-spacing:.02em;transition:transform .12s,background .18s,border-color .18s,color .18s;white-space:nowrap}
 .btn:active{transform:scale(.97)}
 .btn-primary{background:var(--purple);color:#fff}
 .btn-primary:hover{background:#ad63e8}
@@ -47,152 +54,208 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 .btn-cyan{background:var(--cyan);color:#08201c}
 .btn-cyan:hover{background:#4dfae0}
 .btn-sm{padding:.44rem .95rem;font-size:.87rem}
+.btn-block{width:100%}
+.btn[disabled]{opacity:.45;pointer-events:none}
 
-/* shell */
-.ap{position:fixed;inset:0;display:grid;background:var(--bg);grid-template-columns:236px 1fr;grid-template-rows:1fr 78px;grid-template-areas:"side main" "player player"}
-@media(max-width:900px){.ap{grid-template-columns:1fr;grid-template-rows:1fr auto auto;grid-template-areas:"main" "player" "side"}}
+/* ============ LOGIN ============ */
+.auth{position:fixed;inset:0;z-index:400;display:grid;place-items:center;padding:22px;overflow-y:auto;
+  background:radial-gradient(ellipse at 20% 0%,rgba(157,78,221,.28),transparent 60%),radial-gradient(ellipse at 90% 100%,rgba(0,245,212,.12),transparent 55%),var(--bg)}
+.auth-box{width:100%;max-width:430px;margin:auto}
+.auth-box .lockup{color:var(--purple);font-size:34px;justify-content:center;margin-bottom:10px}
+.auth-box .wordmark{color:var(--text);font-size:30px}
+.auth-tag{text-align:center;color:var(--muted);font-size:.92rem;margin-bottom:30px}
+.auth-card{background:rgba(26,21,35,.86);border:1px solid var(--line);border-radius:20px;padding:26px;backdrop-filter:blur(10px)}
+.auth-card h2{font-size:1.2rem;margin-bottom:5px}
+.auth-card .sub{color:var(--muted);font-size:.87rem;margin-bottom:20px}
+.field{margin-bottom:15px}
+.field label{display:block;font-family:var(--fd);font-size:.82rem;color:var(--muted);margin-bottom:7px}
+.field input,.field textarea,.field select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 13px;outline:none;transition:border-color .18s;font-size:.94rem}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--purple)}
+.field textarea{resize:vertical;min-height:92px;line-height:1.6}
+.auth-err{color:#ff8fa3;font-size:.85rem;margin-bottom:12px;min-height:1.2em}
+.auth-foot{margin-top:18px;text-align:center;font-size:.83rem;color:var(--muted)}
+.auth-foot button{color:var(--cyan);text-decoration:underline;text-underline-offset:3px}
+.auth-note{margin-top:20px;font-size:.78rem;color:var(--muted);line-height:1.6;border-top:1px solid var(--line);padding-top:16px}
+.auth-note b{color:var(--text);font-family:var(--fd)}
 
-.ap-side{grid-area:side;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 14px}
-.ap-side .lockup{color:var(--purple);font-size:20px;padding:6px 10px 22px}
-.ap-side .wordmark{color:var(--text);font-size:20px}
-.ap-nav{display:flex;flex-direction:column;gap:4px}
-.navbtn{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:var(--muted);font-family:var(--font-display);font-weight:500;transition:background .16s ease,color .16s ease;width:100%;text-align:left}
-.navbtn svg{width:20px;height:20px;flex:0 0 20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* ============ SHELL ============ */
+.ap{position:fixed;inset:0;display:grid;background:var(--bg);grid-template-columns:238px minmax(0,1fr);grid-template-rows:minmax(0,1fr) 78px;grid-template-areas:"side main" "player player"}
+@media(max-width:900px){.ap{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto;grid-template-areas:"main" "player" "side"}}
+.ap-side{grid-area:side;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px;overflow-y:auto}
+.ap-side .lockup{color:var(--purple);font-size:19px;padding:6px 10px 18px}
+.ap-side .wordmark{color:var(--text);font-size:19px}
+.ap-nav{display:flex;flex-direction:column;gap:2px}
+.nav-sep{height:1px;background:var(--line);margin:10px 12px}
+.navbtn{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:10px;color:var(--muted);font-family:var(--fd);font-weight:500;font-size:.95rem;transition:background .16s,color .16s;width:100%;text-align:left}
+.navbtn svg{width:19px;height:19px;flex:0 0 19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .navbtn:hover{color:var(--text);background:var(--surface-2)}
 .navbtn.on{color:var(--purple);background:rgba(157,78,221,.12)}
-.side-note{margin-top:auto;border:1px solid var(--line);border-radius:var(--radius);padding:14px;font-size:.82rem;color:var(--muted)}
-.side-note b{display:block;font-family:var(--font-display);color:var(--text);font-size:.9rem;margin-bottom:5px}
-.side-note .btn{margin-top:11px;width:100%}
+.lvl-box{margin-top:auto;border:1px solid var(--line);border-radius:var(--radius);padding:13px;font-size:.8rem;color:var(--muted)}
+.lvl-box b{display:block;font-family:var(--fd);color:var(--cyan);font-size:.88rem;margin-bottom:3px}
+.lvl-bar{height:5px;border-radius:99px;background:var(--surface-2);margin:9px 0 6px;overflow:hidden}
+.lvl-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:99px;transition:width .6s}
 @media(max-width:900px){
-  .ap-side{flex-direction:row;border-right:none;border-top:1px solid var(--line);padding:6px 4px;padding-bottom:max(6px,env(safe-area-inset-bottom));background:#15111d}
-  .ap-side .lockup,.side-note{display:none}
+  .ap-side{flex-direction:row;border-right:none;border-top:1px solid var(--line);padding:6px 3px;padding-bottom:max(6px,env(safe-area-inset-bottom));background:#15111d;overflow:visible}
+  .ap-side .lockup,.lvl-box,.nav-sep,.desk-only{display:none}
   .ap-nav{flex-direction:row;width:100%;gap:0}
-  .navbtn{flex-direction:column;gap:4px;font-size:.66rem;padding:7px 2px;justify-content:center;text-align:center;letter-spacing:0}
+  .navbtn{flex-direction:column;gap:4px;font-size:.64rem;padding:7px 2px;justify-content:center;text-align:center;letter-spacing:0}
   .navbtn svg{width:21px;height:21px;flex:0 0 21px}
 }
-
 .ap-main{grid-area:main;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative}
-.glow{position:absolute;top:0;left:0;right:0;height:420px;pointer-events:none;transition:opacity .3s ease;background:linear-gradient(180deg,rgba(157,78,221,.22),rgba(157,78,221,0) 78%)}
-.ap-top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:13px 26px;background:rgba(18,14,22,.72);backdrop-filter:blur(16px);border-bottom:1px solid transparent;transition:border-color .25s ease,background .25s ease}
+.glow{position:absolute;top:0;left:0;right:0;height:430px;pointer-events:none;transition:opacity .35s;background:linear-gradient(180deg,rgba(157,78,221,.22),rgba(157,78,221,0) 78%)}
+.ap-top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:12px 26px;background:rgba(18,14,22,.72);backdrop-filter:blur(16px);border-bottom:1px solid transparent;transition:border-color .25s,background .25s}
 .ap-top.stuck{border-bottom-color:var(--line);background:rgba(18,14,22,.94)}
-@media(max-width:640px){.ap-top{padding:11px 16px}}
-.ap-search{flex:1;max-width:400px;display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:8px 16px;transition:border-color .18s ease}
+@media(max-width:640px){.ap-top{padding:10px 14px}}
+.ap-search{flex:1;max-width:400px;display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:8px 16px;transition:border-color .18s}
 .ap-search:focus-within{border-color:var(--purple)}
 .ap-search input{background:none;border:none;outline:none;width:100%;font-size:.93rem;min-width:0}
 .ap-search input::placeholder{color:var(--muted)}
 .ap-search svg{width:17px;height:17px;stroke:var(--muted);fill:none;stroke-width:2;flex:0 0 17px}
-.ap-me{margin-left:auto;display:flex;align-items:center;gap:10px}
-.ap-page{padding:22px 26px 40px;position:relative;z-index:1}
-@media(max-width:640px){.ap-page{padding:18px 16px 34px}}
+.ap-me{margin-left:auto;display:flex;align-items:center;gap:9px}
+.ap-page{padding:22px 26px 44px;position:relative;z-index:1}
+@media(max-width:640px){.ap-page{padding:16px 14px 34px}}
 .mobile-logo{display:none}
-@media(max-width:900px){.mobile-logo{display:flex;color:var(--purple);font-size:17px}.mobile-logo .wordmark{color:var(--text);font-size:17px}.ap-search{max-width:none}}
-@media(max-width:560px){.ap-top .mobile-logo{display:none}}
+@media(max-width:900px){.mobile-logo{display:flex;color:var(--purple);font-size:16px}.mobile-logo .wordmark{color:var(--text);font-size:16px}.ap-search{max-width:none}}
+@media(max-width:600px){.ap-top .mobile-logo,.ap-top .hide-xs{display:none}}
 .ap-h{font-size:1.55rem;margin-bottom:6px}
-.ap-sub{color:var(--muted);font-size:.94rem;margin-bottom:24px;max-width:44em}
+.ap-sub{color:var(--muted);font-size:.94rem;margin-bottom:22px;max-width:46em}
+.sec-h{font-size:1.18rem;margin:28px 0 13px}
+.back{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:.88rem;margin-bottom:16px}
+.back:hover{color:var(--text)}
 
-/* capas */
+/* ============ CAPAS ============ */
 .cover{width:100%;aspect-ratio:1;display:block;border-radius:7px;background:var(--surface-2);object-fit:cover}
 .cover.round{border-radius:99px}
 
-.greet{font-size:clamp(1.5rem,3.6vw,2rem);margin-bottom:22px}
+/* ============ ARTISTA DA SEMANA ============ */
+.week{position:relative;border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-bottom:34px;background:var(--surface)}
+.week-bg{position:absolute;inset:0;opacity:.5}
+.week-in{position:relative;display:flex;gap:26px;align-items:center;padding:28px;background:linear-gradient(100deg,rgba(18,14,22,.95) 35%,rgba(18,14,22,.6))}
+.week-av{width:132px;height:132px;flex:0 0 132px;border-radius:99px;display:grid;place-items:center;font-family:var(--fd);font-weight:700;font-size:2.4rem;color:#fff;box-shadow:0 0 0 4px rgba(18,14,22,.9),0 0 46px rgba(157,78,221,.55)}
+.week-tag{font-family:var(--fd);font-size:.74rem;letter-spacing:.14em;color:var(--cyan);display:block;margin-bottom:8px}
+.week h2{font-size:clamp(1.6rem,4vw,2.4rem);margin-bottom:5px}
+.week .loc{color:var(--muted);font-size:.9rem;margin-bottom:12px}
+.week p{color:var(--muted);font-size:.93rem;max-width:40em;margin-bottom:18px}
+.week-acts{display:flex;gap:10px;flex-wrap:wrap}
+@media(max-width:720px){.week-in{flex-direction:column;align-items:flex-start;padding:22px;gap:18px}.week-av{width:96px;height:96px;flex:0 0 96px;font-size:1.8rem}}
 
-/* destaque */
-.feat{display:flex;align-items:center;gap:24px;margin-bottom:34px;background:linear-gradient(110deg,rgba(157,78,221,.3),rgba(0,245,212,.07) 70%,transparent);border:1px solid var(--line);border-radius:18px;padding:22px}
-.feat-art{width:172px;flex:0 0 172px;display:grid;grid-template-columns:1fr 1fr;gap:2px;border-radius:10px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.55)}
-.feat-art img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--surface-2)}
-.feat-txt{min-width:0}
-.feat-tag{font-family:var(--font-display);font-size:.76rem;letter-spacing:.12em;color:var(--cyan);margin-bottom:9px;display:block}
-.feat h2{font-size:clamp(1.4rem,3.4vw,2.1rem);margin-bottom:8px}
-.feat p{color:var(--muted);font-size:.93rem;margin-bottom:18px;max-width:36em}
-.feat-acts{display:flex;gap:10px;flex-wrap:wrap}
-@media(max-width:720px){.feat{flex-direction:column;align-items:flex-start;gap:18px;padding:18px}.feat-art{width:140px;flex:0 0 auto}}
+/* ============ ATALHOS ============ */
+.jump{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:34px}
+@media(max-width:820px){.jump{grid-template-columns:repeat(2,1fr)}}
+.jbox{display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);transition:border-color .18s,background .18s;text-align:left}
+.jbox:hover{border-color:var(--purple);background:var(--surface-2)}
+.jbox .em{font-size:1.4rem;line-height:1;flex:0 0 auto}
+.jbox strong{display:block;font-family:var(--fd);font-size:.95rem}
+.jbox span{font-size:.79rem;color:var(--muted);display:block;line-height:1.35}
 
-/* atalhos */
-.qp{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:38px}
+/* ============ QUICK PICKS ============ */
+.qp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:34px}
 @media(max-width:1100px){.qp{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.qp{grid-template-columns:1fr}}
-.qpc{display:flex;align-items:center;gap:13px;background:var(--surface-2);border-radius:7px;overflow:hidden;height:64px;transition:background .18s ease;text-align:left;position:relative}
+.qpc{display:flex;align-items:center;gap:12px;background:var(--surface-2);border-radius:7px;overflow:hidden;height:62px;transition:background .18s;text-align:left;position:relative}
 .qpc:hover{background:var(--surface-3)}
-.qpc .cover{width:64px;height:64px;flex:0 0 64px;border-radius:0;aspect-ratio:auto}
-.qpc-txt{min-width:0;padding-right:52px}
-.qpc strong{display:block;font-family:var(--font-display);font-size:.94rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.qpc span{font-size:.79rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.qpc .fab{position:absolute;right:12px;top:50%;transform:translateY(-50%) scale(.85);opacity:0;transition:.18s ease}
+.qpc .cover{width:62px;height:62px;flex:0 0 62px;border-radius:0;aspect-ratio:auto}
+.qpc-txt{min-width:0;padding-right:48px}
+.qpc strong{display:block;font-family:var(--fd);font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qpc span{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.qpc .fab{position:absolute;right:11px;top:50%;transform:translateY(-50%) scale(.85);opacity:0;transition:.18s}
 .qpc:hover .fab{opacity:1;transform:translateY(-50%) scale(1)}
 
-/* prateleiras */
-.shelf{margin-bottom:34px}
-.shelf-head{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
-.shelf-head h2{font-size:1.28rem}
-.shelf-head p{font-size:.85rem;color:var(--muted);margin-left:auto;white-space:nowrap}
+/* ============ PRATELEIRAS ============ */
+.shelf{margin-bottom:32px}
+.shelf-head{display:flex;align-items:baseline;gap:14px;margin-bottom:13px}
+.shelf-head h2{font-size:1.24rem}
+.shelf-head p{font-size:.84rem;color:var(--muted);margin-left:auto;white-space:nowrap}
 @media(max-width:640px){.shelf-head p{display:none}}
-.rail{display:grid;grid-auto-flow:column;grid-auto-columns:168px;gap:14px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;padding-bottom:8px;margin:0 -8px;padding-inline:8px}
-@media(max-width:560px){.rail{grid-auto-columns:143px}}
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:166px;gap:14px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;padding-bottom:8px;margin:0 -8px;padding-inline:8px}
+@media(max-width:560px){.rail{grid-auto-columns:141px}}
 .rail>*{scroll-snap-align:start}
-.tile{padding:10px;border-radius:9px;transition:background .18s ease;text-align:left;width:100%}
+.tile{padding:10px;border-radius:9px;transition:background .18s;text-align:left;width:100%}
 .tile:hover{background:var(--surface-2)}
 .tile.artist{text-align:center}
-.tile-cover{position:relative;margin-bottom:11px}
+.tile-cover{position:relative;margin-bottom:10px}
 .tile-cover .cover{box-shadow:0 8px 22px rgba(0,0,0,.4)}
-.fab{width:42px;height:42px;border-radius:99px;background:var(--purple);display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.5);transition:transform .16s ease,opacity .16s ease,background .16s ease;flex:0 0 42px}
+.fab{width:42px;height:42px;border-radius:99px;background:var(--purple);display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.5);transition:transform .16s,opacity .16s,background .16s;flex:0 0 42px}
 .fab svg{width:15px;height:15px;fill:#fff}
 .fab:hover{background:#ad63e8}
 .tile-cover .fab{position:absolute;right:8px;bottom:8px;opacity:0;transform:translateY(8px)}
 .tile:hover .tile-cover .fab,.tile:focus-within .tile-cover .fab{opacity:1;transform:none}
 @media(hover:none){.tile-cover .fab{opacity:1;transform:none}.qpc .fab{opacity:1;transform:translateY(-50%)}}
-.tile strong{display:block;font-family:var(--font-display);font-size:.93rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
-.tile span{display:block;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile strong{display:block;font-family:var(--fd);font-size:.92rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.tile span{display:block;font-size:.79rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tile.playing strong{color:var(--cyan)}
 .slot-open{color:var(--cyan)}
-.pill-open{position:absolute;left:8px;top:8px;background:rgba(0,245,212,.92);color:#08201c;font-family:var(--font-display);font-size:.68rem;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:99px}
-.pill-yt{position:absolute;left:8px;top:8px;background:rgba(18,14,22,.82);color:var(--text);font-family:var(--font-display);font-size:.66rem;font-weight:600;letter-spacing:.05em;padding:3px 8px;border-radius:99px;backdrop-filter:blur(4px)}
+.pill{position:absolute;left:8px;top:8px;font-family:var(--fd);font-size:.66rem;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:99px}
+.pill-open{background:rgba(0,245,212,.92);color:#08201c}
+.pill-tipo{background:rgba(18,14,22,.85);color:var(--text);backdrop-filter:blur(4px);border:1px solid var(--line)}
 
-/* lista de faixas */
-.tracklist{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;max-width:820px}
-.trow{display:flex;align-items:center;gap:13px;padding:9px 12px;width:100%;text-align:left;transition:background .16s ease;border-bottom:1px solid var(--line)}
+/* ============ LISTA DE FAIXAS ============ */
+.tracklist{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;max-width:840px}
+.trow{display:flex;align-items:center;gap:13px;padding:9px 12px;width:100%;text-align:left;transition:background .16s;border-bottom:1px solid var(--line)}
 .trow:last-child{border-bottom:none}
 .trow:hover{background:var(--surface-2)}
-.trow .num{width:22px;text-align:right;color:var(--muted);font-size:.85rem;font-family:var(--font-display);flex:0 0 22px}
-.trow img{width:44px;height:44px;border-radius:5px;object-fit:cover;flex:0 0 44px;background:var(--surface-2)}
+.trow .num{width:24px;text-align:right;color:var(--muted);font-size:.85rem;font-family:var(--fd);flex:0 0 24px}
+.trow .thumb{width:44px;height:44px;border-radius:5px;overflow:hidden;flex:0 0 44px;background:var(--surface-2)}
+.trow .thumb img,.trow .thumb svg{width:100%;height:100%;object-fit:cover;display:block;border-radius:5px}
 .trow .tinfo{min-width:0;flex:1}
-.trow strong{display:block;font-family:var(--font-display);font-size:.94rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trow span{display:block;font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow strong{display:block;font-family:var(--fd);font-size:.93rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow .tinfo span{display:block;font-size:.79rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trow.playing strong{color:var(--cyan)}
-.trow .src{font-size:.72rem;color:var(--muted);font-family:var(--font-display);white-space:nowrap}
+.trow .src{font-size:.71rem;color:var(--muted);font-family:var(--fd);white-space:nowrap}
 @media(max-width:560px){.trow .src{display:none}}
 
-/* avatar */
-.av{border-radius:99px;display:grid;place-items:center;flex:0 0 auto;font-family:var(--font-display);font-weight:700;color:#fff;width:44px;height:44px;font-size:.9rem;position:relative}
-.av.sm{width:34px;height:34px;font-size:.75rem}
-.av.lg{width:82px;height:82px;font-size:1.6rem}
+/* ============ AVATAR ============ */
+.av{border-radius:99px;display:grid;place-items:center;flex:0 0 auto;font-family:var(--fd);font-weight:700;color:#fff;width:44px;height:44px;font-size:.9rem;position:relative}
+.av.sm{width:34px;height:34px;font-size:.74rem}
+.av.md{width:56px;height:56px;font-size:1.05rem}
+.av.lg{width:86px;height:86px;font-size:1.6rem}
 .av .on-dot{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:99px;background:var(--cyan);border:2.5px solid var(--bg)}
 
-/* feed */
-.post{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:14px;max-width:720px}
-.post-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.post-who strong{display:block;font-family:var(--font-display);font-size:.98rem}
-.post-who span{font-size:.82rem;color:var(--muted)}
-.badge{margin-left:auto;font-family:var(--font-display);font-size:.72rem;letter-spacing:.06em;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
-.badge.letra{color:var(--purple);border-color:rgba(157,78,221,.45);background:rgba(157,78,221,.1)}
-.badge.beat{color:var(--cyan);border-color:rgba(0,245,212,.4);background:rgba(0,245,212,.08)}
-.post-title{font-family:var(--font-display);font-size:1.12rem;font-weight:600;margin-bottom:8px}
+/* ============ CARDS DE OBRA ============ */
+.obra{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:17px;transition:border-color .18s;text-align:left;width:100%;display:block}
+.obra:hover{border-color:var(--purple)}
+.obra-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.obra-top .who{font-size:.82rem;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{font-family:var(--fd);font-size:.7rem;letter-spacing:.06em;padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;margin-left:auto}
+.badge.poema{color:var(--purple);border-color:rgba(157,78,221,.45);background:rgba(157,78,221,.1)}
+.badge.microconto{color:#ffd166;border-color:rgba(255,209,102,.4);background:rgba(255,209,102,.08)}
+.badge.arte{color:var(--cyan);border-color:rgba(0,245,212,.4);background:rgba(0,245,212,.08)}
+.badge.musica{color:#8ecaff;border-color:rgba(142,202,255,.4);background:rgba(142,202,255,.08)}
+.obra h3{font-size:1.06rem;margin-bottom:9px}
+.obra .texto{font-size:.97rem;line-height:1.75;color:var(--text);white-space:pre-line;border-left:2px solid var(--purple);padding-left:13px}
+.obra .texto.mc{border-left-color:#ffd166}
+.grid-obras{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:14px}
+
+/* ============ FEED ============ */
+.post{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:14px;max-width:730px}
+.post-head{display:flex;align-items:center;gap:12px;margin-bottom:13px}
+.post-who strong{display:block;font-family:var(--fd);font-size:.97rem}
+.post-who span{font-size:.81rem;color:var(--muted)}
+.post-title{font-family:var(--fd);font-size:1.1rem;font-weight:600;margin-bottom:8px}
 .post-verse{border-left:2px solid var(--purple);padding:2px 0 2px 14px;margin:12px 0 14px;font-size:1rem;line-height:1.7;white-space:pre-line}
 .post-audio{display:flex;align-items:center;gap:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;margin:12px 0 6px}
-.post-audio .meta{font-size:.83rem;color:var(--muted);white-space:nowrap}
+.post-audio .meta{font-size:.82rem;color:var(--muted);white-space:nowrap}
 .post-audio .wave{flex:1;min-width:0;overflow:hidden}
-.audio-info{font-size:.84rem;color:var(--muted);margin:0 0 14px}
-.tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
-.tag-chip{font-size:.79rem;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);padding:3px 10px;border-radius:99px}
-.callout{display:flex;align-items:center;gap:9px;font-size:.88rem;background:rgba(0,245,212,.06);border:1px dashed rgba(0,245,212,.35);color:var(--cyan);padding:9px 13px;border-radius:var(--radius-sm);margin-bottom:14px}
+.audio-info{font-size:.83rem;color:var(--muted);margin:0 0 13px}
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px}
+.tag-chip{font-size:.78rem;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);padding:3px 10px;border-radius:99px}
+.callout{display:flex;align-items:center;gap:9px;font-size:.87rem;background:rgba(0,245,212,.06);border:1px dashed rgba(0,245,212,.35);color:var(--cyan);padding:9px 13px;border-radius:var(--radius-sm);margin-bottom:13px}
 .callout b{font-weight:600;color:var(--text)}
-.post-acts{display:flex;align-items:center;gap:6px;border-top:1px solid var(--line);padding-top:13px;flex-wrap:wrap}
-.act{display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:99px;color:var(--muted);font-size:.87rem;transition:color .16s ease,background .16s ease}
+.post-acts{display:flex;align-items:center;gap:4px;border-top:1px solid var(--line);padding-top:12px;flex-wrap:wrap}
+.act{display:flex;align-items:center;gap:7px;padding:7px 11px;border-radius:99px;color:var(--muted);font-size:.86rem;transition:color .16s,background .16s}
 .act svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .act:hover{background:var(--surface-2);color:var(--text)}
-.act.liked{color:var(--cyan)}
-.act.liked svg{fill:var(--cyan);stroke:var(--cyan)}
-.act-collab{margin-left:auto;color:var(--purple);border:1px solid rgba(157,78,221,.4);font-family:var(--font-display);font-weight:600}
+.act.on{color:var(--cyan)}
+.act.on svg{fill:var(--cyan);stroke:var(--cyan)}
+.act-collab{margin-left:auto;color:var(--purple);border:1px solid rgba(157,78,221,.4);font-family:var(--fd);font-weight:600}
 .act-collab:hover{background:var(--purple);color:#fff}
+.coments{border-top:1px solid var(--line);margin-top:12px;padding-top:12px;display:flex;flex-direction:column;gap:11px}
+.cmt{display:flex;gap:10px}
+.cmt .body{background:var(--surface-2);border-radius:12px;padding:9px 13px;font-size:.89rem;min-width:0}
+.cmt .body b{font-family:var(--fd);font-size:.84rem;display:block;color:var(--text)}
+.cmt-form{display:flex;gap:9px;align-items:center;margin-top:11px}
+.cmt-form input{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:9px 15px;outline:none;font-size:.9rem}
+.cmt-form input:focus{border-color:var(--purple)}
 
 .wave{display:flex;align-items:center;gap:2px;height:26px}
 .wave i{display:block;flex:1 1 auto;min-width:2px;max-width:4px;border-radius:99px;background:var(--purple);height:30%;animation:bounce 1s ease-in-out infinite alternate}
@@ -200,55 +263,131 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 @keyframes bounce{to{height:100%}}
 @media(prefers-reduced-motion:reduce){.wave i{animation:none;height:58%}}
 
-/* buscar */
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
-.chip{padding:7px 15px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:.88rem;transition:all .16s ease}
+/* ============ CHIPS / GRIDS ============ */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.chip{padding:7px 15px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:.88rem;transition:all .16s}
 .chip:hover{color:var(--text);border-color:var(--purple)}
 .chip.on{background:var(--purple);border-color:var(--purple);color:#fff}
-.sec-h{font-size:1.15rem;margin:26px 0 13px}
-.grid-art{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:14px}
-.art-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 18px;text-align:center;transition:border-color .18s ease,background .18s ease}
+.chip.big{padding:13px 20px;font-size:.98rem;font-family:var(--fd);display:inline-flex;align-items:center;gap:9px}
+.chip.big.on{box-shadow:0 0 22px rgba(157,78,221,.4)}
+.grid-art{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.art-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 18px;text-align:center;transition:border-color .18s,background .18s}
 .art-card:hover{border-color:var(--purple);background:var(--surface-2)}
-.art-card .av,.art-card .cover{margin:0 auto 13px}
-.art-card .cover{width:82px;height:82px;aspect-ratio:auto}
-.art-card strong{display:block;font-family:var(--font-display);font-size:1rem}
-.art-card .role{font-size:.85rem;color:var(--purple);margin:3px 0 2px}
-.art-card .city{font-size:.8rem;color:var(--muted);margin-bottom:14px}
-.art-card .btn{width:100%}
-.empty{border:1px dashed var(--line);border-radius:var(--radius);padding:42px 24px;text-align:center;color:var(--muted);max-width:720px}
-.empty strong{display:block;color:var(--text);font-family:var(--font-display);font-size:1.05rem;margin-bottom:6px}
+.art-card .av,.art-card .cover{margin:0 auto 12px}
+.art-card .cover{width:84px;height:84px;aspect-ratio:auto}
+.art-card strong{display:block;font-family:var(--fd);font-size:1rem}
+.art-card .role{font-size:.84rem;color:var(--purple);margin:3px 0 2px}
+.art-card .city{font-size:.79rem;color:var(--muted);margin-bottom:13px}
+.empty{border:1px dashed var(--line);border-radius:var(--radius);padding:40px 24px;text-align:center;color:var(--muted);max-width:730px}
+.empty strong{display:block;color:var(--text);font-family:var(--fd);font-size:1.03rem;margin-bottom:6px}
 
-/* colabs */
-.proj{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px;max-width:820px}
-.proj-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;flex-wrap:wrap}
-.proj-head h3{font-size:1.15rem}
-.proj-head p{font-size:.85rem;color:var(--muted)}
+/* ============ COLABS ============ */
+.proj{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:14px;max-width:840px}
+.proj-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:17px;flex-wrap:wrap}
+.proj-head h3{font-size:1.13rem}
+.proj-head p{font-size:.84rem;color:var(--muted)}
 .prog{margin-left:auto;text-align:right;min-width:120px}
-.prog b{font-family:var(--font-display);font-size:.85rem;color:var(--cyan)}
+.prog b{font-family:var(--fd);font-size:.84rem;color:var(--cyan)}
 .prog-bar{height:5px;border-radius:99px;background:var(--surface-2);margin-top:7px;overflow:hidden}
-.prog-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:99px;transition:width .5s ease}
+.prog-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:99px;transition:width .5s}
 .slots{display:flex;flex-direction:column;gap:9px}
 .slot{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-sm);background:var(--surface-2);border:1px solid transparent}
 .slot.open{background:transparent;border:1px dashed var(--line)}
-.slot-role{font-family:var(--font-display);font-size:.88rem;min-width:90px;color:var(--muted)}
-.slot strong{font-size:.92rem}
-.slot .ok{margin-left:auto;color:var(--purple);font-size:.8rem;font-family:var(--font-display)}
+.slot-role{font-family:var(--fd);font-size:.87rem;min-width:88px;color:var(--muted)}
+.slot strong{font-size:.91rem}
+.slot .ok{margin-left:auto;color:var(--purple);font-size:.79rem;font-family:var(--fd)}
 .slot .btn{margin-left:auto}
-.slot-open-lbl{color:var(--muted);font-size:.9rem;font-style:italic}
+.slot-open-lbl{color:var(--muted);font-size:.89rem;font-style:italic}
 
-/* perfil */
-.prof-head{display:flex;gap:22px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
-.prof-head h2{font-size:1.7rem}
-.prof-head .role{color:var(--purple);font-family:var(--font-display);font-size:.95rem}
-.prof-head .city{color:var(--muted);font-size:.88rem}
-.prof-bio{color:var(--muted);max-width:44em}
-.stats{display:flex;gap:28px;margin:24px 0;padding:18px 0;border-block:1px solid var(--line);flex-wrap:wrap;max-width:820px}
-.stat b{display:block;font-family:var(--font-display);font-size:1.35rem}
-.stat span{font-size:.82rem;color:var(--muted)}
+/* ============ O BURACO ============ */
+.buraco{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);margin-bottom:26px;
+  background:linear-gradient(180deg,#1A1523 0%,#140F1C 40%,#0A070E 100%)}
+.buraco-in{padding:44px 28px;text-align:center;position:relative}
+.buraco h1{font-size:clamp(1.9rem,5vw,3rem);margin-bottom:12px}
+.buraco .desc{color:var(--muted);max-width:32em;margin:0 auto 26px;font-size:.98rem}
+.descida{display:flex;flex-direction:column;align-items:center;gap:7px;margin:26px 0 8px;color:var(--muted);font-family:var(--fd);font-size:.82rem;letter-spacing:.1em}
+.descida i{display:block;width:1px;height:26px;background:linear-gradient(180deg,var(--purple),transparent)}
+.fundo{background:var(--surface);border:1px solid rgba(157,78,221,.35);border-radius:18px;padding:26px 22px;max-width:430px;margin:0 auto;box-shadow:0 0 60px rgba(157,78,221,.18)}
+.fundo .av{margin:0 auto 14px}
+.fundo h3{font-size:1.35rem;margin-bottom:4px}
+.fundo .loc{color:var(--muted);font-size:.87rem;margin-bottom:14px}
+.fundo .ouv{font-family:var(--fd);color:var(--cyan);font-size:.92rem;margin-bottom:18px}
+.fundo .btns{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
 
-/* player */
+/* ============ ASCENSÃO ============ */
+.tabela{width:100%;border-collapse:collapse;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;max-width:840px;font-size:.92rem}
+.tabela th{background:var(--surface-2);text-align:left;font-family:var(--fd);font-size:.8rem;color:var(--muted);padding:11px 14px;font-weight:600;letter-spacing:.04em}
+.tabela td{padding:11px 14px;border-top:1px solid var(--line)}
+.tabela tr:hover td{background:var(--surface)}
+.tabela .nome{display:flex;align-items:center;gap:10px}
+.tabela .up{color:var(--cyan);font-family:var(--fd);font-weight:600;white-space:nowrap}
+.tabela .barra{height:5px;background:var(--surface-2);border-radius:99px;overflow:hidden;min-width:70px}
+.tabela .barra i{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan))}
+@media(max-width:620px){.tabela .hide-xs2{display:none}}
+
+/* ============ MAPA ============ */
+.mapa-wrap{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;align-items:start}
+@media(max-width:860px){.mapa-wrap{grid-template-columns:1fr}}
+.mapa{background:linear-gradient(160deg,#171122,#0D0A12);border:1px solid var(--line);border-radius:18px;padding:14px;position:relative;overflow:hidden}
+.mapa svg{width:100%;height:auto;display:block;overflow:visible}
+.cidade-dot{cursor:pointer;transition:opacity .2s}
+.cidade-dot:hover .halo{opacity:.55}
+.cidade-dot .halo{opacity:.18;transition:opacity .2s}
+.cidade-dot.sel .halo{opacity:.7}
+.cidade-dot text{font-family:var(--fd);font-size:2.6px;fill:var(--muted)}
+.cidade-dot.sel text{fill:var(--text)}
+.mapa-legend{font-size:.78rem;color:var(--muted);margin-top:10px;display:flex;gap:16px;flex-wrap:wrap}
+.mapa-legend span{display:flex;align-items:center;gap:6px}
+.mapa-legend i{width:9px;height:9px;border-radius:99px;display:block}
+
+/* ============ EVENTOS ============ */
+.ev{display:flex;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px;max-width:840px;align-items:center;flex-wrap:wrap}
+.ev-data{width:66px;flex:0 0 66px;text-align:center;border:1px solid var(--line);border-radius:10px;padding:8px 4px;background:var(--surface-2)}
+.ev-data b{display:block;font-family:var(--fd);font-size:1.5rem;line-height:1;color:var(--purple)}
+.ev-data span{font-size:.72rem;color:var(--muted);letter-spacing:.08em;font-family:var(--fd)}
+.ev-txt{flex:1;min-width:180px}
+.ev-txt h3{font-size:1.06rem;margin-bottom:3px}
+.ev-txt p{font-size:.85rem;color:var(--muted)}
+
+/* ============ PERFIL / BIBLIOTECA ============ */
+.prof-head{display:flex;gap:22px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.prof-head h2{font-size:1.75rem}
+.prof-head .role{color:var(--purple);font-family:var(--fd);font-size:.94rem}
+.prof-head .city{color:var(--muted);font-size:.87rem}
+.prof-bio{color:var(--muted);max-width:46em}
+.stats{display:flex;gap:26px;margin:22px 0;padding:17px 0;border-block:1px solid var(--line);flex-wrap:wrap;max-width:840px}
+.stat b{display:block;font-family:var(--fd);font-size:1.32rem}
+.stat span{font-size:.81rem;color:var(--muted)}
+.lvl-card{background:linear-gradient(120deg,rgba(157,78,221,.18),rgba(0,245,212,.06));border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:24px;max-width:840px}
+.lvl-card .top{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.lvl-card .em{font-size:2rem}
+.lvl-card h3{font-size:1.25rem}
+.lvl-card .nvl{font-family:var(--fd);color:var(--cyan);font-size:.84rem}
+.lvl-card p{font-size:.88rem;color:var(--muted);margin-top:10px}
+.pl-card{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px;max-width:840px;text-align:left;width:100%;transition:border-color .18s}
+.pl-card:hover{border-color:var(--purple)}
+.pl-mini{width:54px;height:54px;flex:0 0 54px;border-radius:8px;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;background:var(--surface-2)}
+.pl-mini>*{width:100%;height:100%;object-fit:cover}
+.pl-card .info{min-width:0;flex:1}
+.pl-card strong{display:block;font-family:var(--fd);font-size:1rem}
+.pl-card span{font-size:.82rem;color:var(--muted)}
+.colab-pill{font-family:var(--fd);font-size:.7rem;color:var(--cyan);border:1px solid rgba(0,245,212,.4);background:rgba(0,245,212,.08);padding:3px 9px;border-radius:99px;white-space:nowrap}
+
+/* ============ VIBE / IA ============ */
+.vibe-box{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:26px}
+.ia-box{background:linear-gradient(130deg,rgba(157,78,221,.16),rgba(0,245,212,.05));border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:26px}
+.ia-row{display:flex;gap:10px;flex-wrap:wrap}
+.ia-row input{flex:1;min-width:200px;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:12px 18px;outline:none}
+.ia-row input:focus{border-color:var(--purple)}
+.ia-sug{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.ia-sug button{font-size:.82rem;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 12px;transition:all .16s}
+.ia-sug button:hover{color:var(--text);border-color:var(--purple)}
+.ia-nota{font-size:.78rem;color:var(--muted);margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.sessao{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;max-width:840px;margin-top:18px}
+
+/* ============ PLAYER ============ */
 .ap-player{grid-area:player;background:var(--surface);border-top:1px solid var(--line);display:flex;align-items:center;gap:16px;padding:0 20px}
-@media(max-width:900px){.ap-player{padding:9px 12px;gap:10px}}
+@media(max-width:900px){.ap-player{padding:8px 12px;gap:10px}}
 .pl-info{display:flex;align-items:center;gap:12px;min-width:0;width:250px}
 @media(max-width:900px){.pl-info{width:auto;flex:1}}
 .pl-art{width:50px;height:50px;flex:0 0 50px;border-radius:6px;overflow:hidden;position:relative;background:var(--surface-2);cursor:pointer}
@@ -258,85 +397,106 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 #ytHolder iframe{position:absolute;top:50%;left:50%;width:300px;height:169px;border:0;transform:translate(-50%,-50%) scale(.296);transform-origin:center}
 .pl-art.big{position:fixed;right:20px;bottom:96px;width:320px;height:180px;z-index:150;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.7);border:1px solid var(--line)}
 .pl-art.big #ytHolder iframe{transform:translate(-50%,-50%) scale(1.067)}
-@media(max-width:900px){.pl-art.big{right:12px;left:12px;width:auto;bottom:auto;top:70px;height:auto;aspect-ratio:16/9}
-  .pl-art.big #ytHolder iframe{transform:translate(-50%,-50%) scale(1.2)}}
-.pl-info strong{display:block;font-family:var(--font-display);font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pl-info span{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.pl-mid{flex:1;display:flex;align-items:center;gap:10px;justify-content:center;min-width:0;flex-direction:column;padding:10px 0}
+@media(max-width:900px){.pl-art.big{right:12px;left:12px;width:auto;bottom:auto;top:66px;height:auto;aspect-ratio:16/9}.pl-art.big #ytHolder iframe{transform:translate(-50%,-50%) scale(1.2)}}
+.pl-info strong{display:block;font-family:var(--fd);font-size:.89rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-info .sub{font-size:.77rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.pl-mid{flex:1;display:flex;align-items:center;gap:9px;justify-content:center;min-width:0;flex-direction:column;padding:10px 0}
 @media(max-width:900px){.pl-mid{flex:0 0 auto;flex-direction:row;padding:0}}
 .pl-ctrls{display:flex;align-items:center;gap:14px}
 .pl-track{width:100%;max-width:440px;min-width:0}
 @media(max-width:900px){.pl-track{display:none}}
 .pl-bar{height:4px;background:var(--surface-2);border-radius:99px;overflow:hidden;cursor:pointer}
 .pl-bar i{display:block;height:100%;width:0;background:var(--purple);border-radius:99px}
-.pl-times{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-top:4px}
-.pl-right{width:250px;display:flex;justify-content:flex-end;align-items:center;gap:12px}
+.pl-times{display:flex;justify-content:space-between;font-size:.71rem;color:var(--muted);margin-top:4px}
+.pl-right{width:250px;display:flex;justify-content:flex-end;align-items:center;gap:10px}
 @media(max-width:900px){.pl-right{width:auto}}
-.pl-right .wave{height:20px;width:70px}
+.pl-right .wave{height:20px;width:66px}
 @media(max-width:560px){.pl-right .wave{display:none}}
-.icobtn{color:var(--muted);display:grid;place-items:center;padding:6px;border-radius:8px;transition:color .16s ease}
+.icobtn{color:var(--muted);display:grid;place-items:center;padding:6px;border-radius:8px;transition:color .16s}
 .icobtn svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .icobtn:hover{color:var(--text)}
-.icobtn.liked{color:var(--cyan)}
-.icobtn.liked svg{fill:var(--cyan)}
+.icobtn.on{color:var(--cyan)}
+.icobtn.on svg{fill:var(--cyan)}
 .icobtn.sk svg{fill:currentColor;stroke:none;width:17px;height:17px}
+#plMini.on svg{fill:none}
+.ap-main,.ap-player,.ap-side{min-width:0}
 
-/* modal / toast */
-.ov{position:fixed;inset:0;z-index:200;background:rgba(8,5,12,.78);backdrop-filter:blur(6px);display:grid;place-items:center;padding:20px}
-.modal{background:var(--surface);border:1px solid var(--line);border-radius:18px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:26px;animation:pop .22s cubic-bezier(.2,.9,.3,1.2)}
+/* ============ MODAL / TOAST / QR ============ */
+.ov{position:fixed;inset:0;z-index:250;background:rgba(8,5,12,.8);backdrop-filter:blur(7px);display:grid;place-items:center;padding:20px;overflow-y:auto}
+.modal{background:var(--surface);border:1px solid var(--line);border-radius:18px;width:100%;max-width:500px;max-height:88vh;overflow-y:auto;padding:26px;animation:pop .22s cubic-bezier(.2,.9,.3,1.2);margin:auto}
+.modal.wide{max-width:640px}
 @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.modal{animation:none}}
-.modal h3{font-size:1.25rem;margin-bottom:6px}
-.modal .m-sub{color:var(--muted);font-size:.9rem;margin-bottom:20px}
-.field{margin-bottom:16px}
-.field label{display:block;font-family:var(--font-display);font-size:.83rem;color:var(--muted);margin-bottom:7px}
-.field input,.field textarea,.field select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 13px;outline:none;transition:border-color .18s ease;font-size:.94rem}
-.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--purple)}
-.field textarea{resize:vertical;min-height:96px;line-height:1.6}
-.modal-acts{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+.modal h3{font-size:1.24rem;margin-bottom:6px}
+.modal .m-sub{color:var(--muted);font-size:.89rem;margin-bottom:20px}
+.modal-acts{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+.leitor{font-size:1.06rem;line-height:1.85;white-space:pre-line;border-left:2px solid var(--purple);padding-left:18px;margin:6px 0 18px}
+.leitor.mc{border-left-color:#ffd166;font-size:1rem;line-height:1.8}
 .toasts{position:fixed;bottom:104px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:9px;align-items:center;pointer-events:none;width:calc(100% - 32px);max-width:440px}
-.toast{background:var(--surface-3);border:1px solid var(--cyan);padding:12px 20px;border-radius:99px;font-size:.9rem;box-shadow:0 8px 30px rgba(0,0,0,.55);animation:toastIn .28s ease;display:flex;align-items:center;gap:10px}
+.toast{background:var(--surface-3);border:1px solid var(--cyan);padding:12px 20px;border-radius:99px;font-size:.89rem;box-shadow:0 8px 30px rgba(0,0,0,.55);animation:toastIn .28s;display:flex;align-items:center;gap:10px}
+.toast.xp{border-color:var(--purple)}
 .toast svg{width:16px;height:16px;stroke:var(--cyan);fill:none;stroke-width:2.4;flex:0 0 16px}
+.toast.xp svg{stroke:var(--purple)}
 @keyframes toastIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.toast{animation:none}}
+#qrbox{background:#fff;padding:16px;border-radius:14px;display:inline-block;line-height:0}
+#qrbox img,#qrbox canvas{display:block}
+.qr-wrap{text-align:center}
+.qr-url{font-family:var(--fd);color:var(--cyan);font-size:1rem;margin-top:16px;word-break:break-all}
+
+/* ============ CONTAS ============ */
+.auth-tabs{display:flex;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:4px;margin-bottom:20px}
+.auth-tabs button{flex:1;padding:9px 10px;border-radius:99px;font-family:var(--fd);font-weight:600;font-size:.9rem;color:var(--muted);transition:background .18s,color .18s}
+.auth-tabs button.on{background:var(--purple);color:#fff}
+.modo{display:inline-flex;align-items:center;gap:7px;font-family:var(--fd);font-size:.74rem;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted);margin-bottom:8px}
+.modo i{width:7px;height:7px;border-radius:99px;background:var(--muted);display:block}
+.modo.nuvem{color:var(--cyan);border-color:rgba(0,245,212,.4)}
+.modo.nuvem i{background:var(--cyan)}
+.auth-wait{text-align:center;color:var(--muted);padding:26px 0;font-size:.92rem}
+.field .hint{font-size:.76rem;color:var(--muted);margin-top:6px}
+#scout{position:fixed;left:-9999px;top:0;width:200px;height:120px;opacity:0;pointer-events:none}
+.shelf-head p.more{display:block}
+.lk{color:var(--cyan);font-size:.85rem;text-decoration:underline;text-underline-offset:3px}
+.lk:hover{color:var(--text)}
+.info-box{border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;max-width:840px;margin-bottom:14px;color:var(--muted);font-size:.9rem}
+.info-box strong{display:block;color:var(--text);font-family:var(--fd);font-size:1rem;margin-bottom:5px}
+.info-box .btn{margin-top:12px}
 </style>
 </head>
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="uf-mark" viewBox="0 0 156 110">
-    <path d="M6 55 L20 55 L26 44 L32 66 L38 38 L44 72 L50 30 L50 66 C50 90 96 90 96 66 L96 26 L103 78 L110 34 L117 70 L124 46 L131 60 L138 55 L150 55"/>
+    <path d="M6 55 L20 55 L26 44 L32 66 L38 38 L44 72 L50 30 L50 66 C50 90 96 90 96 66 L96 26 L103 78 L110 34 L117 70 L124 46 L131 60 L138 55 L150 55" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>
 </svg>
 
-<div class="ap">
+<!-- ==================== LOGIN ==================== -->
+<div class="auth" id="auth">
+  <div class="auth-box">
+    <div class="lockup">
+      <svg class="mark" viewBox="0 0 156 110" style="width:2em;height:1em"><use href="#uf-mark"/></svg>
+      <span class="wordmark">Underfy</span>
+    </div>
+    <p class="auth-tag">A cena que nenhuma outra plataforma te mostrou.</p>
+
+    <div class="auth-card" id="authCard"></div>
+
+    <p class="auth-foot">
+      <button id="btnQR">Mostrar QR Code da apresentação</button>
+    </p>
+  </div>
+</div>
+
+<!-- ==================== APP ==================== -->
+<div class="ap" id="app" hidden>
   <aside class="ap-side">
     <div class="lockup">
       <svg class="mark" viewBox="0 0 156 110" style="width:2em;height:1em"><use href="#uf-mark"/></svg>
       <span class="wordmark">Underfy</span>
     </div>
-    <nav class="ap-nav">
-      <button class="navbtn on" data-view="inicio">
-        <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-6h4v6"/></svg><span>Início</span>
-      </button>
-      <button class="navbtn" data-view="feed">
-        <svg viewBox="0 0 24 24"><path d="M3 12h3l2.5-7 4 14 3-9 2 2h3.5"/></svg><span>Feed</span>
-      </button>
-      <button class="navbtn" data-view="buscar">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Buscar</span>
-      </button>
-      <button class="navbtn" data-view="colabs">
-        <svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3"/><circle cx="17" cy="16" r="3"/><path d="M11.4 10.9l3.4 3"/><path d="M3 20c0-2.8 2.7-5 6-5"/></svg><span>Colabs</span>
-      </button>
-      <button class="navbtn" data-view="perfil">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Perfil</span>
-      </button>
-    </nav>
-    <div class="side-note">
-      <b>Tem algo parado na gaveta?</b>
-      Publique a letra ou o beat e marque o que está faltando.
-      <button class="btn btn-primary btn-sm" data-publish>Publicar obra</button>
-    </div>
+    <nav class="ap-nav" id="nav"></nav>
+    <div class="lvl-box desk-only" id="lvlBox"></div>
   </aside>
 
   <main class="ap-main" id="main">
@@ -348,11 +508,11 @@ button{background:none;border:none;cursor:pointer;color:inherit}
       </div>
       <label class="ap-search">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-        <input id="globalSearch" type="search" placeholder="Música, artista ou função" autocomplete="off">
+        <input id="globalSearch" type="search" placeholder="Música, poema, artista ou cidade" autocomplete="off">
       </label>
       <div class="ap-me">
-        <button class="btn btn-primary btn-sm" data-publish>Publicar</button>
-        <div class="av sm" style="background:linear-gradient(135deg,#9D4EDD,#00F5D4);color:#120E16">VF</div>
+        <button class="btn btn-primary btn-sm hide-xs" data-a="publicar">Publicar</button>
+        <button class="av sm" id="meAv" data-a="ir" data-v="voce" aria-label="Sua conta"></button>
       </div>
     </div>
     <div class="ap-page" id="page"></div>
@@ -366,20 +526,14 @@ button{background:none;border:none;cursor:pointer;color:inherit}
       </div>
       <div style="min-width:0">
         <strong id="plTitle">Underfy</strong>
-        <span id="plArtist">escolha uma faixa para começar</span>
+        <span class="sub" id="plArtist">escolha uma faixa para começar</span>
       </div>
     </div>
     <div class="pl-mid">
       <div class="pl-ctrls">
-        <button class="icobtn sk" id="plPrev" aria-label="Faixa anterior">
-          <svg viewBox="0 0 24 24"><path d="M18 5v14L8 12zM6 5h2v14H6z"/></svg>
-        </button>
-        <button class="fab" id="plPlay" aria-label="Reproduzir">
-          <svg viewBox="0 0 24 24" id="plIcon"><path d="M7 4l13 8-13 8z"/></svg>
-        </button>
-        <button class="icobtn sk" id="plNext" aria-label="Próxima faixa">
-          <svg viewBox="0 0 24 24"><path d="M6 5v14l10-7zM16 5h2v14h-2z"/></svg>
-        </button>
+        <button class="icobtn sk" id="plPrev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M18 5v14L8 12zM6 5h2v14H6z"/></svg></button>
+        <button class="fab" id="plPlay" aria-label="Reproduzir"><svg viewBox="0 0 24 24" id="plIcon"><path d="M7 4l13 8-13 8z"/></svg></button>
+        <button class="icobtn sk" id="plNext" aria-label="Próxima"><svg viewBox="0 0 24 24"><path d="M6 5v14l10-7zM16 5h2v14h-2z"/></svg></button>
       </div>
       <div class="pl-track">
         <div class="pl-bar" id="plBar"><i id="plFill"></i></div>
@@ -387,124 +541,382 @@ button{background:none;border:none;cursor:pointer;color:inherit}
       </div>
     </div>
     <div class="pl-right">
-      <button class="icobtn" id="plLike" aria-label="Curtir faixa">
-        <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9a4 4 0 017-2.6A4 4 0 0119 11c0 4.6-7 9-7 9z"/></svg>
-      </button>
+      <button class="icobtn" id="plMini" aria-label="Mini player flutuante" title="Mini player flutuante"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><rect x="12" y="11" width="7" height="6" rx="1"/></svg></button>
+      <button class="icobtn" id="plLike" aria-label="Curtir"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9a4 4 0 017-2.6A4 4 0 0119 11c0 4.6-7 9-7 9z"/></svg></button>
       <div class="wave static" id="plWave" aria-hidden="true"></div>
     </div>
   </div>
 </div>
 
+<div id="scout" aria-hidden="true"><div id="scoutFrame"></div></div>
 <div class="toasts" id="toasts"></div>
 
 <script>
-/* ===================== MÚSICAS REAIS (YouTube) ===================== */
-/* Título e artista são preenchidos automaticamente pelo YouTube no boot.
-   Os valores abaixo são só o rótulo de reserva caso não haja internet. */
-const REAL=[
- {vid:"nnyrTBauCfk", t:"10MIIIL",       a:"DESSIIIK"},
- {vid:"zKHjGgjDpTg", t:"25",            a:"Trap BR"},
- {vid:"qNGnmpPxx7A", t:"REGULAR",       a:"Trap BR"},
- {vid:"IVm3bBs4owk", t:"xtendo",        a:"Trap BR"},
- {vid:"GFhaoeF3gZ0", t:"xtendo",        a:"Trap BR"},
- {vid:"b0SEyXbyxwc", t:"C-Walk",        a:"Trap BR"},
- {vid:"RDc8moM_YkI", t:"FREE MELLY",    a:"Trap BR"},
- {vid:"-ccL-C1-BWM", t:"driveby",       a:"Trap BR"},
- {vid:"dl0LvOti4U8", t:"tëdio 2",       a:"Trap BR"},
- {vid:"aO0HKlnK5yo", t:"ZUMBI",         a:"Trap BR"},
- {vid:"YII6TJgb35c", t:"Bugatti Gatti", a:"Trap BR"},
- {vid:"A3gQhxAtIgg", t:"AURORA",        a:"Trap BR"},
- {vid:"r0FG3M7YhL8", t:"CHAT GPT",      a:"Trap BR"},
- {vid:"Lv8ZWo40ng8", t:"GET RICH",      a:"Trap BR"},
- {vid:"_9kR8SqnRJc", t:"POPPA",         a:"Trap BR"}
+/* =================================================================
+   1. ARMAZENAMENTO (com degradação para memória)
+   ================================================================= */
+const mem={};
+const store={
+  get(k){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):null; }catch(e){ return mem[k]??null; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){ mem[k]=v; } },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){ delete mem[k]; } }
+};
+
+/* =================================================================
+   2. BANCO DE DADOS E CONTAS
+   -----------------------------------------------------------------
+   Cole abaixo o firebaseConfig do seu projeto (Firebase > Configurações
+   do projeto > Seus apps > Web). Com ele preenchido, contas, senhas e
+   tudo que cada pessoa faz ficam no banco de dados na nuvem.
+   Vazio, o app funciona em modo local (salva só neste navegador).
+   ================================================================= */
+const FIREBASE_CONFIG={
+  apiKey:"",
+  authDomain:"",
+  projectId:"",
+  storageBucket:"",
+  messagingSenderId:"",
+  appId:""
+};
+const FB_VER="10.12.2";
+const DOMINIO_CONTA="@underfy.example.com";   /* o usuário vira um e-mail interno; nenhuma mensagem é enviada */
+const NUVEM_CONFIGURADA=!!(FIREBASE_CONFIG.apiKey&&FIREBASE_CONFIG.projectId);
+const SAL="underfy::v4::";
+
+async function hash(txt){
+  try{
+    if(crypto&&crypto.subtle){
+      const b=new TextEncoder().encode(SAL+txt);
+      const d=await crypto.subtle.digest("SHA-256",b);
+      return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,"0")).join("");
+    }
+  }catch(e){}
+  let h=5381; const t=SAL+txt;
+  for(let i=0;i<t.length;i++) h=((h<<5)+h+t.charCodeAt(i))|0;
+  return "fb"+(h>>>0).toString(16);
+}
+const chave=u=>String(u||"").trim().toLowerCase();
+const kConta=u=>"underfy.conta."+chave(u);
+const kDados=u=>"underfy.dados."+chave(u);
+function validarUsuario(u){
+  u=String(u||"").trim();
+  if(u.length<3||u.length>20) return "O usuário precisa ter de 3 a 20 caracteres.";
+  if(!/^[A-Za-z0-9._-]+$/.test(u)) return "Use só letras, números, ponto, hífen ou sublinhado.";
+  return "";
+}
+function carregarScript(src){
+  return new Promise((ok,er)=>{ const el=document.createElement("script"); el.src=src; el.onload=()=>ok(); el.onerror=()=>er(new Error("script")); document.head.appendChild(el); });
+}
+function erroAuth(e){
+  const c=String((e&&e.code)||"");
+  const M={
+   "auth/email-already-in-use":"Esse nome de usuário já existe. Escolha outro ou entre com ele.",
+   "local/existe":"Esse nome de usuário já existe. Escolha outro ou entre com ele.",
+   "auth/invalid-credential":"Usuário ou senha incorretos.",
+   "auth/invalid-login-credentials":"Usuário ou senha incorretos.",
+   "auth/wrong-password":"Usuário ou senha incorretos.",
+   "auth/user-not-found":"Usuário ou senha incorretos.",
+   "local/credencial":"Usuário ou senha incorretos.",
+   "auth/weak-password":"A senha precisa ter pelo menos 6 caracteres.",
+   "auth/too-many-requests":"Muitas tentativas seguidas. Espere um minuto e tente de novo.",
+   "auth/network-request-failed":"Sem conexão com o banco de dados. Confira a internet.",
+   "auth/operation-not-allowed":"O login por e-mail/senha ainda não foi ativado no Firebase (Authentication > Método de login).",
+   "auth/unauthorized-domain":"Este endereço não está nos domínios autorizados do Firebase (Authentication > Configurações).",
+   "auth/invalid-api-key":"A chave do Firebase colada no arquivo está incorreta.",
+   "auth/requires-recent-login":"Saia e entre de novo antes de trocar a senha.",
+   "permission-denied":"O banco recusou a gravação. Confira as regras do Firestore."
+  };
+  return M[c]||"Não deu certo agora"+(c?" ("+c+")":"")+". Tente de novo.";
+}
+
+const DB={
+  modo:"local", falhou:false, auth:null, fs:null, uid:null,
+  async iniciar(){
+    if(!NUVEM_CONFIGURADA) return this.modo;
+    try{
+      const base="https://www.gstatic.com/firebasejs/"+FB_VER+"/";
+      await carregarScript(base+"firebase-app-compat.js");
+      await Promise.all([carregarScript(base+"firebase-auth-compat.js"),carregarScript(base+"firebase-firestore-compat.js")]);
+      firebase.initializeApp(FIREBASE_CONFIG);
+      this.auth=firebase.auth();
+      this.fs=firebase.firestore();
+      try{ this.fs.settings({ignoreUndefinedProperties:true}); }catch(e){}
+      this.modo="nuvem";
+    }catch(e){ this.modo="local"; this.falhou=true; }
+    return this.modo;
+  },
+  _nome(u){ return u.displayName||String(u.email||"").split("@")[0]; },
+  _doc(){ return this.fs.collection("usuarios").doc(this.uid); },
+  _agora(){ return firebase.firestore.FieldValue.serverTimestamp(); },
+  sessao(){
+    if(this.modo==="nuvem") return new Promise(res=>{
+      let feito=false, off=null;
+      off=this.auth.onAuthStateChanged(u=>{
+        if(feito) return; feito=true; setTimeout(()=>{ try{ off&&off(); }catch(e){} },0);
+        if(!u){ res(null); return; } this.uid=u.uid; res({nome:this._nome(u)});
+      });
+    });
+    const k=store.get("underfy.sessao"), c=k?store.get(kConta(k)):null;
+    return Promise.resolve(c?{nome:c.nome}:null);
+  },
+  async registrar(nome,senha){
+    nome=String(nome).trim();
+    if(this.modo==="nuvem"){
+      const cred=await this.auth.createUserWithEmailAndPassword(chave(nome)+DOMINIO_CONTA,senha);
+      this.uid=cred.user.uid;
+      try{ await cred.user.updateProfile({displayName:nome}); }catch(e){}
+      try{ await this._doc().set({nome:nome,criadoEm:this._agora(),dados:dadosPadrao()}); }catch(e){}
+      return {nome:nome};
+    }
+    if(store.get(kConta(nome))) throw {code:"local/existe"};
+    store.set(kConta(nome),{nome:nome,hash:await hash(senha),criadoEm:Date.now()});
+    store.set("underfy.sessao",chave(nome));
+    return {nome:nome};
+  },
+  async entrar(nome,senha){
+    if(this.modo==="nuvem"){
+      const cred=await this.auth.signInWithEmailAndPassword(chave(nome)+DOMINIO_CONTA,senha);
+      this.uid=cred.user.uid;
+      return {nome:this._nome(cred.user)};
+    }
+    const c=store.get(kConta(nome));
+    if(!c||c.hash!==await hash(senha)) throw {code:"local/credencial"};
+    store.set("underfy.sessao",chave(nome));
+    return {nome:c.nome};
+  },
+  async sair(){
+    if(this.modo==="nuvem") await this.auth.signOut();
+    else store.del("underfy.sessao");
+  },
+  async trocarSenha(atual,nova){
+    if(this.modo==="nuvem"){
+      const u=this.auth.currentUser;
+      await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,atual));
+      await u.updatePassword(nova);
+      return;
+    }
+    const c=store.get(kConta(USER));
+    if(!c||c.hash!==await hash(atual)) throw {code:"local/credencial"};
+    c.hash=await hash(nova); store.set(kConta(USER),c);
+  },
+  async lerDados(){
+    if(this.modo==="nuvem"&&this.uid){
+      try{ const d=await this._doc().get(); if(d.exists&&d.data().dados) return d.data().dados; }catch(e){}
+    }
+    return store.get(kDados(USER));
+  },
+  gravarDados(dados){
+    store.set(kDados(USER),dados);
+    if(this.modo==="nuvem"&&this.uid){
+      return this._doc().set({nome:USER,dados:JSON.parse(JSON.stringify(dados)),atualizadoEm:this._agora()},{mergeFields:["nome","dados","atualizadoEm"]})
+        .then(()=>{ this.erroGravar=false; })
+        .catch(e=>{ if(!this.erroGravar){ this.erroGravar=true; toast(erroAuth(e)); } });
+    }
+    return Promise.resolve();
+  },
+  async lerCatalogo(){
+    if(this.modo!=="nuvem") return null;
+    try{ const d=await this.fs.collection("publico").doc("catalogo").get(); return d.exists?d.data():null; }catch(e){ return null; }
+  },
+  gravarCatalogo(obj){
+    if(this.modo==="nuvem"&&this.uid) return this.fs.collection("publico").doc("catalogo").set(obj).catch(()=>{});
+    return Promise.resolve();
+  },
+  async listarPosts(){
+    if(this.modo==="nuvem"){
+      try{ const q=await this.fs.collection("posts").orderBy("ts","desc").limit(40).get(); return q.docs.map(d=>Object.assign({},d.data(),{id:d.id})); }catch(e){ return []; }
+    }
+    return store.get("underfy.posts")||[];
+  },
+  async criarPost(p){
+    if(this.modo==="nuvem"&&this.uid){
+      const r=await this.fs.collection("posts").add(Object.assign({},p,{uid:this.uid}));
+      return r.id;
+    }
+    const l=store.get("underfy.posts")||[];
+    const id="l"+Date.now();
+    l.unshift(Object.assign({},p,{id:id}));
+    store.set("underfy.posts",l.slice(0,60));
+    return id;
+  }
+};
+
+let USER=null, DADOS=null, _tSalvar=null;
+const dadosPadrao=()=>({curtidas:[],salvos:[],seguindo:[],playlists:[],descobertos:[],xp:0,eventos:[],coments:{},vagas:[],recentes:[],ultima:null});
+function salvar(){
+  if(!USER) return;
+  store.set(kDados(USER),DADOS);
+  clearTimeout(_tSalvar); _tSalvar=setTimeout(()=>DB.gravarDados(DADOS),900);
+}
+function salvarJa(){ if(!USER||!DADOS) return Promise.resolve(); clearTimeout(_tSalvar); return DB.gravarDados(DADOS); }
+document.addEventListener("visibilitychange",()=>{ if(document.hidden) salvarJa(); });
+
+/* =================================================================
+   3. CATÁLOGO REAL (YouTube)
+   ================================================================= */
+const PLAYLIST_ID="PLUpQznyjWckpP9OmbM8uMGbfLK0MqVEfT";
+/* lista de reserva: só aparece se a playlist nunca tiver sido lida (nem pela nuvem, nem neste aparelho) */
+const SEMENTE=[
+ {vid:"nnyrTBauCfk",t:"10MIIIL",a:"DESSIIIK"},
+ {vid:"zKHjGgjDpTg",t:"25",a:""},
+ {vid:"qNGnmpPxx7A",t:"REGULAR",a:""},
+ {vid:"IVm3bBs4owk",t:"xtendo",a:""},
+ {vid:"b0SEyXbyxwc",t:"C-Walk",a:""},
+ {vid:"RDc8moM_YkI",t:"FREE MELLY",a:""},
+ {vid:"-ccL-C1-BWM",t:"driveby",a:""},
+ {vid:"dl0LvOti4U8",t:"tëdio 2",a:""},
+ {vid:"aO0HKlnK5yo",t:"ZUMBI",a:""},
+ {vid:"YII6TJgb35c",t:"Bugatti Gatti",a:""},
+ {vid:"A3gQhxAtIgg",t:"AURORA",a:""},
+ {vid:"r0FG3M7YhL8",t:"CHAT GPT",a:""},
+ {vid:"Lv8ZWo40ng8",t:"GET RICH",a:""},
+ {vid:"_9kR8SqnRJc",t:"POPPA",a:""}
 ];
+const _cacheCat=store.get("underfy.catalogo");
+let REAL=(_cacheCat&&_cacheCat.playlist===PLAYLIST_ID&&Array.isArray(_cacheCat.faixas)&&_cacheCat.faixas.length)?_cacheCat.faixas:SEMENTE.map(x=>Object.assign({},x));
+let FONTE_CAT=(REAL.length&&REAL[0].ok)?"cache":"semente";
 
-/* ===================== DADOS DA PLATAFORMA ===================== */
-const GRAD=["linear-gradient(135deg,#9D4EDD,#5A189A)","linear-gradient(135deg,#00F5D4,#0A9396)",
-"linear-gradient(135deg,#C77DFF,#7B2FBF)","linear-gradient(135deg,#7B2FBF,#00F5D4)",
-"linear-gradient(135deg,#E0AAFF,#9D4EDD)","linear-gradient(135deg,#00BBF9,#9D4EDD)"];
-
+/* =================================================================
+   4. ARTISTAS DA PLATAFORMA
+   ================================================================= */
 const artistas=[
- {id:"naya",nome:"Naya Vulgo",handle:"@nayavulgo",ini:"NV",papel:"Poeta / spoken word",cidade:"São Paulo, SP",estilos:["spoken word","boom bap","poesia marginal"],online:true,g:0},
- {id:"base",nome:"BASE 47",handle:"@base47",ini:"B4",papel:"Produtor / beatmaker",cidade:"Belo Horizonte, MG",estilos:["boom bap","sample","lo-fi"],online:true,g:1},
- {id:"rafa",nome:"Rafa Odara",handle:"@rafaodara",ini:"RO",papel:"Rapper",cidade:"Recife, PE",estilos:["rap","trap","manguebeat"],online:false,g:2},
- {id:"lu",nome:"Lu Corvo",handle:"@lucorvo",ini:"LC",papel:"Cantora / mixagem",cidade:"Porto Alegre, RS",estilos:["r&b","soul","topline"],online:true,g:3},
- {id:"teo",nome:"Téo Mandala",handle:"@teomandala",ini:"TM",papel:"Beatmaker",cidade:"Assis, SP",estilos:["trap","drill","fonk"],online:true,g:4},
- {id:"dri",nome:"Dri Sanfona",handle:"@drisanfona",ini:"DS",papel:"Instrumentista",cidade:"Fortaleza, CE",estilos:["forró","experimental","sample"],online:false,g:5}
+ {id:"naya",nome:"Naya Vulgo",handle:"@nayavulgo",ini:"NV",papel:"Poeta / spoken word",cidade:"São Paulo",uf:"SP",gen:["poesia","rap","dark"],ouv:4820,cres:12,online:true,g:0,bio:"Escrevo o que a cidade fala quando acha que ninguém tá ouvindo."},
+ {id:"base",nome:"BASE 47",handle:"@base47",ini:"B4",papel:"Produtor / beatmaker",cidade:"Belo Horizonte",uf:"MG",gen:["rap","lofi","experimental"],ouv:9140,cres:8,online:true,g:1,bio:"Sample de disco de feira, bateria seca, nada de plugin caro."},
+ {id:"rafa",nome:"Rafa Odara",handle:"@rafaodara",ini:"RO",papel:"Rapper",cidade:"Recife",uf:"PE",gen:["rap","trap"],ouv:6310,cres:19,online:false,g:2,bio:"Maracatu na base, rima na frente."},
+ {id:"lu",nome:"Lu Corvo",handle:"@lucorvo",ini:"LC",papel:"Cantora / mixagem",cidade:"Porto Alegre",uf:"RS",gen:["dark","lofi","poesia"],ouv:3980,cres:23,online:true,g:3,bio:"Canto baixo porque o resto da cidade já grita."},
+ {id:"teo",nome:"Téo Mandala",handle:"@teomandala",ini:"TM",papel:"Beatmaker",cidade:"Assis",uf:"SP",gen:["trap","dark"],ouv:1470,cres:64,online:true,g:4,bio:"Interior também tem madrugada."},
+ {id:"dri",nome:"Dri Sanfona",handle:"@drisanfona",ini:"DS",papel:"Instrumentista",cidade:"Fortaleza",uf:"CE",gen:["experimental","rock"],ouv:2210,cres:31,online:false,g:5,bio:"Sanfona ligada no pedal de distorção."},
+ {id:"neko",nome:"Neko 404",handle:"@neko404",ini:"NK",papel:"Produtor / arte visual",cidade:"Curitiba",uf:"PR",gen:["emo","lofi","experimental"],ouv:912,cres:84,online:true,g:0,bio:"Faço beat e faço a capa. Prefiro a capa."},
+ {id:"lunna",nome:"Lunna Bre",handle:"@lunnabre",ini:"LB",papel:"Cantora / emo",cidade:"Marília",uf:"SP",gen:["emo","rock"],ouv:634,cres:61,online:true,g:2,bio:"Guitarra desafinada de propósito."},
+ {id:"kaio",nome:"Kaio Sereno",handle:"@kaiosereno",ini:"KS",papel:"Microcontista",cidade:"Presidente Prudente",uf:"SP",gen:["poesia","dark"],ouv:287,cres:41,online:false,g:3,bio:"Cabe tudo em três linhas se você tirar o resto."},
+ {id:"vera",nome:"Vera Antena",handle:"@veraantena",ini:"VA",papel:"Arte visual / zine",cidade:"Salvador",uf:"BA",gen:["experimental","dark"],ouv:418,cres:52,online:true,g:1,bio:"Lambe-lambe em poste é galeria."},
+ {id:"jow",nome:"Jow Pantanal",handle:"@jowpantanal",ini:"JP",papel:"Rapper",cidade:"Goiânia",uf:"GO",gen:["rap","trap"],ouv:1980,cres:27,online:false,g:4,bio:"Rima de estrada de terra."},
+ {id:"iza",nome:"Iza Grave",handle:"@izagrave",ini:"IG",papel:"Baixista / rock",cidade:"Rio de Janeiro",uf:"RJ",gen:["rock","dark"],ouv:3120,cres:14,online:true,g:5,bio:"Baixo alto demais é opinião."},
+ {id:"mig",nome:"Miguel Norte",handle:"@miguelnorte",ini:"MN",papel:"Produtor / lo-fi",cidade:"Belém",uf:"PA",gen:["lofi","experimental"],ouv:756,cres:73,online:true,g:0,bio:"Chuva do Ver-o-Peso gravada no celular vira textura."},
+ {id:"sol",nome:"Sol Cabral",handle:"@solcabral",ini:"SC",papel:"Poeta",cidade:"Manaus",uf:"AM",gen:["poesia","experimental"],ouv:193,cres:38,online:false,g:2,bio:"Rio grande demais pra caber em verso curto. Eu tento."}
 ];
-const A=id=>artistas.find(a=>a.id===id);
-const PAPEIS=["Poeta","Rapper","Produtor","Cantor","Beatmaker","Mixagem","Instrumentista"];
-
-const demoFaixas=[
- {id:1, t:"Concreto Molhado",  a:"Naya Vulgo, BASE 47, Rafa Odara", art:0,  dur:"3:26", sub:"Colab de 4 artistas"},
- {id:2, t:"Fumaça no Viaduto", a:"BASE 47",                          art:1,  dur:"2:48", sub:"88 BPM · Ré menor", vaga:"procura voz"},
- {id:3, t:"Assis 3 da Manhã",  a:"Téo Mandala",                      art:2,  dur:"3:02", sub:"140 BPM · drill",   vaga:"procura mixagem"},
- {id:4, t:"Litoral Sujo",      a:"Lu Corvo",                         art:3,  dur:"2:14", sub:"Poema sem melodia", vaga:"procura melodia"},
- {id:5, t:"Maracatu de Bolso", a:"Dri Sanfona, Rafa Odara",          art:4,  dur:"4:11", sub:"Colab de 2 artistas"},
- {id:6, t:"Poste Piscando",    a:"Naya Vulgo",                       art:5,  dur:"1:58", sub:"Spoken word"},
- {id:7, t:"Vinil de Feira",    a:"BASE 47",                          art:6,  dur:"3:40", sub:"Sample de cavaquinho", vaga:"procura letra"},
- {id:8, t:"Madrugada Interior",a:"Téo Mandala, Lu Corvo",            art:7,  dur:"3:18", sub:"Colab de 2 artistas"},
- {id:9, t:"Corda Bamba",       a:"Dri Sanfona",                      art:8,  dur:"2:52", sub:"Forró experimental", vaga:"procura voz"},
- {id:10,t:"Sem Beat Ainda",    a:"Rafa Odara",                       art:9,  dur:"1:34", sub:"Acapella", vaga:"procura produtor"},
- {id:11,t:"Ruído de Fundo",    a:"Lu Corvo",                         art:10, dur:"3:05", sub:"R&B · topline"},
- {id:12,t:"Terreno Baldio",    a:"Naya Vulgo, Téo Mandala",          art:11, dur:"2:37", sub:"Colab de 2 artistas"},
- {id:15,t:"Boca do Lixo",      a:"Rafa Odara, Naya Vulgo",           art:14, dur:"3:55", sub:"Colab de 2 artistas"},
- {id:16,t:"Café Frio",         a:"Lu Corvo, Dri Sanfona",            art:15, dur:"2:29", sub:"Colab de 2 artistas"}
+const A=id=>artistas.find(x=>x.id===id);
+const CIDADES=[
+ {n:"Manaus",uf:"AM",x:28,y:26},{n:"Belém",uf:"PA",x:52,y:21},{n:"Fortaleza",uf:"CE",x:77,y:27},
+ {n:"Recife",uf:"PE",x:85,y:38},{n:"Salvador",uf:"BA",x:76,y:48},{n:"Goiânia",uf:"GO",x:53,y:56},
+ {n:"Belo Horizonte",uf:"MG",x:67,y:62},{n:"Rio de Janeiro",uf:"RJ",x:70,y:70},{n:"São Paulo",uf:"SP",x:60,y:72},
+ {n:"Marília",uf:"SP",x:52,y:70},{n:"Assis",uf:"SP",x:49,y:73},{n:"Presidente Prudente",uf:"SP",x:45,y:69},
+ {n:"Curitiba",uf:"PR",x:56,y:79},{n:"Porto Alegre",uf:"RS",x:50,y:88}
+];
+const GENEROS=[
+ {id:"rap",n:"Rap",em:"🎤"},{id:"emo",n:"Emo",em:"🖤"},{id:"rock",n:"Rock",em:"🎸"},
+ {id:"dark",n:"Dark",em:"🌑"},{id:"lofi",n:"Lo-fi",em:"🎹"},{id:"trap",n:"Trap",em:"🔊"},
+ {id:"poesia",n:"Poesia",em:"📖"},{id:"experimental",n:"Experimental",em:"🎵"}
 ];
 
-/* catálogo unificado: "y0..y14" são reais, "d1..d16" são da plataforma */
+/* =================================================================
+   5. OBRAS DA PLATAFORMA (música, poema, microconto, arte)
+   ================================================================= */
+const obras=[
+ {id:"m1",tipo:"musica",t:"Concreto Molhado",au:"naya",art:0,dur:"3:26",sub:"Colab de 4 artistas",gen:["rap","poesia"]},
+ {id:"m2",tipo:"musica",t:"Fumaça no Viaduto",au:"base",art:1,dur:"2:48",sub:"88 BPM · Ré menor",gen:["rap","lofi"],vaga:"procura voz"},
+ {id:"m3",tipo:"musica",t:"Assis 3 da Manhã",au:"teo",art:2,dur:"3:02",sub:"140 BPM · drill",gen:["trap","dark"],vaga:"procura mixagem"},
+ {id:"m4",tipo:"musica",t:"Litoral Sujo",au:"lu",art:3,dur:"2:14",sub:"Esboço de melodia",gen:["dark","lofi"],vaga:"procura arranjo"},
+ {id:"m5",tipo:"musica",t:"Maracatu de Bolso",au:"rafa",art:4,dur:"4:11",sub:"Colab de 2 artistas",gen:["rap","experimental"]},
+ {id:"m6",tipo:"musica",t:"Ruído de Fundo",au:"lu",art:5,dur:"3:05",sub:"Voz e fita",gen:["dark","lofi"]},
+ {id:"m7",tipo:"musica",t:"Vinil de Feira",au:"base",art:6,dur:"3:40",sub:"Sample de cavaquinho",gen:["rap","lofi"],vaga:"procura letra"},
+ {id:"m8",tipo:"musica",t:"Sem Sinal",au:"neko",art:7,dur:"2:33",sub:"Guitarra e ruído",gen:["emo","experimental"],vaga:"procura voz"},
+ {id:"m9",tipo:"musica",t:"Último Trem",au:"lunna",art:8,dur:"3:47",sub:"Ao vivo no ensaio",gen:["emo","rock"]},
+ {id:"m10",tipo:"musica",t:"Corda Bamba",au:"dri",art:9,dur:"2:52",sub:"Sanfona distorcida",gen:["experimental","rock"],vaga:"procura voz"},
+ {id:"m11",tipo:"musica",t:"Chuva no Ver-o-Peso",au:"mig",art:10,dur:"4:02",sub:"Gravado na rua",gen:["lofi","experimental"]},
+ {id:"m12",tipo:"musica",t:"Baixo Alto",au:"iza",art:11,dur:"3:19",sub:"Trio, uma tomada",gen:["rock","dark"]},
+
+ {id:"p1",tipo:"poema",t:"Cidade Morta",au:"naya",art:12,gen:["poesia","dark"],
+  texto:"A cidade dorme de olho aberto.\nQuem não tem casa decorou o horário\nde cada luz que apaga."},
+ {id:"p2",tipo:"poema",t:"Madrugada",au:"lu",art:13,gen:["poesia","lofi"],
+  texto:"Três da manhã é um país\nonde só entra quem não conseguiu dormir.\nNão tem bandeira. Tem ventilador."},
+ {id:"p3",tipo:"poema",t:"404",au:"neko",art:14,gen:["poesia","experimental"],
+  texto:"Procurei meu nome na cidade.\nDeu erro.\nTentei de novo com o apelido.\nAí achou."},
+ {id:"p4",tipo:"poema",t:"Sem Endereço",au:"sol",art:15,gen:["poesia"],
+  texto:"O rio passa na frente de casa\ne nunca pergunta se pode.\nAprendi assim a receber visita."},
+ {id:"p5",tipo:"poema",t:"Poste Piscando",au:"naya",art:16,gen:["poesia","rap"],
+  texto:"O poste pisca como quem tenta lembrar\no nome que a cidade já cansou de chamar."},
+ {id:"p6",tipo:"poema",t:"Mudança",au:"kaio",art:17,gen:["poesia","dark"],
+  texto:"Levei três caixas e um violão.\nA casa nova tem eco.\nDeixei o eco, é de graça."},
+
+ {id:"c1",tipo:"microconto",t:"O Vizinho de Cima",au:"kaio",art:18,gen:["dark","poesia"],
+  texto:"Ele ensaiava bateria às duas da manhã. Reclamei por três anos seguidos. No mês em que ele parou, eu não consegui dormir uma noite sequer."},
+ {id:"c2",tipo:"microconto",t:"Herança",au:"kaio",art:19,gen:["poesia","rock"],
+  texto:"Meu pai deixou um violão sem corda e uma dívida no mercado. Paguei a dívida em seis vezes. O violão eu afinei no que deu."},
+ {id:"c3",tipo:"microconto",t:"Zona Azul",au:"teo",art:20,gen:["trap","dark"],
+  texto:"Guardei o troco do estacionamento numa lata por seis meses. Deu pra pagar a mixagem de uma faixa. A faixa fala sobre dinheiro."},
+ {id:"c4",tipo:"microconto",t:"Sinal Fechado",au:"jow",art:21,gen:["rap"],
+  texto:"O menino vendia bala no farol e cantava baixinho entre um carro e outro. Ninguém comprou a bala. Um cara baixou o vidro e pediu pra ele repetir a parte do meio."},
+ {id:"c5",tipo:"microconto",t:"Fita Cassete",au:"mig",art:22,gen:["lofi","experimental"],
+  texto:"Achei uma fita na gaveta da minha avó, sem etiqueta. Gravei um beat por cima antes de escutar. Até hoje penso no que tinha ali."},
+
+ {id:"a1",tipo:"arte",t:"Lambe-lambe 04",au:"vera",art:23,gen:["dark","experimental"],
+  desc:"Colagem em preto e roxo colada no poste da esquina da Sete. Durou dois dias na rua."},
+ {id:"a2",tipo:"arte",t:"Capa para faixa sem nome",au:"neko",art:24,gen:["emo","lofi"],
+  desc:"Capa feita antes da música existir. Quem quiser a música, é só pedir a vaga.",vaga:"procura faixa"},
+ {id:"a3",tipo:"arte",t:"Zine #12",au:"vera",art:25,gen:["experimental","poesia"],
+  desc:"Doze páginas grampeadas, tiragem de 40. Xerox da papelaria da rodoviária."},
+ {id:"a4",tipo:"arte",t:"Risograph da Rua 7",au:"vera",art:26,gen:["dark","rock"],
+  desc:"Impressão de duas cores, registro fora de propósito."},
+ {id:"a5",tipo:"arte",t:"Fachada Queimada",au:"neko",art:27,gen:["dark","experimental"],
+  desc:"Foto tratada até virar ruído. Usada como capa do EP do Téo.",vaga:"procura trilha"}
+];
+const O=id=>obras.find(x=>x.id===id);
+const porTipo=t=>obras.filter(o=>o.tipo===t);
+
+/* catálogo unificado de faixas tocáveis */
 const CAT={};
-REAL.forEach((r,i)=>{ CAT["y"+i]={id:"y"+i,vid:r.vid,t:r.t,a:r.a,sub:"Trap BR · 2026",real:true,idx:i}; });
-demoFaixas.forEach(f=>{ CAT["d"+f.id]={id:"d"+f.id,t:f.t,a:f.a,sub:f.sub,art:f.art,dur:f.dur,vaga:f.vaga}; });
+let idsReais=[];
+function montarCatalogo(){
+  Object.keys(CAT).forEach(k=>{ if(CAT[k].real) delete CAT[k]; });
+  idsReais=REAL.map(r=>{ const id="y-"+r.vid; CAT[id]={id:id,vid:r.vid,t:r.t,a:r.a||"Trap BR",sub:"Trap BR underground",real:true}; return id; });
+}
+obras.filter(o=>o.tipo==="musica").forEach(o=>CAT[o.id]={id:o.id,t:o.t,a:A(o.au).nome,sub:o.sub,art:o.art,dur:o.dur,vaga:o.vaga,au:o.au});
 const T=id=>CAT[id];
-const idsReais=REAL.map((_,i)=>"y"+i);
+montarCatalogo();
 
-let posts=[
- {id:1,autor:"naya",tempo:"há 2 h",tipo:"Letra",badge:"letra",titulo:"Concreto Molhado",
-  verso:"O poste pisca como quem tenta lembrar\no nome que a cidade já cansou de chamar.",
-  tags:["#boombap","#spokenword","#70bpm"],procura:"produtor com beat lento, entre 70 e 80 BPM",likes:128,liked:false,coments:24},
- {id:2,autor:"base",tempo:"há 5 h",tipo:"Instrumental",badge:"beat",titulo:"Fumaça no Viaduto",
-  faixa:"d2",tags:["#boombap","#sampledecavaquinho","#88bpm"],procura:"vocalista ou rapper para fechar dois versos",likes:341,liked:false,coments:57},
- {id:3,autor:"rafa",tempo:"há 1 d",tipo:"Acapella",badge:"",titulo:"Sem Beat Ainda",
-  faixa:"d10",tags:["#rap","#acapella","#recife"],procura:"produtor que trabalhe com percussão de maracatu",likes:96,liked:false,coments:18},
- {id:4,autor:"lu",tempo:"há 1 d",tipo:"Poema",badge:"letra",titulo:"Litoral Sujo",
-  verso:"A maré devolve tudo que a gente jurou\nque o mar tinha levado de vez.",
-  tags:["#r&b","#topline","#litoral"],procura:"alguém que transforme isso em melodia",likes:74,liked:false,coments:11},
- {id:5,autor:"teo",tempo:"há 2 d",tipo:"Faixa",badge:"beat",titulo:"Assis 3 da Manhã",
-  faixa:"d3",tags:["#drill","#interior","#140bpm"],procura:"engenheiro de mixagem para a versão final",likes:203,liked:false,coments:33}
-];
-
+/* =================================================================
+   6. PROJETOS, EVENTOS, PLAYLISTS BASE
+   ================================================================= */
 let projetos=[
  {id:"p1",nome:"Concreto Molhado",desc:"Spoken word sobre a periferia à noite",
-  slots:[{papel:"Letra",quem:"naya",ok:true},{papel:"Beat",quem:"base",ok:true},{papel:"Voz",ok:false},{papel:"Mixagem",ok:false}]},
+  slots:[{papel:"Letra",quem:"naya",ok:true},{papel:"Beat",quem:"base",ok:true},{papel:"Voz",ok:false},{papel:"Capa",ok:false}]},
  {id:"p2",nome:"Fumaça no Viaduto",desc:"Boom bap com sample de cavaquinho",
   slots:[{papel:"Beat",quem:"base",ok:true},{papel:"Letra",quem:"rafa",ok:true},{papel:"Voz",quem:"rafa",ok:true},{papel:"Mixagem",ok:false}]},
- {id:"p3",nome:"Litoral Sujo",desc:"Poema à espera de melodia e arranjo",
+ {id:"p3",nome:"Zine sonoro #1",desc:"Microcontos lidos sobre textura de fita",
+  slots:[{papel:"Microconto",quem:"kaio",ok:true},{papel:"Trilha",quem:"mig",ok:true},{papel:"Voz",ok:false},{papel:"Arte",ok:false}]},
+ {id:"p4",nome:"Litoral Sujo",desc:"Poema à espera de melodia e arranjo",
   slots:[{papel:"Poema",quem:"lu",ok:true},{papel:"Melodia",ok:false},{papel:"Arranjo",ok:false},{papel:"Mixagem",ok:false}]}
 ];
+const eventos=[
+ {id:"e1",nome:"Underground Fest",cid:"Assis",uf:"SP",dia:21,mes:"SET",local:"Galpão da Rua 9",n:12,desc:"Doze artistas da região, entrada por doação."},
+ {id:"e2",nome:"Sarau do Viaduto",cid:"São Paulo",uf:"SP",dia:27,mes:"SET",local:"Embaixo do Minhocão",n:20,desc:"Poesia e microconto no microfone aberto."},
+ {id:"e3",nome:"Fita Virada",cid:"Belo Horizonte",uf:"MG",dia:4,mes:"OUT",local:"Casa Amarela",n:6,desc:"Só beatmaker. Cada um toca 15 minutos."},
+ {id:"e4",nome:"Lambe Coletivo",cid:"Salvador",uf:"BA",dia:11,mes:"OUT",local:"Ladeira da Preguiça",n:9,desc:"Colagem ao vivo na rua, trilha por DJ local."},
+ {id:"e5",nome:"Ruído do Norte",cid:"Belém",uf:"PA",dia:18,mes:"OUT",local:"Porto do Açaí",n:7,desc:"Experimental e lo-fi com gravação de campo."}
+];
+const plColab={id:"colab1",nome:"Som de Madrugada",dono:"@vitor",colab:8,get faixas(){ return [idsReais[8],"m4",idsReais[11],"m6",idsReais[2],"m11","p2"].filter(Boolean); },aberta:true};
 
-/* ===================== CAPAS ===================== */
+/* =================================================================
+   7. ARTE GERADA (SVG)
+   ================================================================= */
 const PAL=[["#9D4EDD","#2A1140"],["#00F5D4","#08302C"],["#C77DFF","#3A1B54"],
-["#7B2FBF","#150F1E"],["#00BBF9","#101838"],["#E0AAFF","#4A2472"]];
+["#7B2FBF","#150F1E"],["#00BBF9","#101838"],["#E0AAFF","#4A2472"],["#FFD166","#3A2A10"]];
 let gid=0;
 function svgCover(n,cls){
-  const p=PAL[n%6], fg=p[0], bg=p[1], pat=n%6, id="c"+(gid++);
+  n=n||0; const p=PAL[n%7],fg=p[0],bg=p[1],pat=n%7,id="c"+(gid++);
   let art="";
-  if(pat===0){art='<circle cx="30" cy="32" r="34" fill="'+fg+'" opacity=".55"/><circle cx="72" cy="74" r="24" fill="'+fg+'" opacity=".32"/>';}
+  if(pat===0) art='<circle cx="30" cy="32" r="34" fill="'+fg+'" opacity=".55"/><circle cx="72" cy="74" r="24" fill="'+fg+'" opacity=".32"/>';
   else if(pat===1){let b="";for(let i=0;i<11;i++){const h=18+((i*37)%62);b+='<rect x="'+(8+i*8)+'" y="'+(50-h/2)+'" width="4.5" height="'+h+'" rx="2.2" fill="'+fg+'" opacity=".8"/>';}art=b;}
-  else if(pat===2){let s='<g transform="rotate(-32 50 50)">';for(let i=0;i<7;i++){s+='<rect x="-30" y="'+(i*18-10)+'" width="170" height="7" fill="'+fg+'" opacity="'+(0.18+i*0.09).toFixed(2)+'"/>';}art=s+'</g>';}
-  else if(pat===3){art='<g transform="translate(50 52) scale(0.62) translate(-78 -55)" opacity=".85"><use href="#uf-mark" fill="none" stroke="'+fg+'" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></g>';}
-  else if(pat===4){let d="";for(let y=0;y<7;y++)for(let x=0;x<7;x++){d+='<circle cx="'+(12+x*13)+'" cy="'+(12+y*13)+'" r="'+(1.6+((x+y)%4))+'" fill="'+fg+'" opacity=".55"/>';}art=d;}
-  else{art='<path d="M-5 78 Q 50 18 105 78" fill="none" stroke="'+fg+'" stroke-width="8" opacity=".85"/><path d="M-5 96 Q 50 36 105 96" fill="none" stroke="'+fg+'" stroke-width="8" opacity=".5"/><path d="M-5 60 Q 50 0 105 60" fill="none" stroke="'+fg+'" stroke-width="8" opacity=".3"/>';}
-  return '<svg class="cover '+(cls||"")+'" viewBox="0 0 100 100" aria-hidden="true">'+
-    '<defs><linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+bg+'"/><stop offset="1" stop-color="#120E16"/></linearGradient></defs>'+
-    '<rect width="100" height="100" fill="url(#'+id+')"/>'+art+'</svg>';
+  else if(pat===2){let s='<g transform="rotate(-32 50 50)">';for(let i=0;i<7;i++)s+='<rect x="-30" y="'+(i*18-10)+'" width="170" height="7" fill="'+fg+'" opacity="'+(.18+i*.09).toFixed(2)+'"/>';art=s+'</g>';}
+  else if(pat===3) art='<g transform="translate(50 52) scale(.62) translate(-78 -55)" opacity=".85"><use href="#uf-mark" color="'+fg+'"/></g>';
+  else if(pat===4){let d="";for(let y=0;y<7;y++)for(let x=0;x<7;x++)d+='<circle cx="'+(12+x*13)+'" cy="'+(12+y*13)+'" r="'+(1.6+((x+y)%4))+'" fill="'+fg+'" opacity=".55"/>';art=d;}
+  else if(pat===5) art='<path d="M-5 78 Q 50 18 105 78" fill="none" stroke="'+fg+'" stroke-width="8" opacity=".85"/><path d="M-5 96 Q 50 36 105 96" fill="none" stroke="'+fg+'" stroke-width="8" opacity=".5"/><path d="M-5 60 Q 50 0 105 60" fill="none" stroke="'+fg+'" stroke-width="8" opacity=".3"/>';
+  else {let g="";for(let i=0;i<9;i++){const y=6+i*11,w=20+((i*29)%62);g+='<rect x="'+(8+((i*17)%30))+'" y="'+y+'" width="'+w+'" height="5" fill="'+fg+'" opacity="'+(.25+(i%4)*.2).toFixed(2)+'"/>';}art=g;}
+  return '<svg class="cover '+(cls||"")+'" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+bg+'"/><stop offset="1" stop-color="#120E16"/></linearGradient></defs><rect width="100" height="100" fill="url(#'+id+')"/>'+art+'</svg>';
 }
-const thumb=(vid,q)=>"https://i.ytimg.com/vi/"+vid+"/"+(q||"maxresdefault")+".jpg";
-function ytImg(vid,cls){
-  return '<img class="cover '+(cls||"")+'" loading="lazy" alt="" src="'+thumb(vid)+'" data-vid="'+vid+'" data-step="0">';
-}
-/* thumbnail com cadeia de fallback */
+const thumb=(v,q)=>"https://i.ytimg.com/vi/"+v+"/"+(q||"maxresdefault")+".jpg";
+const ytImg=(v,cls)=>'<img class="cover '+(cls||"")+'" loading="lazy" alt="" src="'+thumb(v)+'" data-vid="'+v+'" data-step="0">';
 document.addEventListener("error",e=>{
   const el=e.target;
   if(el.tagName!=="IMG"||!el.dataset.vid) return;
@@ -512,469 +924,1240 @@ document.addEventListener("error",e=>{
   if(s===0){el.dataset.step="1";el.src=thumb(el.dataset.vid,"hq720");}
   else if(s===1){el.dataset.step="2";el.src=thumb(el.dataset.vid,"mqdefault");}
 },true);
+const capaFaixa=(tr,cls)=>tr.real?ytImg(tr.vid,cls):svgCover(tr.art,cls);
+const capaObra=(o,cls)=>svgCover(o.art,cls);
 
-function coverOf(tr,cls){ return tr.real ? ytImg(tr.vid,cls) : svgCover(tr.art,cls); }
-
-/* ===================== UTIL ===================== */
-function fillWave(el,n){
-  if(!el) return; el.innerHTML="";
+/* =================================================================
+   8. UTILITÁRIOS
+   ================================================================= */
+const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const GRAD=["linear-gradient(135deg,#9D4EDD,#5A189A)","linear-gradient(135deg,#00F5D4,#0A9396)","linear-gradient(135deg,#C77DFF,#7B2FBF)","linear-gradient(135deg,#7B2FBF,#00F5D4)","linear-gradient(135deg,#E0AAFF,#9D4EDD)","linear-gradient(135deg,#00BBF9,#9D4EDD)"];
+const avatar=(a,cls)=>'<div class="av '+(cls||"")+'" style="background:'+GRAD[a.g]+'">'+a.ini+(a.online?'<span class="on-dot"></span>':'')+'</div>';
+const nfmt=n=>n.toLocaleString("pt-BR");
+const ini=u=>String(u||"VC").replace(/[^A-Za-z0-9]/g,"").slice(0,2).toUpperCase()||"VC";
+const avEu=(cls,nome)=>'<div class="av '+(cls||"")+'" style="background:linear-gradient(135deg,#9D4EDD,#00F5D4);color:#120E16">'+ini(nome||USER)+'</div>';
+function quando(ts){
+  const m=Math.max(0,Math.round((Date.now()-(+ts||Date.now()))/60000));
+  if(m<1) return "agora"; if(m<60) return "há "+m+" min";
+  const h=Math.round(m/60); if(h<24) return "há "+h+" h";
+  return "há "+Math.round(h/24)+" d";
+}
+function fillWave(el,n){ if(!el)return; el.innerHTML="";
   for(let i=0;i<n;i++){const b=document.createElement("i");
-    b.style.animationDelay=(Math.random()).toFixed(2)+"s";
-    b.style.animationDuration=(0.65+Math.random()*0.7).toFixed(2)+"s";
-    el.appendChild(b);}
-}
-fillWave(document.getElementById("plWave"),18);
-function toast(msg){
+    b.style.animationDelay=Math.random().toFixed(2)+"s";
+    b.style.animationDuration=(.65+Math.random()*.7).toFixed(2)+"s";el.appendChild(b);} }
+function toast(msg,xp){
   const box=document.getElementById("toasts"),t=document.createElement("div");
-  t.className="toast";
-  t.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 7"/></svg><span></span>';
-  t.querySelector("span").textContent=msg;
-  box.appendChild(t);
-  setTimeout(()=>{t.style.transition="opacity .3s";t.style.opacity="0";setTimeout(()=>t.remove(),300);},2800);
+  t.className="toast"+(xp?" xp":"");
+  t.innerHTML='<svg viewBox="0 0 24 24"><path d="'+(xp?"M12 3l2.6 5.6 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.4l6-.8z":"M4 12.5l5 5L20 7")+'"/></svg><span></span>';
+  t.querySelector("span").textContent=msg; box.appendChild(t);
+  setTimeout(()=>{t.style.transition="opacity .3s";t.style.opacity="0";setTimeout(()=>t.remove(),300);},2900);
 }
-const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
-/* ===================== BUSCA DE METADADOS NO YOUTUBE ===================== */
-function limpa(s){
-  return String(s)
-    .replace(/\((?:official|oficial)[^)]*\)/ig,"")
-    .replace(/\[[^\]]*\]/g,"")
-    .replace(/\b(official\s*(music\s*)?video|videoclipe\s*oficial|clipe\s*oficial|official\s*audio|lyric\s*video|visualizer|prod\.?\s*by[^,|]*)\b/ig,"")
-    .replace(/\|.*$/,"")
-    .replace(/\s{2,}/g," ").trim().replace(/[-–—|,]\s*$/,"").trim();
+/* =================================================================
+   9. GAMIFICAÇÃO
+   ================================================================= */
+const NIVEIS=[
+ {min:0,n:1,nome:"Ouvinte",em:"👤"},
+ {min:60,n:5,nome:"Explorador",em:"🎧"},
+ {min:180,n:10,nome:"Caçador Underground",em:"🕳️"},
+ {min:420,n:20,nome:"Lenda da Cena",em:"🔥"}
+];
+function nivel(){ let r=NIVEIS[0]; NIVEIS.forEach(x=>{if(DADOS.xp>=x.min) r=x;}); return r; }
+function proximo(){ return NIVEIS.find(x=>x.min>DADOS.xp)||null; }
+function xp(v,motivo){
+  const antes=nivel().nome;
+  DADOS.xp+=v; salvar();
+  const dep=nivel();
+  if(dep.nome!==antes) toast("Nível "+dep.n+": você virou "+dep.nome+" "+dep.em,true);
+  else if(motivo) toast("+"+v+" XP · "+motivo,true);
+  pintarNivel();
 }
-async function puxarMetadados(){
-  const jobs=REAL.map(async(r,i)=>{
-    const u="https://www.youtube.com/oembed?url="+encodeURIComponent("https://www.youtube.com/watch?v="+r.vid)+"&format=json";
-    const res=await fetch(u);
-    if(!res.ok) throw new Error("oembed");
-    const d=await res.json();
-    let artista=String(d.author_name||"").replace(/\s*-\s*Topic$/i,"").replace(/VEVO$/i,"").trim();
-    let titulo=String(d.title||r.t);
-    const partes=titulo.split(/\s+[-–—]\s+/);
-    if(partes.length>=2 && partes[0].trim().length<=40){
-      artista=limpa(partes[0]);
-      titulo=limpa(partes.slice(1).join(" - "));
-    } else { titulo=limpa(titulo); }
-    const tr=CAT["y"+i];
-    tr.t=titulo||r.t; tr.a=artista||r.a; tr.ok=true;
+function descobrir(artId){
+  if(!artId||DADOS.descobertos.includes(artId)) return;
+  DADOS.descobertos.push(artId); salvar();
+  xp(10,"artista descoberto");
+}
+function pintarNivel(){
+  const nv=nivel(),px=proximo(),box=document.getElementById("lvlBox");
+  if(!box) return;
+  const pct=px?Math.min(100,Math.round(((DADOS.xp-nv.min)/(px.min-nv.min))*100)):100;
+  box.innerHTML='<b>'+nv.em+' '+nv.nome+'</b>Nível '+nv.n+' · '+DADOS.xp+' XP'+
+    '<div class="lvl-bar"><i style="width:'+pct+'%"></i></div>'+
+    (px?('faltam '+(px.min-DADOS.xp)+' XP para '+px.nome):'você chegou ao fundo da cena');
+}
+
+/* =================================================================
+   10. METADADOS DO YOUTUBE
+   ================================================================= */
+function limpa(s){
+  return String(s).replace(/\((?:official|oficial|clipe|videoclipe|prod|visualizer|lyric|audio|áudio)[^)]*\)/ig,"").replace(/\[[^\]]*\]/g,"")
+   .replace(/\b(official\s*(music\s*)?video|videoclipe\s*oficial|clipe\s*oficial|official\s*audio|áudio\s*oficial|lyric\s*video|visualizer)\b/ig,"")
+   .replace(/\|.*$/,"").replace(/\s{2,}/g," ").trim().replace(/[-–—|,]\s*$/,"").trim();
+}
+function interpretar(d){
+  let ar=String(d.author_name||"").replace(/\s*-\s*Topic$/i,"").replace(/VEVO$/i,"").trim();
+  let ti=String(d.title||"");
+  const p=ti.split(/\s+[-–—]\s+/);
+  if(p.length>=2&&p[0].trim().length<=48){ ar=limpa(p[0])||ar; ti=limpa(p.slice(1).join(" - ")); }
+  else ti=limpa(ti);
+  return {t:ti||String(d.title||""),a:ar};
+}
+async function metaDe(vid){
+  const u="https://www.youtube.com/oembed?url="+encodeURIComponent("https://www.youtube.com/watch?v="+vid)+"&format=json";
+  const res=await fetch(u); if(!res.ok) throw new Error("oembed "+res.status);
+  return interpretar(await res.json());
+}
+async function emLotes(lista,n,fn){
+  const out=new Array(lista.length); let i=0;
+  const w=async()=>{ while(i<lista.length){ const k=i++; try{ out[k]=await fn(lista[k]); }catch(e){ out[k]=null; } } };
+  await Promise.all(Array.from({length:Math.min(n,lista.length)},w));
+  return out;
+}
+function aplicarCatalogo(faixas,fonte){
+  REAL=faixas; FONTE_CAT=fonte; montarCatalogo();
+  if(fonte!=="semente") store.set("underfy.catalogo",{faixas:faixas,playlist:PLAYLIST_ID,em:Date.now()});
+  if(USER) render();
+}
+function fonteTxt(){
+  return {playlist:"sincronizado agora com a playlist do YouTube",nuvem:"carregado do banco de dados",
+          cache:"carregado da última sincronização",semente:"lista inicial — a playlist ainda não foi lida neste aparelho"}[FONTE_CAT]||"";
+}
+/* preenche título e artista das faixas que ainda não têm (lista de reserva) */
+async function completarMeta(){
+  const falt=REAL.filter(r=>!r.ok); if(!falt.length) return 0;
+  const res=await emLotes(falt,6,r=>metaDe(r.vid)); let n=0;
+  falt.forEach((r,i)=>{ if(res[i]){ r.t=res[i].t||r.t; r.a=res[i].a||r.a; r.ok=true; n++; } });
+  if(n){ montarCatalogo(); if(USER) render(); }
+  return n;
+}
+/* lê os IDs da playlist com um player invisível do próprio YouTube */
+function idsDaPlaylist(){
+  return new Promise(res=>{
+    if(!window.YT||!YT.Player){ res(null); return; }
+    let fim=false, sc=null, visto=0; const t0=Date.now();
+    const acabar=v=>{
+      if(fim) return; fim=true; clearInterval(iv);
+      try{ sc&&sc.destroy&&sc.destroy(); }catch(e){}
+      const h=document.getElementById("scout"); if(h) h.innerHTML='<div id="scoutFrame"></div>';
+      res(v);
+    };
+    const olhar=()=>{
+      let l=null; try{ l=sc&&sc.getPlaylist&&sc.getPlaylist(); }catch(e){}
+      if(l&&l.length){ if(!visto) visto=Date.now(); else if(Date.now()-visto>800){ acabar(l.slice()); return; } }
+      if(Date.now()-t0>14000) acabar(l&&l.length?l.slice():null);
+    };
+    const iv=setInterval(olhar,400);
+    try{
+      sc=new YT.Player("scoutFrame",{height:"120",width:"200",
+        playerVars:{listType:"playlist",list:PLAYLIST_ID,playsinline:1,controls:0},
+        events:{onReady:()=>{ try{ sc.cuePlaylist({listType:"playlist",list:PLAYLIST_ID}); }catch(e){} },onError:()=>{}}});
+    }catch(e){ acabar(null); }
   });
-  const res=await Promise.allSettled(jobs);
-  const bons=res.filter(x=>x.status==="fulfilled").length;
-  if(bons>0) render();
-  return bons;
+}
+let sincronizando=false;
+async function sincronizarPlaylist(manual){
+  if(sincronizando) return 0; sincronizando=true;
+  try{
+    const ids=await idsDaPlaylist();
+    if(!ids||!ids.length){ if(manual) toast("Não consegui ler a playlist do YouTube agora. Tente de novo em instantes."); return 0; }
+    const conhecidas=new Map(REAL.filter(r=>r.ok).map(r=>[r.vid,r]));
+    const metas=await emLotes(ids,6,async vid=>conhecidas.get(vid)||Object.assign({vid:vid,ok:true},await metaDe(vid)));
+    const faixas=metas.filter(Boolean);
+    if(faixas.length<Math.min(3,ids.length)){ if(manual) toast("O YouTube não devolveu os dados das faixas agora."); return 0; }
+    const mudou=faixas.map(f=>f.vid).join()!==REAL.map(f=>f.vid).join()||REAL.some(r=>!r.ok);
+    if(mudou){
+      aplicarCatalogo(faixas,"playlist");
+      DB.gravarCatalogo({faixas:faixas.map(f=>({vid:f.vid,t:f.t,a:f.a,ok:true})),playlist:PLAYLIST_ID,em:Date.now()});
+    } else { FONTE_CAT="playlist"; if(USER&&view==="voce") render(); }
+    if(manual) toast(faixas.length+" faixas no catálogo"+(ids.length>faixas.length?" ("+(ids.length-faixas.length)+" não podem tocar fora do YouTube)":"")+".");
+    return faixas.length;
+  }finally{ sincronizando=false; }
 }
 function artistasReais(){
   const m=new Map();
-  idsReais.forEach(id=>{const tr=T(id);
-    if(!m.has(tr.a)) m.set(tr.a,[]);
-    m.get(tr.a).push(id);});
+  idsReais.forEach(id=>{const t=T(id); if(!m.has(t.a))m.set(t.a,[]); m.get(t.a).push(id);});
   return [...m.entries()].map(([nome,ids])=>({nome,ids}));
 }
-const iniciais=n=>n.split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase()||"?";
 
-/* ===================== ROTEAMENTO ===================== */
-let view="inicio", filtroPapel=null, busca="";
-const page=document.getElementById("page"), main=document.getElementById("main");
-document.querySelectorAll(".navbtn").forEach(b=>b.addEventListener("click",()=>go(b.dataset.view)));
-function go(v){
-  view=v;
-  document.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("on",b.dataset.view===v));
-  main.scrollTop=0; render();
-}
-main.addEventListener("scroll",()=>document.getElementById("top").classList.toggle("stuck",main.scrollTop>6));
-document.getElementById("globalSearch").addEventListener("input",e=>{
-  busca=e.target.value.trim().toLowerCase();
-  if(busca&&view!=="buscar"){go("buscar");document.getElementById("globalSearch").focus();return;}
-  render();
-});
-
-/* ===================== RENDER ===================== */
-function render(){
-  document.getElementById("glow").style.opacity=(view==="inicio")?"1":"0";
-  if(view==="inicio") page.innerHTML=viewInicio();
-  if(view==="feed")   page.innerHTML=viewFeed();
-  if(view==="buscar") page.innerHTML=viewBuscar();
-  if(view==="colabs") page.innerHTML=viewColabs();
-  if(view==="perfil") page.innerHTML=viewPerfil();
-  page.querySelectorAll(".post-audio .wave").forEach(w=>fillWave(w,36));
-  bind();
-}
-function saudacao(){const h=new Date().getHours();
-  return h<5?"Boa madrugada":h<12?"Bom dia":h<18?"Boa tarde":"Boa noite";}
-
-function tile(id){
-  const tr=T(id), tocando=(atual===id);
-  return '<button class="tile '+(tocando?"playing":"")+'" data-play="'+id+'">'+
-    '<div class="tile-cover">'+coverOf(tr)+
-      (tr.vaga?'<span class="pill-open">vaga aberta</span>':'')+
-      '<span class="fab"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></span>'+
-    '</div><strong>'+esc(tr.t)+'</strong>'+
-    '<span class="'+(tr.vaga?"slot-open":"")+'">'+esc(tr.vaga?tr.vaga+" · "+tr.a:tr.a)+'</span></button>';
-}
-
-function viewInicio(){
-  let h='<h1 class="greet">'+saudacao()+', Vitor</h1>';
-
-  h+='<section class="feat"><div class="feat-art">'+
-     idsReais.slice(0,4).map(id=>'<img loading="lazy" alt="" src="'+thumb(T(id).vid)+'" data-vid="'+T(id).vid+'" data-step="0">').join("")+
-     '</div><div class="feat-txt"><span class="feat-tag">Tocando no underground</span>'+
-     '<h2>Trap BR 2026</h2>'+
-     '<p>Quinze faixas da cena independente brasileira, direto do YouTube. '+
-     'Toda faixa aqui saiu de alguma colaboração — beat de um, voz de outro, mix de um terceiro.</p>'+
-     '<div class="feat-acts"><button class="btn btn-primary" data-play="y0">Tocar tudo</button>'+
-     '<button class="btn btn-ghost" data-shuffle>Embaralhar</button></div></div></section>';
-
-  h+='<div class="qp">'+idsReais.slice(0,6).map(id=>{const tr=T(id);
-      return '<button class="qpc" data-play="'+id+'">'+coverOf(tr)+
-        '<div class="qpc-txt"><strong>'+esc(tr.t)+'</strong><span>'+esc(tr.a)+'</span></div>'+
-        '<span class="fab"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></span></button>';
-    }).join("")+'</div>';
-
-  h+='<section class="shelf"><div class="shelf-head"><h2>Trap underground BR · 2026</h2>'+
-     '<p>toca de verdade, direto do YouTube</p></div><div class="rail">'+
-     idsReais.map(tile).join("")+'</div></section>';
-
-  const ars=artistasReais();
-  h+='<section class="shelf"><div class="shelf-head"><h2>Artistas em alta</h2>'+
-     '<p>toque no nome para ver as faixas</p></div><div class="rail">'+
-     ars.map(x=>'<button class="tile artist" data-artreal="'+esc(x.nome)+'">'+
-       '<div class="tile-cover"><img class="cover round" loading="lazy" alt="" src="'+thumb(T(x.ids[0]).vid)+'" data-vid="'+T(x.ids[0]).vid+'" data-step="0"></div>'+
-       '<strong>'+esc(x.nome)+'</strong><span>'+x.ids.length+(x.ids.length>1?" faixas":" faixa")+'</span></button>').join("")+
-     '</div></section>';
-
-  h+='<section class="shelf"><div class="shelf-head"><h2>Esperando alguém</h2>'+
-     '<p>obras com vaga aberta agora</p></div><div class="rail">'+
-     ["d2","d10","d4","d7","d3","d9"].map(tile).join("")+'</div></section>';
-
-  h+='<section class="shelf"><div class="shelf-head"><h2>Nascidas aqui</h2>'+
-     '<p>faixas que saíram de colabs da plataforma</p></div><div class="rail">'+
-     ["d1","d5","d8","d12","d15","d16"].map(tile).join("")+'</div></section>';
-
-  h+='<section class="shelf"><div class="shelf-head"><h2>Artistas da sua cena</h2>'+
-     '<p>ponto verde quer dizer online agora</p></div><div class="rail">'+
-     artistas.map(a=>'<button class="tile artist" data-artista="'+a.id+'">'+
-       '<div class="tile-cover">'+svgCover(a.g,"round")+'</div><strong>'+a.nome+'</strong>'+
-       '<span class="'+(a.online?"slot-open":"")+'">'+(a.online?"online · ":"")+a.papel+'</span></button>').join("")+
-     '</div></section>';
-  return h;
-}
-
-function avatar(a,cls){
-  return '<div class="av '+(cls||"")+'" style="background:'+GRAD[a.g]+'">'+a.ini+
-    (a.online?'<span class="on-dot"></span>':'')+'</div>';
-}
-
-function viewFeed(){
-  return '<h1 class="ap-h">Feed</h1><p class="ap-sub">Obras abertas de quem você segue. Cada publicação diz o que ainda está faltando.</p>'+
-    posts.map(cardPost).join("");
-}
-function cardPost(p){
-  const a=A(p.autor); let corpo="";
-  if(p.verso) corpo='<div class="post-verse">'+esc(p.verso)+'</div>';
-  if(p.faixa){const f=T(p.faixa);
-    corpo='<div class="post-audio">'+
-      '<button class="fab" data-play="'+f.id+'" aria-label="Reproduzir"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></button>'+
-      '<div class="wave static"></div><div class="meta">'+f.dur+'</div></div><p class="audio-info">'+f.sub+'</p>';}
-  return '<article class="post"><div class="post-head">'+avatar(a)+
-    '<div class="post-who"><strong>'+a.nome+'</strong><span>'+a.handle+' · '+a.cidade+' · '+p.tempo+'</span></div>'+
-    '<span class="badge '+p.badge+'">'+p.tipo+'</span></div>'+
-    '<h3 class="post-title">'+esc(p.titulo)+'</h3>'+corpo+
-    '<div class="tags">'+p.tags.map(t=>'<span class="tag-chip">'+esc(t)+'</span>').join("")+'</div>'+
-    '<div class="callout"><span>◇</span><span>Procura: <b>'+esc(p.procura)+'</b></span></div>'+
-    '<div class="post-acts">'+
-      '<button class="act '+(p.liked?"liked":"")+'" data-like="'+p.id+'"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9a4 4 0 017-2.6A4 4 0 0119 11c0 4.6-7 9-7 9z"/></svg><span>'+p.likes+'</span></button>'+
-      '<button class="act" data-coment="1"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.5A8 8 0 1121 12z"/></svg><span>'+p.coments+'</span></button>'+
-      '<button class="act act-collab" data-collab="'+p.id+'">Quero colaborar</button></div></article>';
-}
-
-function viewBuscar(){
-  let h='<h1 class="ap-h">Buscar</h1><p class="ap-sub">Procure uma música, um artista, ou filtre pela função que falta na sua obra.</p>';
-  h+='<div class="chips">'+PAPEIS.map(r=>'<button class="chip '+(filtroPapel===r?"on":"")+'" data-papel="'+r+'">'+r+'</button>').join("")+'</div>';
-
-  const faixasHit = busca ? Object.keys(CAT).filter(id=>{
-    const tr=T(id);
-    return (tr.t+" "+tr.a+" "+(tr.sub||"")).toLowerCase().includes(busca);
-  }) : [];
-
-  if(faixasHit.length){
-    h+='<h3 class="sec-h">Faixas</h3><div class="tracklist">'+faixasHit.map((id,i)=>{
-      const tr=T(id);
-      return '<button class="trow '+(atual===id?"playing":"")+'" data-play="'+id+'">'+
-        '<span class="num">'+(i+1)+'</span>'+
-        (tr.real?'<img loading="lazy" alt="" src="'+thumb(tr.vid)+'" data-vid="'+tr.vid+'" data-step="0">'
-                :'<span style="width:44px;height:44px;flex:0 0 44px;display:block">'+svgCover(tr.art)+'</span>')+
-        '<span class="tinfo"><strong>'+esc(tr.t)+'</strong><span>'+esc(tr.a)+'</span></span>'+
-        '<span class="src">'+(tr.real?"YouTube":"Underfy")+'</span></button>';
-    }).join("")+'</div>';
-  }
-
-  const arsReais = busca ? artistasReais().filter(x=>x.nome.toLowerCase().includes(busca)) : [];
-  if(arsReais.length){
-    h+='<h3 class="sec-h">Artistas do catálogo</h3><div class="grid-art">'+arsReais.map(x=>
-      '<div class="art-card"><img class="cover round" loading="lazy" alt="" src="'+thumb(T(x.ids[0]).vid)+'" data-vid="'+T(x.ids[0]).vid+'" data-step="0">'+
-      '<strong>'+esc(x.nome)+'</strong><div class="role">Trap BR</div>'+
-      '<div class="city">'+x.ids.length+(x.ids.length>1?" faixas":" faixa")+' no Underfy</div>'+
-      '<button class="btn btn-ghost btn-sm" data-play="'+x.ids[0]+'">Ouvir</button></div>').join("")+'</div>';
-  }
-
-  const res=artistas.filter(a=>{
-    const okP=!filtroPapel||a.papel.toLowerCase().includes(filtroPapel.toLowerCase().slice(0,5));
-    const alvo=(a.nome+" "+a.handle+" "+a.papel+" "+a.cidade+" "+a.estilos.join(" ")).toLowerCase();
-    return okP&&(!busca||alvo.includes(busca));
-  });
-  if(res.length){
-    h+='<h3 class="sec-h">Artistas para colaborar</h3><div class="grid-art">'+res.map(a=>
-      '<div class="art-card">'+avatar(a,"lg")+'<strong>'+a.nome+'</strong>'+
-      '<div class="role">'+a.papel+'</div><div class="city">'+a.cidade+(a.online?" · online":"")+'</div>'+
-      '<button class="btn btn-ghost btn-sm" data-convite="'+a.id+'">Chamar para colaborar</button></div>').join("")+'</div>';
-  }
-  if(!faixasHit.length&&!arsReais.length&&!res.length){
-    h+='<div class="empty"><strong>Nada encontrado</strong>Tente outro nome, outro estilo ou limpe a busca. '+
-       'Se ninguém aparecer, publique a vaga no feed — quem tiver o perfil chega até você.</div>';
-  }
-  return h;
-}
-
-function viewColabs(){
-  return '<h1 class="ap-h">Colaborações</h1><p class="ap-sub">Projetos em andamento. As vagas abertas são onde você entra.</p>'+
-  projetos.map(pr=>{
-    const feitos=pr.slots.filter(s=>s.ok).length,pct=Math.round(feitos/pr.slots.length*100);
-    return '<div class="proj"><div class="proj-head"><div><h3>'+pr.nome+'</h3><p>'+pr.desc+'</p></div>'+
-      '<div class="prog"><b>'+feitos+' de '+pr.slots.length+' etapas</b><div class="prog-bar"><i style="width:'+pct+'%"></i></div></div></div><div class="slots">'+
-      pr.slots.map((s,i)=>{
-        if(s.ok){const a=A(s.quem);
-          return '<div class="slot"><span class="slot-role">'+s.papel+'</span>'+avatar(a,"sm")+'<strong>'+a.nome+'</strong><span class="ok">✓ entregue</span></div>';}
-        return '<div class="slot open"><span class="slot-role">'+s.papel+'</span><span class="slot-open-lbl">vaga aberta</span>'+
-          '<button class="btn btn-cyan btn-sm" data-vaga="'+pr.id+':'+i+'">Entrar nessa vaga</button></div>';
-      }).join("")+'</div></div>';
+/* =================================================================
+   11. NAVEGAÇÃO
+   ================================================================= */
+const ICO={
+ inicio:'<path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-6h4v6"/>',
+ descobrir:'<circle cx="12" cy="12" r="9"/><path d="M15 9l-2 4-4 2 2-4z"/>',
+ buraco:'<ellipse cx="12" cy="12" rx="8" ry="4.5"/><ellipse cx="12" cy="12" rx="4" ry="2.2"/>',
+ buscar:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+ feed:'<path d="M3 12h3l2.5-7 4 14 3-9 2 2h3.5"/>',
+ colabs:'<circle cx="9" cy="9" r="3"/><circle cx="17" cy="16" r="3"/><path d="M11.4 10.9l3.4 3"/><path d="M3 20c0-2.8 2.7-5 6-5"/>',
+ eventos:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/>',
+ mapa:'<path d="M9 4L3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5z"/><path d="M9 4v13M15 6.5v13"/>',
+ biblioteca:'<path d="M5 4h3v16H5zM10.5 4h3v16h-3z"/><path d="M17 5l3 15"/>',
+ voce:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
+ catalogo:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>'
+};
+const MENU=[
+ {v:"inicio",n:"Início",mob:1},
+ {v:"catalogo",n:"Músicas"},
+ {v:"descobrir",n:"Descobrir",mob:1},
+ {v:"buraco",n:"O Buraco"},
+ {v:"buscar",n:"Buscar"},
+ {sep:1},
+ {v:"feed",n:"Underfeed",mob:1},
+ {v:"colabs",n:"Colabs",mob:1},
+ {v:"eventos",n:"Eventos"},
+ {v:"mapa",n:"Mapa da cena"},
+ {sep:1},
+ {v:"biblioteca",n:"Biblioteca"},
+ {v:"voce",n:"Você",mob:1}
+];
+function montarNav(){
+  document.getElementById("nav").innerHTML=MENU.map(m=>{
+    if(m.sep) return '<div class="nav-sep"></div>';
+    return '<button class="navbtn'+(m.mob?"":" desk-only")+'" data-a="ir" data-v="'+m.v+'">'+
+      '<svg viewBox="0 0 24 24">'+ICO[m.v]+'</svg><span>'+m.n+'</span></button>';
   }).join("");
 }
-
-function viewPerfil(){
-  return '<div class="prof-head"><div class="av lg" style="background:linear-gradient(135deg,#9D4EDD,#00F5D4);color:#120E16">VF</div>'+
-    '<div><h2>Vitor Ferreira</h2><div class="role">Produtor / beatmaker</div><div class="city">Assis, SP · entrou em 2026</div></div>'+
-    '<button class="btn btn-ghost btn-sm" style="margin-left:auto" data-edit>Editar perfil</button></div>'+
-    '<p class="prof-bio">Faço beat de boom bap com sample de disco de vinil de feira. Procuro letra que não tenha medo de ser lenta.</p>'+
-    '<div class="stats"><div class="stat"><b>12</b><span>obras publicadas</span></div>'+
-    '<div class="stat"><b>5</b><span>colabs concluídas</span></div>'+
-    '<div class="stat"><b>3</b><span>convites recebidos</span></div>'+
-    '<div class="stat"><b>418</b><span>seguidores</span></div></div>'+
-    '<section class="shelf"><div class="shelf-head"><h2>Suas obras</h2></div><div class="rail">'+
-    ["d3","d8","d12","d1"].map(tile).join("")+'</div></section>'+
-    '<h3 class="sec-h">Publicações com vaga aberta</h3>'+
-    '<div class="empty"><strong>Você não tem nenhuma vaga aberta agora</strong>'+
-    'Publique um beat ou uma letra e marque o que está faltando para aparecer na busca de quem procura essa função.</div>';
+let view="inicio", ctx=null, busca="", filtroGen=[], cidadeSel=null;
+const page=()=>document.getElementById("page");
+const main=()=>document.getElementById("main");
+function ir(v,c){
+  view=v; ctx=c||null;
+  document.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  main().scrollTop=0; render();
 }
 
-/* ===================== INTERAÇÕES ===================== */
-function bind(){
-  page.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>tocar(b.dataset.play));
-  page.querySelectorAll("[data-shuffle]").forEach(b=>b.onclick=()=>{
-    tocar(idsReais[Math.floor(Math.random()*idsReais.length)]);
-    toast("Modo aleatório na playlist do underground.");
-  });
-  page.querySelectorAll("[data-artreal]").forEach(b=>b.onclick=()=>{
-    busca=b.dataset.artreal.toLowerCase();
-    document.getElementById("globalSearch").value=b.dataset.artreal;
-    go("buscar");
-  });
-  page.querySelectorAll("[data-artista]").forEach(b=>b.onclick=()=>{
-    const a=A(b.dataset.artista); busca=a.nome.toLowerCase();
-    document.getElementById("globalSearch").value=a.nome; go("buscar");
-  });
-  page.querySelectorAll("[data-like]").forEach(b=>b.onclick=()=>{
-    const p=posts.find(x=>x.id==b.dataset.like); p.liked=!p.liked; p.likes+=p.liked?1:-1; render();
-  });
-  page.querySelectorAll("[data-coment]").forEach(b=>b.onclick=()=>toast("Comentários entram na próxima versão do protótipo."));
-  page.querySelectorAll("[data-papel]").forEach(b=>b.onclick=()=>{
-    filtroPapel=(filtroPapel===b.dataset.papel)?null:b.dataset.papel; render();
-  });
-  page.querySelectorAll("[data-collab]").forEach(b=>b.onclick=()=>modalColab(posts.find(x=>x.id==b.dataset.collab)));
-  page.querySelectorAll("[data-convite]").forEach(b=>b.onclick=()=>toast("Convite enviado para "+A(b.dataset.convite).nome+"."));
-  page.querySelectorAll("[data-vaga]").forEach(b=>b.onclick=()=>{
-    const [pid,idx]=b.dataset.vaga.split(":"); const pr=projetos.find(x=>x.id===pid);
-    pr.slots[idx].ok=true; pr.slots[idx].quem="teo"; render();
-    toast("Você entrou em "+pr.nome+" como "+pr.slots[idx].papel+".");
-  });
-  const ed=page.querySelector("[data-edit]");
-  if(ed) ed.onclick=()=>toast("Edição de perfil entra na próxima iteração.");
+/* =================================================================
+   12. RENDER
+   ================================================================= */
+const VIEWS={};
+function render(){
+  const g=document.getElementById("glow");
+  if(g) g.style.opacity=(view==="inicio"||view==="buraco")?"1":"0";
+  page().innerHTML=(VIEWS[view]||VIEWS.inicio)();
+  page().querySelectorAll(".post-audio .wave").forEach(w=>fillWave(w,34));
+  const av=document.getElementById("meAv");
+  if(av){av.style.background="linear-gradient(135deg,#9D4EDD,#00F5D4)";av.style.color="#120E16";av.textContent=ini(USER);}
+  pintarNivel();
 }
-document.querySelectorAll("[data-publish]").forEach(b=>b.addEventListener("click",modalPublicar));
+const saud=()=>{const h=new Date().getHours();return h<5?"Boa madrugada":h<12?"Bom dia":h<18?"Boa tarde":"Boa noite";};
 
-/* ===================== MODAIS ===================== */
-function openModal(titulo,sub,campos,cta,onOk){
+function tile(id){
+  const t=T(id); if(!t) return "";
+  return '<button class="tile'+(atual===id?" playing":"")+'" data-a="tocar" data-v="'+id+'">'+
+   '<div class="tile-cover">'+capaFaixa(t)+
+   (t.vaga?'<span class="pill pill-open">vaga aberta</span>':'')+
+   '<span class="fab"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></span></div>'+
+   '<strong>'+esc(t.t)+'</strong><span class="'+(t.vaga?"slot-open":"")+'">'+esc(t.vaga?t.vaga+" · "+t.a:t.a)+'</span></button>';
+}
+function tileObra(o){
+  const a=A(o.au);
+  return '<button class="tile" data-a="abrir" data-v="'+o.id+'">'+
+   '<div class="tile-cover">'+capaObra(o)+
+   '<span class="pill pill-tipo">'+(o.tipo==="poema"?"poema":o.tipo==="microconto"?"microconto":"arte")+'</span>'+
+   (o.vaga?'<span class="pill pill-open" style="left:auto;right:8px">vaga</span>':'')+
+   '</div><strong>'+esc(o.t)+'</strong><span>'+esc(a.nome)+'</span></button>';
+}
+
+/* ---------- INÍCIO ---------- */
+VIEWS.inicio=()=>{
+  const sem=artistas[new Date().getDay()%artistas.length];
+  let h='<h1 class="ap-h" style="font-size:1.9rem">'+saud()+', '+esc(USER)+'</h1>'+
+        '<p class="ap-sub">A cena não para. Veja quem está publicando agora.</p>';
+
+  h+='<section class="week"><div class="week-bg">'+svgCover(sem.g+2)+'</div><div class="week-in">'+
+    '<div class="week-av" style="background:'+GRAD[sem.g]+'">'+sem.ini+'</div><div>'+
+    '<span class="week-tag">Artista da semana</span><h2>'+esc(sem.nome)+'</h2>'+
+    '<p class="loc">'+esc(sem.cidade)+', '+sem.uf+' · '+nfmt(sem.ouv)+' reproduções</p>'+
+    '<p>'+esc(sem.bio)+'</p><div class="week-acts">'+
+    '<button class="btn btn-primary" data-a="ouvirArtista" data-v="'+sem.id+'">Ouvir agora</button>'+
+    '<button class="btn btn-ghost" data-a="artista" data-v="'+sem.id+'">Ver perfil</button></div></div></div></section>';
+
+  h+='<div class="jump">'+
+    '<button class="jbox" data-a="ir" data-v="buraco"><span class="em">🕳️</span><span><strong>O Buraco</strong><span>quem ainda não foi descoberto</span></span></button>'+
+    '<button class="jbox" data-a="ir" data-v="descobrir"><span class="em">✦</span><span><strong>Descubra sua vibe</strong><span>monte sua sessão</span></span></button>'+
+    '<button class="jbox" data-a="ir" data-v="mapa"><span class="em">🗺️</span><span><strong>Mapa da cena</strong><span>artistas por cidade</span></span></button>'+
+    '<button class="jbox" data-a="ir" data-v="eventos"><span class="em">📍</span><span><strong>Eventos</strong><span>o que rola perto</span></span></button>'+
+    '</div>';
+
+  h+='<div class="qp">'+idsReais.slice(0,6).map(id=>{const t=T(id);
+    return '<button class="qpc" data-a="tocar" data-v="'+id+'">'+capaFaixa(t)+
+     '<div class="qpc-txt"><strong>'+esc(t.t)+'</strong><span>'+esc(t.a)+'</span></div>'+
+     '<span class="fab"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></span></button>';}).join("")+'</div>';
+
+  const rec=(DADOS.recentes||[]).filter(id=>T(id)).slice(0,12);
+  if(rec.length) h+=shelf("Tocadas recentemente","salvo na sua conta",rec.map(tile).join(""));
+  h+='<section class="shelf"><div class="shelf-head"><h2>Trap BR underground</h2>'+
+     '<p class="more"><button class="lk" data-a="ir" data-v="catalogo">ver as '+idsReais.length+' faixas</button></p></div>'+
+     '<div class="rail">'+idsReais.slice(0,20).map(tile).join("")+'</div></section>';
+  h+=shelf("Poesia da cena","toque para ler",porTipo("poema").map(tileObra).join(""));
+  h+=shelf("Microcontos","três linhas e um soco",porTipo("microconto").map(tileObra).join(""));
+  h+=shelf("Artes visuais","capa, lambe-lambe e zine",porTipo("arte").map(tileObra).join(""));
+  h+=shelf("Esperando alguém","obras com vaga aberta agora",
+    obras.filter(o=>o.vaga&&o.tipo==="musica").map(o=>tile(o.id)).join(""));
+  h+=shelf("Artistas da sua cena","ponto verde quer dizer online",
+    artistas.map(a=>'<button class="tile artist" data-a="artista" data-v="'+a.id+'">'+
+     '<div class="tile-cover">'+svgCover(a.g,"round")+'</div><strong>'+esc(a.nome)+'</strong>'+
+     '<span class="'+(a.online?"slot-open":"")+'">'+(a.online?"online · ":"")+esc(a.cidade)+'</span></button>').join(""));
+  return h;
+};
+const shelf=(t,n,inner)=>'<section class="shelf"><div class="shelf-head"><h2>'+t+'</h2>'+(n?'<p>'+n+'</p>':'')+'</div><div class="rail">'+inner+'</div></section>';
+
+/* ---------- MÚSICAS (catálogo completo) ---------- */
+VIEWS.catalogo=()=>{
+  let h='<h1 class="ap-h">Trap BR underground</h1><p class="ap-sub">'+idsReais.length+' faixas da playlist da cena, tocando direto do YouTube. Catálogo '+fonteTxt()+'.</p>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">'+
+     '<button class="btn btn-primary" data-a="tocar" data-v="'+idsReais[0]+'">Tocar tudo</button>'+
+     '<button class="btn btn-ghost" data-a="embaralhar">Embaralhar</button></div>';
+  return h+'<div class="tracklist">'+idsReais.map((id,i)=>linhaItem({k:"faixa",id:id},i+1)).join("")+'</div>';
+};
+
+/* ---------- DESCOBRIR ---------- */
+let sessao=null, iaRes=null;
+VIEWS.descobrir=()=>{
+  let h='<h1 class="ap-h">Descobrir</h1><p class="ap-sub">Escolha a vibe e o Underfy monta uma sessão só sua, misturando música, poema, microconto e arte.</p>';
+
+  h+='<div class="vibe-box"><h2 style="font-size:1.2rem;margin-bottom:6px">Descubra sua vibe</h2>'+
+    '<p style="color:var(--muted);font-size:.89rem;margin-bottom:18px">Marque quantas quiser.</p><div class="chips">'+
+    GENEROS.map(g=>'<button class="chip big'+(filtroGen.includes(g.id)?" on":"")+'" data-a="gen" data-v="'+g.id+'">'+g.em+' '+g.n+'</button>').join("")+
+    '</div><button class="btn btn-primary" data-a="montar"'+(filtroGen.length?"":" disabled")+'>Montar minha sessão</button>'+
+    (filtroGen.length?' <button class="btn btn-ghost btn-sm" data-a="limparGen">Limpar</button>':'')+'</div>';
+
+  if(sessao){
+    h+='<h2 class="sec-h">Sua sessão underground</h2><div class="sessao">'+
+      sessao.map((it,i)=>linhaItem(it,i+1)).join("")+'</div>'+
+      '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">'+
+      '<button class="btn btn-primary btn-sm" data-a="tocarSessao">Tocar a sessão</button>'+
+      '<button class="btn btn-ghost btn-sm" data-a="salvarSessao">Salvar como playlist</button></div>';
+  }
+
+  h+='<div class="ia-box" style="margin-top:30px"><h2 style="font-size:1.2rem;margin-bottom:6px">✦ Underfy AI</h2>'+
+    '<p style="color:var(--muted);font-size:.89rem;margin-bottom:16px">Escreva como você está ou o que quer ouvir. Sem música famosa no meio.</p>'+
+    '<div class="ia-row"><input id="iaInput" placeholder="ex: rap melancólico de artista pequeno" value="'+esc(iaRes?iaRes.q:"")+'">'+
+    '<button class="btn btn-cyan" data-a="ia">Descobrir</button></div>'+
+    '<div class="ia-sug">'+["estou triste","quero algo raivoso","madrugada","algo pra focar","apaixonado","saudade de casa"]
+      .map(s=>'<button data-a="iaSug" data-v="'+s+'">'+s+'</button>').join("")+'</div>'+
+    '<p class="ia-nota">Como funciona: o Underfy cruza as tags das obras com o clima do que você escreveu. É recomendação de descoberta, não diagnóstico de nada.</p></div>';
+
+  if(iaRes){
+    h+='<h2 class="sec-h">Encontramos uma vibe para você</h2>'+
+      '<p class="ap-sub">'+iaRes.itens.filter(x=>x.k==="faixa").length+' faixas · '+
+      iaRes.itens.filter(x=>x.k==="obra").length+' textos e artes · '+iaRes.arts.length+' artistas</p>'+
+      '<div class="sessao">'+iaRes.itens.map((it,i)=>linhaItem(it,i+1)).join("")+'</div>';
+    if(iaRes.arts.length) h+='<h3 class="sec-h">Artistas dessa vibe</h3><div class="grid-art">'+iaRes.arts.map(cardArtista).join("")+'</div>';
+  }
+
+  h+='<h2 class="sec-h">Em ascensão</h2><p class="ap-sub">Quem cresceu mais nos últimos 30 dias dentro da plataforma.</p>'+tabelaAscensao();
+  return h;
+};
+function linhaItem(it,i){
+  if(it.k==="faixa"){
+    const t=T(it.id);
+    return '<button class="trow'+(atual===it.id?" playing":"")+'" data-a="tocar" data-v="'+it.id+'">'+
+     '<span class="num">'+String(i).padStart(2,"0")+'</span><span class="thumb">'+capaFaixa(t)+'</span>'+
+     '<span class="tinfo"><strong>'+esc(t.t)+'</strong><span>'+esc(t.a)+'</span></span>'+
+     '<span class="src">'+(t.real?"YouTube":"música")+'</span></button>';
+  }
+  const o=O(it.id),a=A(o.au);
+  return '<button class="trow" data-a="abrir" data-v="'+o.id+'">'+
+   '<span class="num">'+String(i).padStart(2,"0")+'</span><span class="thumb">'+capaObra(o)+'</span>'+
+   '<span class="tinfo"><strong>'+esc(o.t)+'</strong><span>'+esc(a.nome)+'</span></span>'+
+   '<span class="src">'+o.tipo+'</span></button>';
+}
+function tabelaAscensao(){
+  const lista=[...artistas].sort((a,b)=>b.cres-a.cres).slice(0,8);
+  const max=lista[0].cres;
+  return '<table class="tabela"><thead><tr><th>Artista</th><th class="hide-xs2">Cidade</th><th>Plays</th><th>Crescimento</th></tr></thead><tbody>'+
+   lista.map(a=>'<tr><td><span class="nome">'+avatar(a,"sm")+'<button data-a="artista" data-v="'+a.id+'"><strong>'+esc(a.nome)+'</strong></button></span></td>'+
+    '<td class="hide-xs2" style="color:var(--muted)">'+esc(a.cidade)+'</td><td>'+nfmt(a.ouv)+'</td>'+
+    '<td><span class="up">+'+a.cres+'%</span><div class="barra"><i style="width:'+Math.round(a.cres/max*100)+'%"></i></div></td></tr>').join("")+
+   '</tbody></table>';
+}
+
+/* ---------- O BURACO ---------- */
+VIEWS.buraco=()=>{
+  const fundo=[...artistas].sort((a,b)=>a.ouv-b.ouv)[0];
+  const pequenos=[...artistas].filter(a=>a.ouv<1500).sort((a,b)=>a.ouv-b.ouv);
+  let h='<div class="buraco"><div class="buraco-in">'+
+   '<h1>🕳️ O Buraco</h1>'+
+   '<p class="desc">Enquanto as outras plataformas empurram quem já é popular, aqui você desce até quem ainda está tentando ser descoberto.</p>'+
+   '<div class="descida"><i></i>DESCENDO<i></i>MAIS FUNDO<i></i></div>'+
+   '<p style="color:var(--muted);font-size:.88rem;margin-bottom:16px">Você chegou ao fundo da cena.</p>'+
+   '<div class="fundo">'+avatar(fundo,"lg")+
+     '<h3>'+esc(fundo.nome)+'</h3><p class="loc">'+esc(fundo.cidade)+', '+fundo.uf+'</p>'+
+     '<p class="ouv">🎧 '+nfmt(fundo.ouv)+' ouvintes</p>'+
+     '<div class="btns"><button class="btn btn-primary" data-a="ouvirArtista" data-v="'+fundo.id+'">Ouvir</button>'+
+     '<button class="btn btn-ghost" data-a="artista" data-v="'+fundo.id+'">Ver perfil</button></div></div>'+
+   '<p style="color:var(--muted);font-size:.83rem;margin-top:22px">Ouvir alguém daqui vale 15 XP. Descobrir cedo é o esporte da casa.</p>'+
+   '</div></div>';
+  h+='<h2 class="sec-h">Fundo do poço, por ouvintes</h2>'+
+   '<p class="ap-sub">Nenhum destes passou de 1.500 reproduções. Alguns vão passar.</p>'+
+   '<div class="grid-art">'+pequenos.map(cardArtista).join("")+'</div>';
+  return h;
+};
+function cardArtista(a){
+  const seg=DADOS.seguindo.includes(a.id);
+  return '<div class="art-card"><button data-a="artista" data-v="'+a.id+'">'+avatar(a,"lg")+
+   '<strong>'+esc(a.nome)+'</strong></button><div class="role">'+esc(a.papel)+'</div>'+
+   '<div class="city">'+esc(a.cidade)+', '+a.uf+' · '+nfmt(a.ouv)+' ouvintes</div>'+
+   '<button class="btn '+(seg?"btn-ghost":"btn-primary")+' btn-sm btn-block" data-a="seguir" data-v="'+a.id+'">'+(seg?"Seguindo":"Seguir")+'</button></div>';
+}
+
+/* ---------- BUSCAR ---------- */
+VIEWS.buscar=()=>{
+  let h='<h1 class="ap-h">Buscar</h1><p class="ap-sub">Música, poema, microconto, arte, artista ou cidade.</p>';
+  if(!busca) return h+'<div class="empty"><strong>Digite alguma coisa lá em cima</strong>Tente “Recife”, “poema”, “lo-fi” ou o nome de um artista.</div>';
+  const q=busca;
+  const fx=Object.keys(CAT).filter(id=>(T(id).t+" "+T(id).a+" "+(T(id).sub||"")).toLowerCase().includes(q));
+  const ob=obras.filter(o=>o.tipo!=="musica"&&((o.t+" "+A(o.au).nome+" "+(o.texto||o.desc||"")+" "+o.gen.join(" ")).toLowerCase().includes(q)));
+  const ar=artistas.filter(a=>(a.nome+" "+a.handle+" "+a.papel+" "+a.cidade+" "+a.uf+" "+a.gen.join(" ")).toLowerCase().includes(q));
+  const yt=artistasReais().filter(x=>x.nome.toLowerCase().includes(q));
+  if(fx.length) h+='<h3 class="sec-h">Faixas</h3><div class="tracklist">'+fx.map((id,i)=>linhaItem({k:"faixa",id},i+1)).join("")+'</div>';
+  if(ob.length) h+='<h3 class="sec-h">Textos e artes</h3><div class="grid-obras">'+ob.map(cardObra).join("")+'</div>';
+  if(yt.length) h+='<h3 class="sec-h">Artistas do catálogo</h3><div class="grid-art">'+yt.map(x=>
+     '<div class="art-card"><img class="cover round" loading="lazy" alt="" src="'+thumb(T(x.ids[0]).vid)+'" data-vid="'+T(x.ids[0]).vid+'" data-step="0">'+
+     '<strong>'+esc(x.nome)+'</strong><div class="role">Trap BR</div><div class="city">'+x.ids.length+' no Underfy</div>'+
+     '<button class="btn btn-ghost btn-sm btn-block" data-a="tocar" data-v="'+x.ids[0]+'">Ouvir</button></div>').join("")+'</div>';
+  if(ar.length) h+='<h3 class="sec-h">Artistas da plataforma</h3><div class="grid-art">'+ar.map(cardArtista).join("")+'</div>';
+  if(!fx.length&&!ob.length&&!ar.length&&!yt.length)
+    h+='<div class="empty"><strong>Nada encontrado</strong>Tente outro nome, estilo ou cidade.</div>';
+  return h;
+};
+function cardObra(o){
+  const a=A(o.au),salvo=DADOS.salvos.includes(o.id);
+  return '<div class="obra"><div class="obra-top">'+avatar(a,"sm")+
+   '<span class="who">'+esc(a.nome)+' · '+esc(a.cidade)+'</span>'+
+   '<span class="badge '+o.tipo+'">'+o.tipo+'</span></div>'+
+   '<h3>'+esc(o.t)+'</h3>'+
+   (o.texto?'<p class="texto'+(o.tipo==="microconto"?" mc":"")+'">'+esc(o.texto)+'</p>':
+    '<div style="margin-bottom:12px">'+capaObra(o)+'</div><p style="font-size:.88rem;color:var(--muted)">'+esc(o.desc)+'</p>')+
+   '<div class="post-acts" style="margin-top:13px">'+
+   '<button class="act '+(salvo?"on":"")+'" data-a="salvarObra" data-v="'+o.id+'"><svg viewBox="0 0 24 24"><path d="M6 4h12v16l-6-4-6 4z"/></svg><span>'+(salvo?"Salvo":"Salvar")+'</span></button>'+
+   '<button class="act" data-a="abrir" data-v="'+o.id+'"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Abrir</span></button>'+
+   (o.vaga?'<button class="act act-collab" data-a="colabObra" data-v="'+o.id+'">'+esc(o.vaga)+'</button>':'')+
+   '</div></div>';
+}
+
+/* ---------- UNDERFEED ---------- */
+let posts=[
+ {id:1,au:"naya",tempo:"há 2 h",tipo:"Letra",obra:"p5",txt:"Achei isso num caderno de 2019. Alguém topa transformar em faixa?",procura:"produtor com beat lento, 70 a 80 BPM",likes:128,cm:[{q:"base",t:"Tenho um instrumental parado que é exatamente isso. Te mando hoje."}]},
+ {id:2,au:"base",tempo:"há 5 h",tipo:"Instrumental",faixa:"m2",txt:"Sample de cavaquinho que gravei na feira. Precisa de voz.",procura:"vocalista ou rapper para fechar dois versos",likes:341,cm:[{q:"rafa",t:"Essa ficou absurda. Manda o stem."},{q:"lu",t:"Se ninguém pegar até sexta eu pego."}]},
+ {id:3,au:"vera",tempo:"há 8 h",tipo:"Arte",obra:"a1",txt:"Colei na esquina da Sete ontem à noite. Quem quiser usar de capa, é só falar.",procura:"faixa que combine com isso",likes:207,cm:[]},
+ {id:4,au:"kaio",tempo:"há 1 d",tipo:"Microconto",obra:"c1",txt:"Escrevi pensando no meu vizinho de verdade. Ele nunca vai ler.",procura:"alguém que leia isso em voz alta sobre uma trilha",likes:96,cm:[{q:"mig",t:"Faço a trilha. Tenho uma textura de fita perfeita."}]},
+ {id:5,au:"teo",tempo:"há 2 d",tipo:"Faixa",faixa:"m3",txt:"Interior também tem madrugada. Falta mixagem.",procura:"engenheiro de mixagem",likes:203,cm:[]}
+];
+let postsUsuarios=[];
+const achaPost=v=>postsUsuarios.find(x=>x.id==v)||posts.find(x=>x.id==v);
+const nomePost=p=>p.au?A(p.au).nome:p.autor;
+VIEWS.feed=()=>'<h1 class="ap-h">Underfeed</h1><p class="ap-sub">A cena falando. Cada publicação diz o que ainda está faltando.</p>'+postsUsuarios.map(cardPost).join("")+posts.map(cardPost).join("");
+function cardPost(p){
+  const a=p.au?A(p.au):null,curtiu=DADOS.curtidas.includes("post"+p.id);
+  const extras=(DADOS.coments[p.id]||[]);
+  p.cm=p.cm||[]; p.likes=p.likes||0;
+  const cab=a?(avatar(a)+'<div class="post-who"><button data-a="artista" data-v="'+a.id+'"><strong>'+esc(a.nome)+'</strong></button>'+
+      '<span>'+a.handle+' · '+esc(a.cidade)+' · '+p.tempo+'</span></div>')
+    :(avEu("",p.autor)+'<div class="post-who"><strong>'+esc(p.autor)+'</strong><span>membro do Underfy · '+quando(p.ts)+'</span></div>');
+  let corpo="";
+  if(p.obra){const o=O(p.obra);
+    corpo=o.texto?'<div class="post-verse">'+esc(o.texto)+'</div>':
+      '<div style="max-width:230px;margin:12px 0">'+capaObra(o)+'</div><p class="audio-info">'+esc(o.desc)+'</p>';}
+  if(p.faixa){const f=T(p.faixa);
+    corpo='<div class="post-audio"><button class="fab" data-a="tocar" data-v="'+f.id+'" aria-label="Tocar"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></button>'+
+      '<div class="wave static"></div><div class="meta">'+f.dur+'</div></div><p class="audio-info">'+esc(f.sub)+'</p>';}
+  return '<article class="post"><div class="post-head">'+cab+
+   '<span class="badge">'+esc(p.tipo)+'</span></div>'+
+   (p.titulo?'<h3 class="post-title">'+esc(p.titulo)+'</h3>':'')+
+   '<p style="margin-bottom:6px;white-space:pre-line">'+esc(p.txt)+'</p>'+corpo+
+   '<div class="callout"><span>◇</span><span>Procura: <b>'+esc(p.procura)+'</b></span></div>'+
+   '<div class="post-acts">'+
+    '<button class="act '+(curtiu?"on":"")+'" data-a="curtirPost" data-v="'+p.id+'"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9a4 4 0 017-2.6A4 4 0 0119 11c0 4.6-7 9-7 9z"/></svg><span>'+(p.likes+(curtiu?1:0))+'</span></button>'+
+    '<button class="act" data-a="focarCmt" data-v="'+p.id+'"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.5A8 8 0 1121 12z"/></svg><span>'+(p.cm.length+extras.length)+'</span></button>'+
+    '<button class="act" data-a="compartilhar" data-v="'+p.id+'"><svg viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7"/><path d="M12 15V3M8 7l4-4 4 4"/></svg><span>Compartilhar</span></button>'+
+    '<button class="act act-collab" data-a="colabPost" data-v="'+p.id+'">Quero colaborar</button></div>'+
+   '<div class="coments">'+p.cm.concat(extras).map(c=>{
+      const q=c.q?A(c.q):null;
+      return '<div class="cmt">'+(q?avatar(q,"sm"):avEu("sm"))+
+       '<div class="body"><b>'+esc(q?q.nome:USER)+'</b>'+esc(c.t)+'</div></div>';}).join("")+
+    '<div class="cmt-form"><input id="cmt'+p.id+'" placeholder="Escreva um comentário" data-post="'+p.id+'">'+
+    '<button class="btn btn-primary btn-sm" data-a="comentar" data-v="'+p.id+'">Enviar</button></div></div></article>';
+}
+
+/* ---------- COLABS ---------- */
+VIEWS.colabs=()=>'<h1 class="ap-h">Colaborações</h1><p class="ap-sub">Projetos em andamento. As vagas abertas são onde você entra.</p>'+
+ projetos.map(pr=>{
+  const f=pr.slots.filter(s=>s.ok).length,pct=Math.round(f/pr.slots.length*100);
+  return '<div class="proj"><div class="proj-head"><div><h3>'+esc(pr.nome)+'</h3><p>'+esc(pr.desc)+'</p></div>'+
+   '<div class="prog"><b>'+f+' de '+pr.slots.length+' etapas</b><div class="prog-bar"><i style="width:'+pct+'%"></i></div></div></div>'+
+   '<div class="slots">'+pr.slots.map((s,i)=>{
+     if(s.ok&&s.quem==="eu") return '<div class="slot"><span class="slot-role">'+s.papel+'</span>'+avEu("sm")+'<strong>'+esc(USER)+'</strong><span class="ok">✓ você entrou</span></div>';
+     if(s.ok){const a=A(s.quem);return '<div class="slot"><span class="slot-role">'+s.papel+'</span>'+avatar(a,"sm")+'<strong>'+esc(a.nome)+'</strong><span class="ok">✓ entregue</span></div>';}
+     return '<div class="slot open"><span class="slot-role">'+s.papel+'</span><span class="slot-open-lbl">vaga aberta</span>'+
+      '<button class="btn btn-cyan btn-sm" data-a="vaga" data-v="'+pr.id+':'+i+'">Entrar nessa vaga</button></div>';}).join("")+
+   '</div></div>';}).join("");
+
+/* ---------- EVENTOS ---------- */
+VIEWS.eventos=()=>'<h1 class="ap-h">Eventos underground</h1><p class="ap-sub">Show, sarau, feira de zine e lambe coletivo. Marque presença e o evento entra na sua biblioteca.</p>'+
+ eventos.map(e=>{const vou=DADOS.eventos.includes(e.id);
+  return '<div class="ev"><div class="ev-data"><b>'+e.dia+'</b><span>'+e.mes+'</span></div>'+
+   '<div class="ev-txt"><h3>'+esc(e.nome)+'</h3><p>📍 '+esc(e.local)+' · '+esc(e.cid)+', '+e.uf+'</p>'+
+   '<p style="margin-top:5px">'+esc(e.desc)+' · '+e.n+' artistas</p></div>'+
+   '<button class="btn '+(vou?"btn-cyan":"btn-ghost")+' btn-sm" data-a="evento" data-v="'+e.id+'">'+(vou?"✓ Vou":"Tenho interesse")+'</button></div>';}).join("");
+
+/* ---------- MAPA ---------- */
+VIEWS.mapa=()=>{
+  const cont=c=>artistas.filter(a=>a.cidade===c.n).length;
+  const max=Math.max(...CIDADES.map(cont),1);
+  let h='<h1 class="ap-h">Mapa da cena</h1><p class="ap-sub">Onde os artistas do Underfy estão. As linhas ligam cidades que já colaboraram entre si.</p><div class="mapa-wrap">';
+  h+='<div class="mapa"><svg viewBox="0 0 100 100">';
+  const liga=[["São Paulo","Belo Horizonte"],["Belo Horizonte","Recife"],["Recife","Porto Alegre"],["Assis","Belém"],["Curitiba","Salvador"],["Manaus","Presidente Prudente"]];
+  liga.forEach(([a,b])=>{const A1=CIDADES.find(c=>c.n===a),B1=CIDADES.find(c=>c.n===b);
+    if(A1&&B1) h+='<line x1="'+A1.x+'" y1="'+A1.y+'" x2="'+B1.x+'" y2="'+B1.y+'" stroke="#9D4EDD" stroke-width=".25" opacity=".3"/>';});
+  CIDADES.forEach(c=>{const n=cont(c),r=2+(n/max)*3.6,sel=cidadeSel===c.n;
+    h+='<g class="cidade-dot'+(sel?" sel":"")+'" data-a="cidade" data-v="'+c.n+'">'+
+     '<circle class="halo" cx="'+c.x+'" cy="'+c.y+'" r="'+(r*2.6)+'" fill="'+(n?"#9D4EDD":"#8B8594")+'"/>'+
+     '<circle cx="'+c.x+'" cy="'+c.y+'" r="'+r+'" fill="'+(n?"#00F5D4":"#3d3054")+'"/>'+
+     '<text x="'+c.x+'" y="'+(c.y-r-1.6)+'" text-anchor="middle">'+c.n+'</text></g>';});
+  h+='</svg><div class="mapa-legend"><span><i style="background:#00F5D4"></i> cidade com artista</span>'+
+   '<span><i style="background:#3d3054"></i> ainda sem ninguém</span><span>linha roxa = colab entre cidades</span></div></div>';
+  h+='<div>';
+  if(cidadeSel){
+    const lista=artistas.filter(a=>a.cidade===cidadeSel);
+    h+='<h3 class="sec-h" style="margin-top:0">'+esc(cidadeSel)+'</h3>';
+    h+=lista.length?'<div class="grid-art" style="grid-template-columns:1fr">'+lista.map(cardArtista).join("")+'</div>':
+      '<div class="empty"><strong>Ninguém aqui ainda</strong>Se você é dessa cidade, você é o primeiro. Publique e apareça no mapa.</div>';
+  } else {
+    h+='<div class="empty" style="max-width:none"><strong>Toque numa cidade</strong>O mapa mostra quantos artistas cada cidade tem e quem colabora com quem.</div>';
+    h+='<h3 class="sec-h">Cidades com mais gente</h3><table class="tabela"><tbody>'+
+     [...CIDADES].map(c=>({c,n:cont(c)})).filter(x=>x.n).sort((a,b)=>b.n-a.n).slice(0,6)
+     .map(x=>'<tr><td><button data-a="cidade" data-v="'+x.c.n+'"><strong>'+esc(x.c.n)+'</strong></button> <span style="color:var(--muted)">'+x.c.uf+'</span></td><td style="text-align:right;color:var(--cyan);font-family:var(--fd)">🎤 '+x.n+'</td></tr>').join("")+
+     '</tbody></table>';
+  }
+  return h+'</div></div>';
+};
+
+/* ---------- BIBLIOTECA ---------- */
+VIEWS.biblioteca=()=>{
+  let h='<h1 class="ap-h">Minha biblioteca</h1><p class="ap-sub">Tudo que você curtiu, salvou e criou fica aqui, salvo neste aparelho.</p>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">'+
+   '<button class="btn btn-primary btn-sm" data-a="novaPl">Criar playlist</button>'+
+   '<button class="btn btn-ghost btn-sm" data-a="ir" data-v="descobrir">Montar uma sessão</button></div>';
+
+  h+='<h3 class="sec-h" style="margin-top:0">Playlists</h3>';
+  h+=plCard(plColab);
+  h+=DADOS.playlists.map(plCard).join("");
+  if(!DADOS.playlists.length) h+='<p style="color:var(--muted);font-size:.87rem;margin:8px 0 4px">Você ainda não criou nenhuma playlist própria.</p>';
+
+  const cur=DADOS.curtidas.filter(id=>CAT[id]);
+  h+='<h3 class="sec-h">Músicas curtidas <span style="color:var(--muted);font-family:var(--fb);font-size:.9rem">('+cur.length+')</span></h3>';
+  h+=cur.length?'<div class="tracklist">'+cur.map((id,i)=>linhaItem({k:"faixa",id},i+1)).join("")+'</div>':
+    '<div class="empty"><strong>Nenhuma curtida ainda</strong>Toque no coração no player ou nas faixas.</div>';
+
+  const sv=DADOS.salvos.map(O).filter(Boolean);
+  h+='<h3 class="sec-h">Textos e artes salvos ('+sv.length+')</h3>';
+  h+=sv.length?'<div class="grid-obras">'+sv.map(cardObra).join("")+'</div>':
+    '<div class="empty"><strong>Nada salvo ainda</strong>Salve poemas, microcontos e artes para ler depois.</div>';
+
+  const sg=DADOS.seguindo.map(A).filter(Boolean);
+  h+='<h3 class="sec-h">Artistas seguidos ('+sg.length+')</h3>';
+  h+=sg.length?'<div class="grid-art">'+sg.map(cardArtista).join("")+'</div>':
+    '<div class="empty"><strong>Você ainda não segue ninguém</strong>Dá uma descida n\'O Buraco.</div>';
+
+  const ev=DADOS.eventos.map(id=>eventos.find(e=>e.id===id)).filter(Boolean);
+  if(ev.length) h+='<h3 class="sec-h">Eventos marcados</h3>'+ev.map(e=>
+    '<div class="ev"><div class="ev-data"><b>'+e.dia+'</b><span>'+e.mes+'</span></div>'+
+    '<div class="ev-txt"><h3>'+esc(e.nome)+'</h3><p>'+esc(e.cid)+', '+e.uf+'</p></div></div>').join("");
+  return h;
+};
+function plCard(pl){
+  const capas=pl.faixas.slice(0,4).map(id=>{const t=T(id);return t?capaFaixa(t):(O(id)?capaObra(O(id)):svgCover(0));});
+  while(capas.length<4) capas.push(svgCover(3));
+  return '<button class="pl-card" data-a="abrirPl" data-v="'+pl.id+'">'+
+   '<span class="pl-mini">'+capas.join("")+'</span>'+
+   '<span class="info"><strong>'+esc(pl.nome)+'</strong><span>'+pl.faixas.length+' itens'+(pl.dono?" · criada por "+esc(pl.dono):"")+'</span></span>'+
+   (pl.aberta?'<span class="colab-pill">👥 '+pl.colab+' colaboradores</span>':'')+'</button>';
+}
+
+/* ---------- PERFIL DE ARTISTA ---------- */
+VIEWS.artista=()=>{
+  const a=A(ctx); if(!a) return VIEWS.inicio();
+  const seg=DADOS.seguindo.includes(a.id);
+  const mus=obras.filter(o=>o.tipo==="musica"&&o.au===a.id);
+  const txt=obras.filter(o=>o.tipo!=="musica"&&o.au===a.id);
+  let h='<button class="back" data-a="voltar">← voltar</button>';
+  h+='<div class="prof-head">'+avatar(a,"lg")+'<div><h2>'+esc(a.nome)+'</h2>'+
+   '<div class="role">'+esc(a.papel)+'</div><div class="city">'+esc(a.cidade)+', '+a.uf+' · '+nfmt(a.ouv)+' ouvintes'+(a.online?' · online':'')+'</div></div>'+
+   '<div style="margin-left:auto;display:flex;gap:9px;flex-wrap:wrap">'+
+   '<button class="btn '+(seg?"btn-ghost":"btn-primary")+'" data-a="seguir" data-v="'+a.id+'">'+(seg?"Seguindo":"Seguir")+'</button>'+
+   '<button class="btn btn-ghost" data-a="compartilharArt" data-v="'+a.id+'">Compartilhar</button></div></div>';
+  h+='<p class="prof-bio">'+esc(a.bio)+'</p>';
+  h+='<div class="stats"><div class="stat"><b>'+nfmt(a.ouv)+'</b><span>reproduções</span></div>'+
+   '<div class="stat"><b>+'+a.cres+'%</b><span>nos últimos 30 dias</span></div>'+
+   '<div class="stat"><b>'+mus.length+'</b><span>faixas</span></div>'+
+   '<div class="stat"><b>'+txt.length+'</b><span>textos e artes</span></div>'+
+   '<div class="stat"><b>'+a.gen.length+'</b><span>estilos</span></div></div>';
+  h+='<div class="chips">'+a.gen.map(g=>{const G=GENEROS.find(x=>x.id===g);return '<span class="chip">'+(G?G.em+" "+G.n:g)+'</span>';}).join("")+'</div>';
+  if(mus.length) h+='<h3 class="sec-h">Músicas</h3><div class="tracklist">'+mus.map((o,i)=>linhaItem({k:"faixa",id:o.id},i+1)).join("")+'</div>';
+  const po=txt.filter(o=>o.tipo==="poema"),mc=txt.filter(o=>o.tipo==="microconto"),ar=txt.filter(o=>o.tipo==="arte");
+  if(po.length) h+='<h3 class="sec-h">Poemas</h3><div class="grid-obras">'+po.map(cardObra).join("")+'</div>';
+  if(mc.length) h+='<h3 class="sec-h">Microcontos</h3><div class="grid-obras">'+mc.map(cardObra).join("")+'</div>';
+  if(ar.length) h+='<h3 class="sec-h">Artes visuais</h3><div class="grid-obras">'+ar.map(cardObra).join("")+'</div>';
+  if(!mus.length&&!txt.length) h+='<div class="empty"><strong>Sem obras publicadas ainda</strong>Esse artista acabou de chegar na plataforma.</div>';
+  return h;
+};
+
+/* ---------- VOCÊ ---------- */
+VIEWS.voce=()=>{
+  const nv=nivel(),px=proximo(),nuvem=DB.modo==="nuvem";
+  const pct=px?Math.min(100,Math.round(((DADOS.xp-nv.min)/(px.min-nv.min))*100)):100;
+  let h='<h1 class="ap-h">Você</h1><p class="ap-sub">'+(nuvem
+    ?"Sua conta fica no banco de dados do Underfy. Entre em qualquer aparelho com o mesmo usuário e senha e tudo volta como você deixou."
+    :"Sua conta está salva neste navegador.")+'</p>';
+  h+='<div class="lvl-card"><div class="top"><span class="em">'+nv.em+'</span><div><h3>'+nv.nome+'</h3>'+
+   '<span class="nvl">Nível '+nv.n+' · '+DADOS.xp+' XP · '+DADOS.descobertos.length+' artistas descobertos</span></div></div>'+
+   '<div class="lvl-bar"><i style="width:'+pct+'%"></i></div>'+
+   '<p>'+(px?("Faltam "+(px.min-DADOS.xp)+" XP para virar "+px.nome+"."):"Você chegou ao topo. Ou ao fundo, dependendo de como você olha.")+
+   ' Você ganha XP descobrindo artistas pequenos, curtindo, salvando obras e entrando em vagas de colaboração.</p></div>';
+  h+='<div class="prof-head">'+avEu("lg")+
+   '<div><h2>'+esc(USER)+'</h2><div class="role">Membro do Underfy</div>'+
+   '<div class="city" style="margin-top:6px">'+seloModo()+'</div></div></div>';
+  h+='<div class="stats"><div class="stat"><b>'+DADOS.curtidas.length+'</b><span>curtidas</span></div>'+
+   '<div class="stat"><b>'+DADOS.salvos.length+'</b><span>salvos</span></div>'+
+   '<div class="stat"><b>'+DADOS.seguindo.length+'</b><span>seguindo</span></div>'+
+   '<div class="stat"><b>'+DADOS.playlists.length+'</b><span>playlists</span></div>'+
+   '<div class="stat"><b>'+(DADOS.recentes||[]).length+'</b><span>ouvidas</span></div></div>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px">'+
+   '<button class="btn btn-primary" data-a="publicar">Publicar obra</button>'+
+   (instalado()?'':'<button class="btn btn-cyan" data-a="instalar">Instalar o app</button>')+
+   '<button class="btn btn-ghost" data-a="trocarSenha">Trocar senha</button>'+
+   '<button class="btn btn-ghost" data-a="qr">QR da apresentação</button>'+
+   '<button class="btn btn-ghost" data-a="sair">Sair</button></div>';
+  h+='<div class="info-box"><strong>Catálogo de músicas</strong>'+idsReais.length+' faixas · '+fonteTxt()+
+   '.<br><button class="btn btn-ghost btn-sm" data-a="sincronizar">Atualizar pela playlist</button></div>';
+  h+='<div class="info-box"><strong>Onde seus dados ficam</strong>'+(nuvem
+    ?"Usuário e senha ficam no serviço de autenticação do Firebase, com a senha criptografada: nem a equipe do Underfy consegue ler. Curtidas, playlists, XP, artistas seguidos e histórico ficam no banco de dados, ligados só à sua conta."
+    :"O banco de dados na nuvem ainda não foi ligado neste endereço, então a conta e tudo que você faz ficam guardados neste navegador, com a senha protegida por hash.")+'</div>';
+  return h;
+};
+
+/* =================================================================
+   13. AÇÕES
+   ================================================================= */
+let historico=[];
+const ACOES={
+  ir:v=>{ if(view!=="artista") historico=[]; ir(v); },
+  voltar:()=>{ const p=historico.pop(); ir(p||"inicio"); },
+  artista:v=>{ historico.push(view); descobrir(v); ir("artista",v); },
+  cidade:v=>{ cidadeSel=(cidadeSel===v?null:v); render(); },
+  gen:v=>{ filtroGen.includes(v)?filtroGen=filtroGen.filter(x=>x!==v):filtroGen.push(v); render(); },
+  limparGen:()=>{ filtroGen=[]; sessao=null; render(); },
+  montar:()=>{
+    const fx=Object.keys(CAT).filter(id=>{const o=O(id); return o?o.gen.some(g=>filtroGen.includes(g)):filtroGen.includes("trap")||filtroGen.includes("rap");});
+    const ob=obras.filter(o=>o.tipo!=="musica"&&o.gen.some(g=>filtroGen.includes(g)));
+    const mix=[];
+    const emb=a=>a.slice().sort(()=>Math.random()-.5);
+    const f=emb(fx),t=emb(ob);
+    for(let i=0;i<8;i++){ if(i%3===2&&t.length) mix.push({k:"obra",id:t.pop().id}); else if(f.length) mix.push({k:"faixa",id:f.pop()}); }
+    sessao=mix.filter(Boolean);
+    if(!sessao.length){ toast("Nenhuma obra com essas vibes ainda. Tente outra combinação."); return; }
+    xp(5,"sessão montada"); render();
+    toast("Sua sessão tem "+sessao.length+" itens.");
+  },
+  tocarSessao:()=>{ const f=sessao.find(x=>x.k==="faixa"); if(f) tocar(f.id); else toast("Essa sessão só tem texto e arte. Abra o primeiro item."); },
+  salvarSessao:()=>{
+    DADOS.playlists.unshift({id:"pl"+Date.now(),nome:"Sessão "+new Date().toLocaleDateString("pt-BR"),faixas:sessao.map(x=>x.id)});
+    salvar(); xp(5,"playlist criada"); toast("Playlist salva na sua biblioteca."); ir("biblioteca");
+  },
+  iaSug:v=>{ const i=document.getElementById("iaInput"); if(i){i.value=v;} ACOES.ia(); },
+  ia:()=>{
+    const q=(document.getElementById("iaInput")||{}).value||"";
+    const s=q.toLowerCase();
+    const mapa=[
+     {kw:["triste","chorar","mal","deprê","sozinho","solidão","melancol"],gen:["dark","lofi","emo","poesia"]},
+     {kw:["raiva","bravo","puto","revolta","ódio"],gen:["rap","rock","trap"]},
+     {kw:["madrugada","noite","insônia","3 da manhã","dormir"],gen:["lofi","dark","poesia"]},
+     {kw:["focar","estudar","trabalhar","concentr"],gen:["lofi","experimental"]},
+     {kw:["apaixon","amor","paixão","crush"],gen:["emo","poesia","lofi"]},
+     {kw:["saudade","casa","interior","cidade pequena"],gen:["poesia","experimental","rap"]},
+     {kw:["festa","animado","energia","treino","correr"],gen:["trap","rap","rock"]},
+     {kw:["estranho","diferente","experiment","doido"],gen:["experimental","dark"]}
+    ];
+    let gens=[];
+    mapa.forEach(m=>{ if(m.kw.some(k=>s.includes(k))) gens=gens.concat(m.gen); });
+    GENEROS.forEach(g=>{ if(s.includes(g.id)||s.includes(g.n.toLowerCase())) gens.push(g.id); });
+    if(!gens.length) gens=["dark","lofi","poesia"];
+    gens=[...new Set(gens)];
+    const peq=s.includes("pequen")||s.includes("desconhec")||s.includes("ninguém");
+    let arts=artistas.filter(a=>a.gen.some(g=>gens.includes(g)));
+    if(peq) arts=arts.filter(a=>a.ouv<2500);
+    const fx=obras.filter(o=>o.tipo==="musica"&&o.gen.some(g=>gens.includes(g))).map(o=>({k:"faixa",id:o.id}));
+    const tx=obras.filter(o=>o.tipo!=="musica"&&o.gen.some(g=>gens.includes(g))).map(o=>({k:"obra",id:o.id}));
+    const extra=peq?[]:idsReais.slice(0,3).map(id=>({k:"faixa",id}));
+    iaRes={q:q,itens:fx.slice(0,5).concat(extra).concat(tx.slice(0,3)),arts:arts.slice(0,4)};
+    if(!iaRes.itens.length){ toast("Não achei nada com essa vibe ainda."); return; }
+    xp(3,"descoberta por vibe"); render();
+    main().scrollTop=main().scrollHeight*.45;
+  },
+  tocar:v=>{ aleatorio=false; tocar(v); },
+  embaralhar:()=>{ aleatorio=true; tocar(idsReais[Math.floor(Math.random()*idsReais.length)]); toast("Modo aleatório ligado."); },
+  sincronizar:()=>{ toast("Lendo a playlist no YouTube…"); sincronizarPlaylist(true); },
+  instalar:()=>instalarApp(),
+  mini:()=>abrirMini(),
+  ouvirArtista:v=>{
+    const m=obras.find(o=>o.tipo==="musica"&&o.au===v);
+    descobrir(v);
+    const a=A(v);
+    if(a&&a.ouv<1500) xp(15,"descoberta n'O Buraco");
+    if(m) tocar(m.id); else toast(a.nome+" ainda não subiu faixa. Veja os textos no perfil.");
+  },
+  abrir:v=>{
+    const o=O(v); if(!o) return;
+    descobrir(o.au);
+    const a=A(o.au),salvo=DADOS.salvos.includes(o.id);
+    modal(o.t, a.nome+" · "+a.cidade+", "+a.uf+" · "+o.tipo,
+     (o.texto?'<p class="leitor'+(o.tipo==="microconto"?" mc":"")+'">'+esc(o.texto)+'</p>':
+      '<div style="max-width:260px;margin:0 auto 18px">'+capaObra(o)+'</div><p style="color:var(--muted);text-align:center">'+esc(o.desc)+'</p>')+
+     (o.vaga?'<div class="callout" style="margin-top:16px"><span>◇</span><span>Procura: <b>'+esc(o.vaga)+'</b></span></div>':''),
+     salvo?"Remover dos salvos":"Salvar na biblioteca",
+     ()=>{ ACOES.salvarObra(o.id); }, "wide");
+  },
+  salvarObra:v=>{
+    const i=DADOS.salvos.indexOf(v);
+    if(i<0){ DADOS.salvos.push(v); xp(2,"obra salva"); toast("Salvo na sua biblioteca."); }
+    else { DADOS.salvos.splice(i,1); toast("Removido dos salvos."); }
+    salvar(); render();
+  },
+  seguir:v=>{
+    const i=DADOS.seguindo.indexOf(v);
+    if(i<0){ DADOS.seguindo.push(v); descobrir(v); xp(5,"novo artista seguido"); toast("Seguindo "+A(v).nome+"."); }
+    else { DADOS.seguindo.splice(i,1); toast("Deixou de seguir "+A(v).nome+"."); }
+    salvar(); render();
+  },
+  curtirPost:v=>{
+    const k="post"+v,i=DADOS.curtidas.indexOf(k);
+    if(i<0){ DADOS.curtidas.push(k); xp(2,"curtida"); } else DADOS.curtidas.splice(i,1);
+    salvar(); render();
+  },
+  comentar:v=>{
+    const inp=document.getElementById("cmt"+v);
+    const t=(inp&&inp.value||"").trim();
+    if(!t){ toast("Escreva alguma coisa antes de enviar."); return; }
+    DADOS.coments[v]=(DADOS.coments[v]||[]).concat([{t:t}]);
+    salvar(); xp(2,"comentário"); render();
+  },
+  focarCmt:v=>{ const i=document.getElementById("cmt"+v); if(i) i.focus(); },
+  compartilhar:v=>{
+    const p=achaPost(v),url=location.href;
+    if(navigator.share){ navigator.share({title:"Underfy",text:nomePost(p)+" no Underfy",url:url}).catch(()=>{}); }
+    else copiar(url,"Link do Underfy copiado.");
+  },
+  compartilharArt:v=>{
+    const a=A(v);
+    if(navigator.share) navigator.share({title:a.nome+" no Underfy",url:location.href}).catch(()=>{});
+    else copiar(location.href,"Link copiado. Cole onde quiser.");
+  },
+  colabPost:v=>{
+    const p=achaPost(v),a={nome:nomePost(p)};
+    modalForm("Colaborar com "+a.nome, a.nome+" está procurando "+p.procura+".",
+     '<div class="field"><label>O que você entrega</label><select>'+["Letra","Beat","Voz","Mixagem","Arte visual","Microconto","Poema"].map(x=>'<option>'+x+'</option>').join("")+'</select></div>'+
+     '<div class="field"><label>Mensagem</label><textarea placeholder="Diga o que você ouviu nessa obra e o que pretende fazer com ela."></textarea></div>'+
+     '<div class="field"><label>Divisão de crédito proposta</label><input value="50 / 50"></div>',
+     "Enviar proposta",()=>{ xp(8,"proposta enviada"); toast("Proposta enviada para "+a.nome+"."); });
+  },
+  colabObra:v=>{
+    const o=O(v),a=A(o.au);
+    modalForm("Colaborar em “"+o.t+"”", a.nome+" está procurando "+o.vaga+".",
+     '<div class="field"><label>Mensagem</label><textarea placeholder="Conte sua ideia para essa obra."></textarea></div>',
+     "Enviar proposta",()=>{ xp(8,"proposta enviada"); toast("Proposta enviada para "+a.nome+"."); });
+  },
+  vaga:v=>{
+    const [pid,i]=v.split(":"),pr=projetos.find(x=>x.id===pid);
+    pr.slots[i].ok=true; pr.slots[i].quem="eu";
+    if(!DADOS.vagas.includes(v)) DADOS.vagas.push(v);
+    xp(15,"entrou numa colaboração"); render();
+    toast("Você entrou em "+pr.nome+" como "+pr.slots[i].papel+".");
+  },
+  evento:v=>{
+    const i=DADOS.eventos.indexOf(v);
+    if(i<0){ DADOS.eventos.push(v); xp(3,"presença marcada"); toast("Marcado. O evento entrou na sua biblioteca."); }
+    else { DADOS.eventos.splice(i,1); toast("Presença desmarcada."); }
+    salvar(); render();
+  },
+  novaPl:()=>{
+    modalForm("Nova playlist","Ela fica salva neste navegador e você pode adicionar faixas depois.",
+     '<div class="field"><label>Nome</label><input id="plNome" placeholder="Ex: Som de madrugada"></div>'+
+     '<div class="field"><label>Colaborativa?</label><select id="plCol"><option value="0">Só eu adiciono</option><option value="1">Qualquer colaborador pode adicionar</option></select></div>',
+     "Criar",()=>{
+       const n=(document.getElementById("plNome").value||"").trim();
+       if(!n){ toast("Dê um nome para a playlist."); return false; }
+       const col=document.getElementById("plCol").value==="1";
+       DADOS.playlists.unshift({id:"pl"+Date.now(),nome:n,faixas:(DADOS.recentes||[]).slice(0,8).concat(idsReais.slice(0,3)).filter((x,i,l)=>l.indexOf(x)===i).slice(0,8),aberta:col,colab:col?1:0,dono:USER});
+       salvar(); xp(5,"playlist criada"); ir("biblioteca"); toast("Playlist criada.");
+     });
+  },
+  abrirPl:v=>{
+    const pl=(v===plColab.id)?plColab:DADOS.playlists.find(p=>p.id===v);
+    if(!pl) return;
+    modal(pl.nome,(pl.aberta?"Playlist colaborativa · ":"")+pl.faixas.length+" itens"+(pl.dono?" · "+pl.dono:""),
+     '<div class="sessao">'+pl.faixas.map((id,i)=>{
+       const t=T(id); if(t) return linhaItem({k:"faixa",id},i+1);
+       const o=O(id); return o?linhaItem({k:"obra",id},i+1):"";
+     }).join("")+'</div>',
+     "Tocar",()=>{ const f=pl.faixas.find(id=>T(id)); if(f) tocar(f); },"wide");
+  },
+  publicar:()=>{
+    modalForm("Publicar uma obra","Não precisa estar pronta. Diga o que já tem e o que está faltando.",
+     '<div class="field"><label>Tipo</label><select id="pT"><option>Música</option><option>Poema</option><option>Microconto</option><option>Arte visual</option></select></div>'+
+     '<div class="field"><label>Título</label><input id="pTit" placeholder="Ex: Concreto Molhado"></div>'+
+     '<div class="field"><label>Conteúdo</label><textarea id="pTx" placeholder="Cole o texto, ou descreva a faixa/arte."></textarea></div>'+
+     '<div class="field"><label>O que está faltando</label><input id="pPr" placeholder="Ex: produtor com beat lento, 70 BPM"></div>',
+     "Publicar",()=>{
+       const t=(document.getElementById("pTit").value||"").trim();
+       if(!t){ toast("Dê um título antes de publicar."); return false; }
+       const tipo=document.getElementById("pT").value;
+       const tx=(document.getElementById("pTx").value||"").trim();
+       const novo={autor:USER,tipo:tipo,titulo:t,txt:tx||"Publiquei agora.",
+         procura:(document.getElementById("pPr").value||"").trim()||"aberto a qualquer colaboração",ts:Date.now()};
+       const local=Object.assign({id:"tmp"+Date.now(),likes:0,cm:[]},novo);
+       postsUsuarios.unshift(local);
+       DB.criarPost(novo).then(id=>{ local.id=id; if(view==="feed") render(); })
+         .catch(()=>toast("Publicado só neste aparelho: o banco de dados não respondeu."));
+       xp(10,"obra publicada"); ir("feed"); toast("Publicado. Já aparece no Underfeed de todo mundo.");
+     });
+  },
+  trocarSenha:()=>modalSenha(),
+  sair:async()=>{ try{ await salvarJa(); await DB.sair(); }catch(e){} location.reload(); },
+  qr:()=>mostrarQR()
+};
+function copiar(txt,msg){
+  try{ navigator.clipboard.writeText(txt); toast(msg); }
+  catch(e){ toast("Copie o link da barra do navegador."); }
+}
+
+/* delegação de eventos */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-a]"); if(!el) return;
+  const f=ACOES[el.dataset.a]; if(f){ e.preventDefault(); f(el.dataset.v,el); }
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter"&&e.target.id==="iaInput"){ ACOES.ia(); }
+  if(e.key==="Enter"&&e.target.dataset&&e.target.dataset.post){ ACOES.comentar(e.target.dataset.post); }
+});
+
+/* =================================================================
+   14. MODAIS
+   ================================================================= */
+function baseModal(html,cls){
   const ov=document.createElement("div"); ov.className="ov";
-  ov.innerHTML='<div class="modal" role="dialog" aria-modal="true"><h3></h3><p class="m-sub"></p>'+campos+
-    '<div class="modal-acts"><button class="btn btn-ghost btn-sm" data-cancel>Cancelar</button>'+
-    '<button class="btn btn-primary btn-sm" data-ok></button></div></div>';
-  ov.querySelector("h3").textContent=titulo;
-  ov.querySelector(".m-sub").textContent=sub;
-  ov.querySelector("[data-ok]").textContent=cta;
+  ov.innerHTML='<div class="modal '+(cls||"")+'" role="dialog" aria-modal="true">'+html+'</div>';
   document.body.appendChild(ov);
   const close=()=>ov.remove();
-  ov.querySelector("[data-cancel]").onclick=close;
-  ov.querySelector("[data-ok]").onclick=()=>{ if(onOk()!==false) close(); };
-  ov.onclick=e=>{ if(e.target===ov) close(); };
+  ov.addEventListener("click",e=>{ if(e.target===ov) close(); });
   addEventListener("keydown",function k(e){ if(e.key==="Escape"){close();removeEventListener("keydown",k);} });
+  return {ov,close};
+}
+function modal(titulo,sub,corpo,cta,onOk,cls){
+  const {ov,close}=baseModal('<h3></h3><p class="m-sub"></p><div class="mbody"></div>'+
+   '<div class="modal-acts"><button class="btn btn-ghost btn-sm" data-x>Fechar</button>'+
+   (cta?'<button class="btn btn-primary btn-sm" data-ok></button>':'')+'</div>',cls);
+  ov.querySelector("h3").textContent=titulo;
+  ov.querySelector(".m-sub").textContent=sub;
+  ov.querySelector(".mbody").innerHTML=corpo;
+  ov.querySelector("[data-x]").onclick=close;
+  const ok=ov.querySelector("[data-ok]");
+  if(ok){ ok.textContent=cta; ok.onclick=()=>{ if(onOk&&onOk()!==false) close(); }; }
+}
+function modalForm(titulo,sub,campos,cta,onOk){
+  const {ov,close}=baseModal('<h3></h3><p class="m-sub"></p>'+campos+
+   '<div class="modal-acts"><button class="btn btn-ghost btn-sm" data-x>Cancelar</button>'+
+   '<button class="btn btn-primary btn-sm" data-ok></button></div>');
+  ov.querySelector("h3").textContent=titulo;
+  ov.querySelector(".m-sub").textContent=sub;
+  ov.querySelector("[data-x]").onclick=close;
+  const ok=ov.querySelector("[data-ok]"); ok.textContent=cta;
+  ok.onclick=()=>{ if(onOk()!==false) close(); };
   const f=ov.querySelector("input,textarea,select"); if(f) f.focus();
 }
-function modalColab(p){
-  const a=A(p.autor);
-  openModal("Colaborar em “"+p.titulo+"”", a.nome+" está procurando "+p.procura+".",
-    '<div class="field"><label>O que você entrega</label><select>'+PAPEIS.map(r=>'<option>'+r+'</option>').join("")+'</select></div>'+
-    '<div class="field"><label>Mensagem</label><textarea placeholder="Diga o que você ouviu nessa obra e o que pretende fazer com ela."></textarea></div>'+
-    '<div class="field"><label>Divisão de crédito proposta</label><input value="50 / 50"></div>',
-    "Enviar proposta",()=>toast("Proposta enviada para "+a.nome+"."));
-}
-function modalPublicar(){
-  openModal("Publicar uma obra","Não precisa estar pronta. Diga o que já tem e o que está faltando.",
-    '<div class="field"><label>Tipo</label><select id="pTipo">'+["Letra","Poema","Instrumental","Acapella","Faixa"].map(t=>'<option>'+t+'</option>').join("")+'</select></div>'+
-    '<div class="field"><label>Título</label><input id="pTitulo" placeholder="Ex: Concreto Molhado"></div>'+
-    '<div class="field"><label>Trecho ou descrição</label><textarea id="pTexto" placeholder="Cole um trecho da letra ou descreva o instrumental."></textarea></div>'+
-    '<div class="field"><label>O que está faltando</label><input id="pProcura" placeholder="Ex: produtor com beat lento, 70 BPM"></div>'+
-    '<div class="field"><label>Tags</label><input id="pTags" placeholder="#boombap #assis #74bpm"></div>',
-    "Publicar",()=>{
-      const titulo=(document.getElementById("pTitulo").value||"").trim();
-      if(!titulo){toast("Dê um título para a obra antes de publicar.");return false;}
-      const tipo=document.getElementById("pTipo").value;
-      const texto=(document.getElementById("pTexto").value||"").trim();
-      const tags=(document.getElementById("pTags").value||"").split(/\s+/).filter(Boolean);
-      posts.unshift({id:Date.now(),autor:"teo",tempo:"agora",tipo:tipo,
-        badge:(tipo==="Letra"||tipo==="Poema")?"letra":"beat",titulo:titulo,
-        verso:texto||"Sem trecho publicado ainda.",tags:tags.length?tags:["#novo"],
-        procura:(document.getElementById("pProcura").value||"").trim()||"aberto a qualquer colaboração",
-        likes:0,liked:false,coments:0});
-      go("feed"); toast("Obra publicada. Ela já aparece para quem busca essa função.");
-    });
+function mostrarQR(){
+  const url=location.href.split("#")[0];
+  const {ov}=baseModal('<div class="qr-wrap"><h3 style="margin-bottom:6px">Acesse o Underfy</h3>'+
+   '<p class="m-sub">Aponte a câmera do celular</p><div id="qrbox"></div>'+
+   '<p class="qr-url">'+esc(url)+'</p>'+
+   '<div class="modal-acts" style="justify-content:center"><button class="btn btn-ghost btn-sm" data-x>Fechar</button>'+
+   '<button class="btn btn-primary btn-sm" id="qrCopy">Copiar link</button></div></div>');
+  ov.querySelector("[data-x]").onclick=()=>ov.remove();
+  ov.querySelector("#qrCopy").onclick=()=>copiar(url,"Link copiado.");
+  const box=ov.querySelector("#qrbox");
+  const gerar=()=>{ try{ new QRCode(box,{text:url,width:230,height:230,correctLevel:QRCode.CorrectLevel.M}); }
+    catch(e){ box.innerHTML='<p style="color:#120E16;font-family:var(--fd);max-width:230px;line-height:1.5">Sem internet para gerar o QR. Use o link abaixo.</p>'; } };
+  if(window.QRCode) gerar();
+  else{
+    const s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+    s.onload=gerar; s.onerror=gerar; document.head.appendChild(s);
+  }
 }
 
-/* ===================== PLAYER ===================== */
-let yt=null, ytPronto=false, ytFalhou=false, pendente=null;
-let atual=null, tocando=false, tick=null;
-let simSec=0, simTotal=200;
-
+/* =================================================================
+   15. PLAYER
+   ================================================================= */
+let yt=null,ytPronto=false,ytFalhou=false,pendente=null;
+let atual=null,tocandoAgora=false,tick=null,simSec=0,simTotal=200;
+let aleatorio=false,pausaManual=false,ytApi=false,errosSeguidos=0,syncFeito=false;
 const fmt=s=>{s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");};
-const dur2sec=d=>{const p=String(d||"").split(":");return p.length===2?(+p[0])*60+(+p[1]):200;};
+const d2s=d=>{const p=String(d||"").split(":");return p.length===2?(+p[0])*60+(+p[1]):200;};
 
 window.onYouTubeIframeAPIReady=function(){
-  yt=new YT.Player("ytFrame",{
-    height:"169",width:"300",videoId:REAL[0].vid,
-    playerVars:{controls:0,disablekb:1,modestbranding:1,rel:0,playsinline:1,fs:0},
-    events:{
-      onReady:()=>{ytPronto=true; if(pendente){const p=pendente;pendente=null;tocar(p);}},
-      onStateChange:e=>{
-        if(e.data===YT.PlayerState.PLAYING) setUI(true);
-        if(e.data===YT.PlayerState.PAUSED)  setUI(false);
-        if(e.data===YT.PlayerState.ENDED)   proxima();
-      },
-      onError:()=>{
-        toast("O YouTube não liberou essa faixa aqui. Abrindo em nova aba.");
-        const tr=T(atual);
-        if(tr&&tr.vid) window.open("https://www.youtube.com/watch?v="+tr.vid,"_blank","noopener");
-        setUI(false);
-      }
-    }
-  });
+  ytApi=true;
+  yt=new YT.Player("ytFrame",{height:"169",width:"300",videoId:REAL[0].vid,
+   playerVars:{controls:0,disablekb:1,modestbranding:1,rel:0,playsinline:1,fs:0},
+   events:{
+     onReady:()=>{ytPronto=true; if(pendente){const p=pendente;pendente=null;tocar(p);}},
+     onStateChange:e=>{
+       if(e.data===1){ errosSeguidos=0; pausaManual=false; setUI(true); }
+       if(e.data===2) setUI(false);
+       if(e.data===0) proxima(1);
+     },
+     onError:()=>{ const t=T(atual); errosSeguidos++;
+       if(errosSeguidos<=3){ toast("O YouTube não libera “"+(t?t.t:"essa faixa")+"” fora do site dele. Indo para a próxima."); proxima(1); }
+       else{ toast("Várias faixas seguidas falharam. Confira a conexão."); setUI(false); } }
+   }});
+  iniciarSync();
 };
-setTimeout(()=>{ if(!ytPronto){ytFalhou=true;} },7000);
+function iniciarSync(){
+  if(syncFeito||!ytApi||!USER) return; syncFeito=true;
+  setTimeout(()=>sincronizarPlaylist(false),1200);
+}
+setTimeout(()=>{ if(!ytPronto) ytFalhou=true; },8000);
 
 function setUI(v){
-  tocando=v;
+  tocandoAgora=v;
   document.getElementById("plWave").classList.toggle("static",!v);
   document.getElementById("plIcon").innerHTML=v?'<path d="M7 4h4v16H7zM13 4h4v16h-4z"/>':'<path d="M7 4l13 8-13 8z"/>';
-  document.getElementById("plPlay").setAttribute("aria-label",v?"Pausar":"Reproduzir");
-  clearInterval(tick);
-  if(v) tick=setInterval(progresso,500);
+  clearInterval(tick); if(v) tick=setInterval(prog,500);
+  atualizarMini();
+  try{ if("mediaSession" in navigator) navigator.mediaSession.playbackState=v?"playing":"paused"; }catch(e){}
 }
-function progresso(){
-  const tr=T(atual); if(!tr) return;
-  let cur,tot;
-  if(tr.real&&yt&&yt.getDuration){ cur=yt.getCurrentTime()||0; tot=yt.getDuration()||0; }
-  else { simSec=(simSec+0.5)%simTotal; cur=simSec; tot=simTotal; }
-  if(!tot) return;
-  document.getElementById("plFill").style.width=(cur/tot*100)+"%";
-  document.getElementById("plNow").textContent=fmt(cur);
-  document.getElementById("plDur").textContent=fmt(tot);
+function prog(){
+  const t=T(atual); if(!t) return;
+  let c,d;
+  if(t.real&&yt&&yt.getDuration){c=yt.getCurrentTime()||0;d=yt.getDuration()||0;}
+  else{simSec=(simSec+.5)%simTotal;c=simSec;d=simTotal;}
+  if(!d) return;
+  document.getElementById("plFill").style.width=(c/d*100)+"%";
+  document.getElementById("plNow").textContent=fmt(c);
+  document.getElementById("plDur").textContent=fmt(d);
+  if(mini&&!mini.closed){ const b=mini.document.getElementById("mF"); if(b) b.style.width=(c/d*100)+"%"; }
 }
-function setArt(tr){
-  const holder=document.getElementById("ytHolder");
-  const img=document.getElementById("plImg");
-  if(tr.real){
-    holder.classList.add("on");
-    if(img) img.style.display="none";
-  } else {
+function setArt(t){
+  const holder=document.getElementById("ytHolder"),img=document.getElementById("plImg");
+  if(t.real){ holder.classList.add("on"); if(img) img.style.display="none"; }
+  else{
     holder.classList.remove("on");
-    const tmp=document.createElement("div"); tmp.innerHTML=svgCover(tr.art);
-    const novo=tmp.firstElementChild; novo.id="plImg"; novo.style.display="block";
-    novo.classList.remove("cover");
-    novo.style.width="100%"; novo.style.height="100%";
-    if(img) img.replaceWith(novo);
+    const tmp=document.createElement("div"); tmp.innerHTML=svgCover(t.art);
+    const n=tmp.firstElementChild; n.id="plImg"; n.classList.remove("cover");
+    n.style.cssText="width:100%;height:100%;display:block";
+    if(img) img.replaceWith(n);
   }
 }
 function tocar(id){
-  const tr=T(id); if(!tr) return;
+  const t=T(id); if(!t) return;
   atual=id;
-  document.getElementById("plTitle").textContent=tr.t;
-  document.getElementById("plArtist").textContent=tr.a;
-  document.getElementById("plLike").classList.remove("liked");
-  setArt(tr);
-  if(tr.real){
-    if(ytFalhou||!ytPronto){
-      if(!ytFalhou){ pendente=id; toast("Carregando o player do YouTube…"); return; }
-      window.open("https://www.youtube.com/watch?v="+tr.vid,"_blank","noopener");
-      toast("Sem conexão com o YouTube. Abri a faixa em outra aba.");
-      return;
-    }
-    yt.loadVideoById(tr.vid);
-    yt.playVideo();
-    setUI(true);
+  document.getElementById("plTitle").textContent=t.t;
+  document.getElementById("plArtist").textContent=t.a;
+  document.getElementById("plLike").classList.toggle("on",DADOS.curtidas.includes(id));
+  setArt(t);
+  if(t.au) descobrir(t.au);
+  DADOS.ultima=id; DADOS.recentes=[id].concat((DADOS.recentes||[]).filter(x=>x!==id)).slice(0,24); salvar();
+  atualizarMini(); sessaoMidia();
+  if(t.real){
+    if(!ytPronto){ if(!ytFalhou){pendente=id;toast("Carregando o player do YouTube…");return;}
+      window.open("https://www.youtube.com/watch?v="+t.vid,"_blank","noopener");
+      toast("Sem conexão com o YouTube. Abri em outra aba."); return; }
+    yt.loadVideoById(t.vid); yt.playVideo(); setUI(true);
   } else {
-    if(yt&&yt.pauseVideo&&ytPronto) yt.pauseVideo();
-    simSec=0; simTotal=dur2sec(tr.dur);
-    document.getElementById("plDur").textContent=tr.dur;
+    if(yt&&ytPronto&&yt.pauseVideo) yt.pauseVideo();
+    simSec=0; simTotal=d2s(t.dur);
+    document.getElementById("plDur").textContent=t.dur||"0:00";
     setUI(true);
   }
   render();
 }
 function proxima(dir){
-  const lista=(T(atual)&&T(atual).real)?idsReais:["d1","d2","d3","d4","d5"];
-  let i=lista.indexOf(atual);
-  if(i<0) i=0;
+  const t=T(atual);
+  const lista=(t&&t.real)?idsReais:obras.filter(o=>o.tipo==="musica").map(o=>o.id);
+  if(!lista.length) return;
+  if(aleatorio&&dir!==-1&&lista.length>2){ let r; do{ r=lista[Math.floor(Math.random()*lista.length)]; }while(r===atual); tocar(r); return; }
+  let i=lista.indexOf(atual); if(i<0)i=0;
   i=(i+(dir===-1?-1:1)+lista.length)%lista.length;
   tocar(lista[i]);
 }
-document.getElementById("plPlay").addEventListener("click",()=>{
-  if(!atual){ tocar("y0"); return; }
-  const tr=T(atual);
-  if(tr.real&&ytPronto){ tocando?yt.pauseVideo():yt.playVideo(); }
-  else setUI(!tocando);
-});
-document.getElementById("plNext").addEventListener("click",()=>proxima(1));
-document.getElementById("plPrev").addEventListener("click",()=>proxima(-1));
-document.getElementById("plLike").addEventListener("click",e=>{
-  e.currentTarget.classList.toggle("liked");
-  toast(e.currentTarget.classList.contains("liked")?"Adicionado às suas curtidas.":"Removido das curtidas.");
-});
-document.getElementById("plBar").addEventListener("click",e=>{
-  const tr=T(atual); if(!tr) return;
-  const r=e.currentTarget.getBoundingClientRect();
-  const p=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
-  if(tr.real&&ytPronto&&yt.getDuration){ yt.seekTo(yt.getDuration()*p,true); }
-  else { simSec=simTotal*p; }
-  progresso();
-});
-document.getElementById("plArt").addEventListener("click",e=>{
-  const tr=T(atual);
-  if(!tr||!tr.real){ toast("Vídeo só nas faixas do catálogo do YouTube."); return; }
-  e.currentTarget.classList.toggle("big");
+function alternar(){
+  if(!atual||!T(atual)){ tocar(DADOS.ultima&&T(DADOS.ultima)?DADOS.ultima:idsReais[0]); return; }
+  const t=T(atual);
+  if(t.real){
+    if(!ytPronto) return;
+    const tocando=yt.getPlayerState?yt.getPlayerState()===1:tocandoAgora;
+    if(tocando){ pausaManual=true; yt.pauseVideo(); } else { pausaManual=false; yt.playVideo(); }
+  } else { pausaManual=tocandoAgora; setUI(!tocandoAgora); }
+}
+
+/* ---------- controles do sistema (tela de bloqueio, fone, teclado) ---------- */
+function sessaoMidia(){
+  if(!("mediaSession" in navigator)||!window.MediaMetadata) return;
+  const t=T(atual); if(!t) return;
+  try{
+    navigator.mediaSession.metadata=new MediaMetadata({title:t.t,artist:t.a,album:"Underfy",
+      artwork:t.real?[{src:thumb(t.vid,"hqdefault"),sizes:"480x360",type:"image/jpeg"}]:[]});
+    [["play",alternar],["pause",alternar],["previoustrack",()=>proxima(-1)],["nexttrack",()=>proxima(1)]]
+      .forEach(([k,f])=>{ try{ navigator.mediaSession.setActionHandler(k,f); }catch(e){} });
+  }catch(e){}
+}
+
+/* ---------- ao voltar para o app, retoma de onde o navegador pausou ---------- */
+let estavaTocando=false;
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){ estavaTocando=tocandoAgora; return; }
+  const t=T(atual);
+  if(estavaTocando&&!pausaManual&&t&&t.real&&ytPronto&&yt.getPlayerState&&yt.getPlayerState()===2){
+    try{ yt.playVideo(); }catch(e){}
+  }
 });
 
-/* ===================== BOOT ===================== */
-render();
-puxarMetadados().then(n=>{
-  if(n===0) toast("Sem internet: nomes e capas do YouTube não carregaram.");
-}).catch(()=>{});
+/* ---------- mini player flutuante (Picture-in-Picture de documento) ---------- */
+let mini=null;
+const temPiP=()=>"documentPictureInPicture" in window;
+const ICO_PLAY='<path d="M7 4l13 8-13 8z"/>', ICO_PAUSE='<path d="M7 4h4v16H7zM13 4h4v16h-4z"/>';
+async function abrirMini(){
+  if(mini&&!mini.closed){ mini.close(); return; }
+  if(!temPiP()){
+    const t=T(atual);
+    if(t&&t.real){
+      const el=document.getElementById("plArt"); el.classList.toggle("big");
+      if(el.classList.contains("big")) toast("Mini player aberto dentro do app. A janela que fica por cima de outros programas funciona no Chrome e no Edge do computador.");
+    } else toast("Toque uma faixa do catálogo para abrir o mini player.");
+    return;
+  }
+  try{ mini=await documentPictureInPicture.requestWindow({width:340,height:330}); }
+  catch(e){ mini=null; toast("O navegador não abriu a janela flutuante."); return; }
+  const d=mini.document;
+  d.title="Underfy";
+  const st=d.createElement("style");
+  st.textContent='*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}'+
+   'body{background:#120E16;color:#F3EFF5;font-family:"Chakra Petch","Segoe UI",system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden}'+
+   '#mC{flex:1;min-height:0;background:#1A1523;position:relative;overflow:hidden}'+
+   '#mC img,#mC svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}'+
+   '.b{padding:12px 14px 14px;background:#1A1523;border-top:1px solid #2E2540}'+
+   '#mT{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
+   '#mA{font-size:12.5px;color:#8B8594;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:"Barlow","Segoe UI",system-ui,sans-serif}'+
+   '.bar{height:4px;background:#2C2340;border-radius:9px;overflow:hidden;margin:10px 0 10px}#mF{display:block;height:100%;width:0;background:#9D4EDD}'+
+   '.c{display:flex;align-items:center;justify-content:center;gap:18px}'+
+   'button{background:none;border:0;color:#8B8594;cursor:pointer;display:grid;place-items:center;padding:6px;border-radius:99px}'+
+   'button:hover{color:#F3EFF5}button svg{width:20px;height:20px;fill:currentColor}'+
+   'button:focus-visible{outline:2px solid #00F5D4;outline-offset:2px}'+
+   '#mP{width:44px;height:44px;background:#9D4EDD;color:#fff}#mP:hover{background:#ad63e8;color:#fff}#mP svg{width:17px;height:17px}';
+  d.head.appendChild(st);
+  const lk=d.createElement("link"); lk.rel="stylesheet";
+  lk.href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=Barlow:wght@400;500&display=swap";
+  d.head.appendChild(lk);
+  d.body.innerHTML='<svg width="0" height="0" style="position:absolute"><symbol id="uf-mark" viewBox="0 0 156 110">'+
+   document.getElementById("uf-mark").innerHTML+'</symbol></svg>'+
+   '<div id="mC"></div><div class="b"><div id="mT"></div><div id="mA"></div>'+
+   '<div class="bar"><i id="mF"></i></div><div class="c">'+
+   '<button id="mV" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M18 5v14L8 12zM6 5h2v14H6z"/></svg></button>'+
+   '<button id="mP" aria-label="Tocar ou pausar"><svg viewBox="0 0 24 24" id="mI"></svg></button>'+
+   '<button id="mN" aria-label="Próxima"><svg viewBox="0 0 24 24"><path d="M6 5v14l10-7zM16 5h2v14h-2z"/></svg></button>'+
+   '</div></div>';
+  d.getElementById("mP").onclick=()=>alternar();
+  d.getElementById("mN").onclick=()=>proxima(1);
+  d.getElementById("mV").onclick=()=>proxima(-1);
+  mini._id=null;
+  mini.addEventListener("pagehide",()=>{ mini=null; const b=document.getElementById("plMini"); if(b) b.classList.remove("on"); });
+  document.getElementById("plMini").classList.add("on");
+  atualizarMini();
+  if(!atual) toast("Mini player aberto. Escolha uma faixa.");
+}
+function atualizarMini(){
+  if(!mini||mini.closed) return;
+  const d=mini.document, t=T(atual);
+  const g=id=>d.getElementById(id); if(!g("mT")) return;
+  g("mT").textContent=t?t.t:"Underfy";
+  g("mA").textContent=t?t.a:"escolha uma faixa no app";
+  g("mI").innerHTML=tocandoAgora?ICO_PAUSE:ICO_PLAY;
+  if(mini._id!==atual){
+    mini._id=atual;
+    g("mC").innerHTML=t?(t.real?'<img alt="" src="'+thumb(t.vid,"mqdefault")+'">':svgCover(t.art)):svgCover(3);
+    g("mF").style.width="0";
+  }
+}
+
+/* ---------- instalar como app ---------- */
+let promptInstalar=null;
+window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); promptInstalar=e; });
+const instalado=()=>{ try{ return matchMedia("(display-mode: standalone)").matches||!!navigator.standalone; }catch(e){ return false; } };
+async function instalarApp(){
+  if(promptInstalar){
+    promptInstalar.prompt();
+    try{ await promptInstalar.userChoice; }catch(e){}
+    promptInstalar=null; render(); return;
+  }
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  modal("Instalar o Underfy","Ele ganha um ícone na tela inicial e abre em tela cheia, como um aplicativo.",
+   '<div class="info-box" style="margin:0">'+(ios
+     ?"<strong>No iPhone ou iPad</strong>Abra o Underfy no Safari, toque em Compartilhar (o quadrado com a seta para cima) e escolha “Adicionar à Tela de Início”."
+     :"<strong>No Android</strong>No Chrome, abra o menu ⋮ e toque em “Adicionar à tela inicial” ou “Instalar app”.<br><br><strong>No computador</strong>No Chrome ou Edge, clique no ícone de instalar no fim da barra de endereço.")+'</div>');
+}
+if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+
+function ligarPlayer(){
+  document.getElementById("plPlay").onclick=alternar;
+  document.getElementById("plMini").onclick=()=>abrirMini();
+  document.getElementById("plNext").onclick=()=>proxima(1);
+  document.getElementById("plPrev").onclick=()=>proxima(-1);
+  document.getElementById("plLike").onclick=e=>{
+    if(!atual){ toast("Escolha uma faixa primeiro."); return; }
+    const i=DADOS.curtidas.indexOf(atual);
+    if(i<0){ DADOS.curtidas.push(atual); xp(2,"curtida"); } else DADOS.curtidas.splice(i,1);
+    salvar(); e.currentTarget.classList.toggle("on",DADOS.curtidas.includes(atual));
+    if(view==="biblioteca") render();
+  };
+  document.getElementById("plBar").onclick=e=>{
+    const t=T(atual); if(!t) return;
+    const r=e.currentTarget.getBoundingClientRect();
+    const p=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+    if(t.real&&ytPronto&&yt.getDuration) yt.seekTo(yt.getDuration()*p,true); else simSec=simTotal*p;
+    prog();
+  };
+  document.getElementById("plArt").onclick=e=>{
+    const t=T(atual);
+    if(!t||!t.real){ toast("Vídeo só nas faixas do catálogo do YouTube."); return; }
+    e.currentTarget.classList.toggle("big");
+  };
+  document.getElementById("globalSearch").addEventListener("input",e=>{
+    busca=e.target.value.trim().toLowerCase();
+    if(busca&&view!=="buscar"){ ir("buscar"); document.getElementById("globalSearch").focus(); return; }
+    if(view==="buscar") render();
+  });
+  main().addEventListener("scroll",()=>document.getElementById("top").classList.toggle("stuck",main().scrollTop>6));
+  fillWave(document.getElementById("plWave"),18);
+}
+
+/* =================================================================
+   16. TELAS DE CONTA
+   ================================================================= */
+const card=()=>document.getElementById("authCard");
+let abaAuth="entrar";
+function seloModo(){
+  const n=DB.modo==="nuvem";
+  return '<span class="modo'+(n?" nuvem":"")+'"><i></i>'+(n?"banco de dados na nuvem":"modo local · salvo neste aparelho")+'</span>';
+}
+function telaAuth(){
+  const reg=abaAuth==="criar", nuvem=DB.modo==="nuvem";
+  card().innerHTML=
+   '<div class="auth-tabs" role="tablist"><button role="tab" aria-selected="'+(!reg)+'" class="'+(reg?"":"on")+'" id="tbEntrar">Entrar</button>'+
+   '<button role="tab" aria-selected="'+reg+'" class="'+(reg?"on":"")+'" id="tbCriar">Criar conta</button></div>'+
+   '<h2>'+(reg?"Crie sua conta":"Entrar")+'</h2>'+
+   '<p class="sub">'+(reg?"Escolha um nome de usuário e uma senha. Leva dez segundos.":"Use o usuário e a senha que você criou.")+'</p>'+
+   '<div class="field"><label for="auUser">Usuário</label>'+
+     '<input id="auUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" placeholder="ex: vitor.beats">'+
+     (reg?'<p class="hint">De 3 a 20 caracteres: letras, números, ponto, hífen ou sublinhado.</p>':'')+'</div>'+
+   '<div class="field"><label for="auPw">Senha</label>'+
+     '<input id="auPw" type="password" autocomplete="'+(reg?"new-password":"current-password")+'" placeholder="'+(reg?"mínimo de 6 caracteres":"sua senha")+'"></div>'+
+   (reg?'<div class="field"><label for="auPw2">Repita a senha</label><input id="auPw2" type="password" autocomplete="new-password"></div>':'')+
+   '<p class="auth-err" id="auErr" role="alert"></p>'+
+   '<button class="btn btn-primary btn-block" id="auGo">'+(reg?"Criar conta":"Entrar no Underfy")+'</button>'+
+   '<div class="auth-note">'+seloModo()+'<br>'+(nuvem
+     ?"Sua conta e tudo que você fizer ficam salvos no banco de dados. Entre de qualquer aparelho com o mesmo usuário e senha."
+     :"O banco de dados na nuvem ainda não está ligado neste endereço, então a conta fica guardada neste navegador.")+'</div>';
+  const $=id=>document.getElementById(id);
+  $("tbEntrar").onclick=()=>{ abaAuth="entrar"; telaAuth(); };
+  $("tbCriar").onclick=()=>{ abaAuth="criar"; telaAuth(); };
+  const rotulo=reg?"Criar conta":"Entrar no Underfy";
+  const go=async()=>{
+    const u=$("auUser").value.trim(), p=$("auPw").value, err=$("auErr"), bt=$("auGo");
+    err.textContent="";
+    if(reg){
+      const e=validarUsuario(u); if(e){ err.textContent=e; return; }
+      if(p.length<6){ err.textContent="A senha precisa ter pelo menos 6 caracteres."; return; }
+      if(p!==$("auPw2").value){ err.textContent="As duas senhas não são iguais."; return; }
+    } else if(!u||!p){ err.textContent="Digite o usuário e a senha."; return; }
+    bt.disabled=true; bt.textContent=reg?"Criando a conta…":"Entrando…";
+    try{
+      const r=reg?await DB.registrar(u,p):await DB.entrar(u,p);
+      await abrirApp(r.nome,reg);
+    }catch(e){
+      err.textContent=erroAuth(e); bt.disabled=false; bt.textContent=rotulo;
+    }
+  };
+  $("auGo").onclick=go;
+  ["auUser","auPw","auPw2"].forEach(id=>{ const el=$(id); if(el) el.onkeydown=e=>{ if(e.key==="Enter") go(); }; });
+  $("auUser").focus();
+}
+function modalSenha(){
+  const {ov,close}=baseModal('<h3>Trocar senha</h3><p class="m-sub"></p>'+
+   '<div class="field"><label for="snA">Senha atual</label><input id="snA" type="password" autocomplete="current-password"></div>'+
+   '<div class="field"><label for="snN">Nova senha</label><input id="snN" type="password" autocomplete="new-password" placeholder="mínimo de 6 caracteres"></div>'+
+   '<div class="field"><label for="snN2">Repita a nova senha</label><input id="snN2" type="password" autocomplete="new-password"></div>'+
+   '<p class="auth-err" id="snErr" role="alert"></p>'+
+   '<div class="modal-acts"><button class="btn btn-ghost btn-sm" data-x>Cancelar</button>'+
+   '<button class="btn btn-primary btn-sm" id="snGo">Salvar nova senha</button></div>');
+  ov.querySelector(".m-sub").textContent="Conta "+USER+".";
+  ov.querySelector("[data-x]").onclick=close;
+  const q=id=>ov.querySelector("#"+id);
+  q("snGo").onclick=async()=>{
+    const a=q("snA").value, n=q("snN").value, err=q("snErr");
+    if(!a){ err.textContent="Digite a senha atual."; return; }
+    if(n.length<6){ err.textContent="A nova senha precisa ter pelo menos 6 caracteres."; return; }
+    if(n!==q("snN2").value){ err.textContent="As duas senhas novas não são iguais."; return; }
+    q("snGo").disabled=true;
+    try{ await DB.trocarSenha(a,n); close(); toast("Senha alterada."); }
+    catch(e){ err.textContent=(e&&/credential|wrong-password|credencial/.test(String(e.code)))?"A senha atual não confere.":erroAuth(e); q("snGo").disabled=false; }
+  };
+  q("snA").focus();
+}
+function aplicarVagas(){
+  (DADOS.vagas||[]).forEach(v=>{
+    const [pid,i]=String(v).split(":"), pr=projetos.find(x=>x.id===pid);
+    if(pr&&pr.slots[i]&&!pr.slots[i].ok){ pr.slots[i].ok=true; pr.slots[i].quem="eu"; }
+  });
+}
+function pintarUltima(){
+  const t=DADOS.ultima?T(DADOS.ultima):null; if(!t||atual) return;
+  document.getElementById("plTitle").textContent=t.t;
+  document.getElementById("plArtist").textContent=t.a+" · toque em play para continuar";
+}
+async function abrirApp(u,novo){
+  USER=u;
+  let d=null; try{ d=await DB.lerDados(); }catch(e){}
+  DADOS=Object.assign(dadosPadrao(),d||{});
+  ["curtidas","salvos","seguindo","playlists","descobertos","eventos","vagas","recentes"].forEach(k=>{ if(!Array.isArray(DADOS[k])) DADOS[k]=[]; });
+  if(!DADOS.coments||typeof DADOS.coments!=="object") DADOS.coments={};
+  aplicarVagas();
+  document.getElementById("auth").hidden=true;
+  document.getElementById("app").hidden=false;
+  montarNav(); ligarPlayer(); ir("inicio"); pintarUltima();
+  toast(novo?"Conta criada. Bem-vindo ao Underfy, "+u+".":"Bem-vindo de volta, "+u+".");
+  DB.lerCatalogo().then(c=>{
+    if(c&&c.playlist===PLAYLIST_ID&&Array.isArray(c.faixas)&&c.faixas.length&&FONTE_CAT!=="playlist"){ aplicarCatalogo(c.faixas,"nuvem"); pintarUltima(); }
+  }).catch(()=>{});
+  DB.listarPosts().then(l=>{ postsUsuarios=l||[]; if(view==="feed") render(); }).catch(()=>{});
+  completarMeta().catch(()=>{});
+  iniciarSync();
+}
+document.getElementById("btnQR").onclick=mostrarQR;
+
+/* =================================================================
+   17. BOOT
+   ================================================================= */
+(async function(){
+  card().innerHTML='<p class="auth-wait">Conectando ao banco de dados…</p>';
+  await DB.iniciar();
+  let s=null;
+  try{ s=await Promise.race([DB.sessao(),new Promise(r=>setTimeout(()=>r(null),7000))]); }catch(e){}
+  if(s) await abrirApp(s.nome,false); else telaAuth();
+  if(DB.falhou) toast("O banco de dados não respondeu. Usando o modo local por enquanto.");
+})();
 </script>
 <script src="https://www.youtube.com/iframe_api"></script>
 </body>

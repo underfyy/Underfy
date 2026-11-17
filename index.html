@@ -1189,10 +1189,14 @@ function validarPropria(x){
 }
 async function carregarProprias(){
   try{
-    const r=await fetch("musicas/catalogo.json",{cache:"no-cache"});
+    /* o normal é a pasta musicas/; se os arquivos foram enviados soltos na raiz do site, também funciona */
+    let r=await fetch("musicas/catalogo.json",{cache:"no-cache"}), naRaiz=false;
+    if(!r.ok){ r=await fetch("catalogo.json",{cache:"no-cache"}); naRaiz=true; }
     if(!r.ok) return;
     const l=await r.json(); if(!Array.isArray(l)) return;
-    PROPRIAS=l.slice(0,500).map(validarPropria).filter(Boolean);
+    const raiz=v=>(naRaiz&&typeof v==="string")?v.replace(/^musicas\//,""):v;
+    PROPRIAS=l.slice(0,500).map(validarPropria).filter(Boolean).map(p=>{
+      ["src","video","capa","capaLarga","foto"].forEach(k=>{ p[k]=raiz(p[k]); }); return p; });
     if(PROPRIAS.length){ montarCatalogo(); if(USER) render(); }
   }catch(e){}
 }

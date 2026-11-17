@@ -617,6 +617,21 @@ button{background:none;border:none;cursor:pointer;color:inherit}
 .toast-acts{display:flex;gap:8px;flex-wrap:wrap}
 .toast-acts button{font-family:var(--fd);font-weight:600;font-size:.82rem;padding:6px 13px;border-radius:99px;border:1px solid var(--line);background:var(--surface-2);color:var(--text)}
 .toast-acts button:first-child{background:var(--purple);border-color:var(--purple)}
+
+/* ============ DESTAQUE E CLIPE ============ */
+.hero-by{display:flex;align-items:center;gap:9px}
+.hero-mini{width:30px;height:30px;border-radius:99px;object-fit:cover;flex:0 0 30px;box-shadow:0 0 0 2px rgba(18,14,22,.8)}
+.hero-dz{border-color:rgba(0,245,212,.35)}
+.week-av .cover{width:100%;height:100%;border-radius:99px}
+.np-video #npClip{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:2}
+.np-clip{display:inline-flex!important;align-items:center;justify-content:center;gap:5px;white-space:nowrap;flex:0 0 auto;color:var(--cyan)!important;border:1px solid rgba(0,245,212,.45);font-family:var(--fd);font-size:.72rem;font-weight:600}
+.np-clip[hidden]{display:none!important}
+#npSize,#npX{flex:0 0 auto}
+.np:not(.grande):has(#npClipBtn:not([hidden])) .np-src{display:none}   /* lateral estreita: a origem já aparece no player */
+.np-clip span{display:none}
+.np-clip.on{color:#08201c!important;background:var(--cyan);border-color:var(--cyan)}
+.np-clip svg{width:14px;height:14px}
+@media(min-width:901px){.np.grande .np-clip{width:auto;padding:0 9px}.np.grande .np-clip span{display:inline}}
 </style>
 </head>
 <body>
@@ -655,9 +670,10 @@ button{background:none;border:none;cursor:pointer;color:inherit}
     <section class="np vazio c-br" id="np" aria-label="Tocando agora">
       <div class="np-head" id="npHead"><span class="np-tit">Tocando agora</span><span class="np-src" id="npSrc"></span><span class="np-load" aria-hidden="true"></span>
         <span class="np-arrasta" title="Arraste para mudar de canto" aria-hidden="true"></span>
+        <button class="np-btn np-clip" id="npClipBtn" hidden aria-label="Ver o clipe" title="Ver o clipe"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg><span>Clipe</span></button>
         <button class="np-btn" id="npSize" aria-label="Aumentar vídeo" title="Aumentar ou diminuir"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 15v5h-5"/></svg></button>
         <button class="np-btn np-x" id="npX" aria-label="Fechar vídeo e pausar" title="Fechar (pausa a música)"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-      <div class="np-video"><div id="ytFrame"></div><img id="npCapa" alt="" hidden></div>
+      <div class="np-video"><div id="ytFrame"></div><img id="npCapa" alt="" hidden><video id="npClip" muted playsinline preload="none" hidden></video></div>
       <div class="np-ad" role="status"><span>Anúncio do YouTube</span><b id="npAdTxt">Toque em Pular no canto do vídeo ↘</b></div>
       <a class="np-ext" id="npExt" target="_blank" rel="noopener" hidden>Abrir no YouTube ↗</a>
     </section>
@@ -1056,7 +1072,8 @@ function indexarArtistas(){
     t.arts=nomesDe(t.a,t.t).map(n=>{ const k=norm(n); if(!ARTS.has(k)) ARTS.set(k,{k:k,nome:n,ids:[],parc:new Map()}); ARTS.get(k).ids.push(id); return k; });
     t.arts.forEach(x=>t.arts.forEach(y=>{ if(x!==y){ const m=ARTS.get(x).parc; m.set(y,(m.get(y)||0)+1); } }));
   });
-  ARTS.forEach(x=>{ const f=FAMOSOS.indexOf(x.k); x.fama=(f>=0?1000-f:0)+x.ids.length*10; x.vid=null; });
+  ARTS.forEach(x=>{ const f=FAMOSOS.indexOf(x.k); x.fama=(f>=0?1000-f:0)+x.ids.length*10; x.vid=null;
+    const m=ARTMETA[x.k]; if(m){ x.foto=m.foto||""; x.cidade=m.cidade||""; x.uf=m.uf||""; if(m.destaque){ x.destaque=true; x.fama+=100000; } } });
   /* cada artista ganha uma capa só dele: primeiro as músicas solo, depois as em que ele vem primeiro.
      Os mais famosos escolhem antes. Se não sobrar capa exclusiva, fica o avatar com as iniciais. */
   const usadas=new Set();
@@ -1071,6 +1088,7 @@ function indexarArtistas(){
 const AR=k=>ARTS.get(k);
 /* foto do artista: a capa exclusiva dele, ou um círculo com as iniciais */
 function fotoArt(a){
+  if(a.foto) return '<img class="cover round" loading="lazy" alt="Foto de '+esc(a.nome)+'" src="'+esc(a.foto)+'">';
   if(a.vid) return ytImg(a.vid,"round");
   if(a.capa) return '<img class="cover round" loading="lazy" alt="" src="'+esc(a.capa)+'">';
   const n=sorte(a.k)*360|0;
@@ -1115,7 +1133,14 @@ function recomendar(n,excluir){
     sc+=sorte(id+"|"+dia+"|"+USER)*3.5;
     if(rec.includes(id)) sc-=8;
     return {id:id,s:sc,best:best};
-  }).sort((a,b)=>b.s-a.s).slice(0,n).map(x=>Object.assign(x,{motivo:motivo(x.best,g)}));
+  }).map(x=>{ if(CAT[x.id].destaque) x.s+=20; return x; })
+    .sort((a,b)=>b.s-a.s).slice(0,n).map(x=>Object.assign(x,{motivo:CAT[x.id].destaque?motivoDestaque(CAT[x.id]):motivo(x.best,g)}));
+}
+/* artista em destaque (definido no musicas/catalogo.json): recomendado para todas as contas */
+const destaque=()=>idsReais.map(id=>CAT[id]).find(t=>t&&t.destaque&&!t.indisponivel)||null;
+function motivoDestaque(t){
+  const a=AR((t.arts||[])[0]);
+  return "Artista em ascensão"+(a&&a.cidade?" · "+a.cidade+(a.uf?", "+a.uf:""):"");
 }
 
 /* catálogo unificado de faixas tocáveis */
@@ -1125,13 +1150,17 @@ function montarCatalogo(){
   Object.keys(CAT).forEach(k=>{ if(CAT[k].real) delete CAT[k]; });
   idsReais=REAL.map(r=>{ const id="y-"+r.vid; const pl=PLAYLISTS[r.pl||0]||PLAYLISTS[0]; CAT[id]={id:id,vid:r.vid,t:r.t,a:r.a||"Trap BR",sub:"",pl:r.pl||0,real:true}; return id; });
   /* músicas próprias autorizadas: se for a mesma música de um vídeo do YouTube, o arquivo toca no lugar dele */
+  ARTMETA={};
   PROPRIAS.forEach(p=>{
-    const chave=norm(p.t)+"|"+norm(nomesDe(p.a,p.t)[0]||p.a);
+    const principal=norm(nomesDe(p.a,p.t)[0]||p.a);
+    if(principal&&!ARTMETA[principal]) ARTMETA[principal]={foto:p.foto,cidade:p.cidade,uf:p.uf,destaque:p.destaque};
+    const extra={video:p.video,capaLarga:p.capaLarga,destaque:p.destaque};
+    const chave=norm(p.t)+"|"+principal;
     const yid=idsReais.find(id=>(p.vid&&CAT[id].vid===p.vid)||norm(CAT[id].t)+"|"+norm(nomesDe(CAT[id].a,CAT[id].t)[0]||CAT[id].a)===chave);
-    if(yid){ Object.assign(CAT[yid],{src:p.src,fonte:p.fonte,aut:p.aut}); if(p.capa) CAT[yid].capa=p.capa; return; }
+    if(yid){ Object.assign(CAT[yid],{src:p.src,fonte:p.fonte,aut:p.aut},extra); if(p.capa) CAT[yid].capa=p.capa; return; }
     const id="u-"+(norm(p.a)+"-"+norm(p.t)).slice(0,60);
     if(CAT[id]) return;
-    CAT[id]={id:id,t:p.t,a:p.a,src:p.src,fonte:p.fonte,aut:p.aut,capa:p.capa,vid:p.vid,sub:"",real:true};
+    CAT[id]=Object.assign({id:id,t:p.t,a:p.a,src:p.src,fonte:p.fonte,aut:p.aut,capa:p.capa,vid:p.vid,sub:"",real:true},extra);
     idsReais.push(id);
   });
   indexarArtistas(); recHome=null;
@@ -1140,17 +1169,23 @@ function montarCatalogo(){
    Lidas de musicas/catalogo.json (no mesmo repositório do site). Cada item precisa de
    titulo, artista, arquivo (.mp3, .wav, .ogg, .m4a, .aac ou .flac) e autorizacao (quem autorizou e quando).
    Item sem autorização não entra. */
-let PROPRIAS=[];
+let PROPRIAS=[], ARTMETA={};
 const RX_AUDIO=/^(https:\/\/|musicas\/)[^\s"'<>()]+\.(mp3|wav|ogg|m4a|aac|flac)(\?[^\s"'<>()]*)?$/i;
 const RX_CAPA=/^(https:\/\/|musicas\/)[^\s"'<>()]+\.(jpe?g|png|webp)(\?[^\s"'<>()]*)?$/i;
+const RX_VIDEO=/^(https:\/\/|musicas\/)[^\s"'<>()]+\.(mp4|m4v|webm)(\?[^\s"'<>()]*)?$/i;
 function validarPropria(x){
   if(!x||typeof x!=="object") return null;
-  const t=String(x.titulo||"").trim().slice(0,120), a=String(x.artista||"").trim().slice(0,120);
-  const src=String(x.arquivo||"").trim(), aut=String(x.autorizacao||"").trim(), capa=String(x.capa||"").trim();
-  if(!t||!a||!aut||!RX_AUDIO.test(src)) return null;
-  return {t:t,a:a,src:src,aut:aut.slice(0,200),capa:RX_CAPA.test(capa)?capa:"",
+  const str=k=>String(x[k]||"").trim();
+  const t=str("titulo").slice(0,120), a=str("artista").slice(0,120), aut=str("autorizacao");
+  const video=RX_VIDEO.test(str("video"))?str("video"):"";
+  const src=RX_AUDIO.test(str("arquivo"))?str("arquivo"):video;   /* sem áudio separado, o próprio clipe vira o áudio */
+  if(!t||!a||!aut||!src) return null;
+  const img=k=>RX_CAPA.test(str(k))?str(k):"";
+  return {t:t,a:a,src:src,video:video,aut:aut.slice(0,200),capa:img("capa"),capaLarga:img("capa_larga"),foto:img("foto_artista"),
+    cidade:str("cidade").replace(/[^\p{L}\s'.-]/gu,"").slice(0,40),uf:/^[A-Za-z]{2}$/.test(str("uf"))?str("uf").toUpperCase():"",
+    destaque:x.destaque===true,
     fonte:x.fonte==="EXTERNAL_AUTHORIZED"?"EXTERNAL_AUTHORIZED":"UNDERFY_STORAGE",
-    vid:/^[\w-]{11}$/.test(String(x.youtube||""))?x.youtube:null};
+    vid:/^[\w-]{11}$/.test(str("youtube"))?str("youtube"):null};
 }
 async function carregarProprias(){
   try{
@@ -1493,24 +1528,26 @@ VIEWS.inicio=()=>{
   let h='<div class="home-head"><h1>'+saud()+', '+esc(USER)+'</h1></div>';
   if(!recs.length) return h+'<div class="empty"><strong>Carregando as músicas</strong>Em alguns segundos o seu início aparece aqui.</div>';
 
-  /* destaque: a melhor recomendação do momento */
-  const r0=recs[0], t0=T(r0.id), k0=(t0.arts||[])[0];
-  h+='<section class="hero" style="--hero:url('+capaUrl(t0)+')"'+fila("rec",recs.map(x=>x.id))+'>'+
+  /* destaque: o artista em ascensão do Underfy (para todas as contas) ou a melhor recomendação do momento */
+  const dz=destaque(), lista=dz?recs.filter(x=>x.id!==dz.id):recs;
+  const r0=dz?{id:dz.id,motivo:motivoDestaque(dz)}:lista[0], resto=dz?lista:lista.slice(1);
+  const t0=T(r0.id), k0=(t0.arts||[])[0], a0=AR(k0);
+  h+='<section class="hero'+(dz?" hero-dz":"")+'" style="--hero:url('+(t0.capaLarga||capaUrl(t0))+')"'+fila("rec",[r0.id].concat(resto.map(x=>x.id)))+'>'+
      '<div class="hero-art">'+capaFaixa(t0)+'</div><div class="hero-txt"><span class="hero-tag">'+esc(r0.motivo)+'</span>'+
-     '<h2>'+esc(t0.t)+'</h2><p>'+esc(t0.a)+'</p></div><div class="hero-acts">'+
+     '<h2>'+esc(t0.t)+'</h2><p class="hero-by">'+(a0&&a0.foto?'<img class="hero-mini" alt="" src="'+esc(a0.foto)+'">':'')+esc(t0.a)+'</p></div><div class="hero-acts">'+
      '<button class="btn btn-primary" data-a="tocar" data-v="'+t0.id+'">'+playIco+' Tocar</button>'+
      (k0?'<button class="btn btn-ghost" data-a="artistaR" data-v="'+k0+'">Ver artista</button>':'')+'</div></section>';
 
   /* atalhos: suas playlists + as próximas recomendações */
   const pls=(DADOS.playlists||[]).filter(p=>p.faixas&&p.faixas.length).slice(0,2);
-  const qp=recs.slice(1,7-pls.length);
+  const qp=resto.slice(0,6-pls.length);
   h+='<div class="qp"'+fila("qp",qp.map(x=>x.id))+'>'+
      pls.map(p=>'<button class="qpc" data-a="abrirPl" data-v="'+p.id+'">'+mosaico(p)+
        '<div class="qpc-txt"><strong>'+esc(p.nome)+'</strong><span>Sua playlist · '+p.faixas.length+'</span></div></button>').join("")+
      qp.map(x=>{ const t=T(x.id); return '<button class="qpc" data-a="tocar" data-v="'+x.id+'">'+capaFaixa(t)+
        '<div class="qpc-txt"><strong>'+esc(t.t)+'</strong><span>'+esc(t.a)+'</span></div><span class="fab">'+playIco.replace(' class="pi"','')+'</span></button>'; }).join("")+'</div>';
 
-  h+=railFaixas("Feito para você",g.vazio?"o que a cena está ouvindo":"muda todo dia, conforme o que você ouve",recs.slice(7,21).map(x=>x.id),"feito");
+  h+=railFaixas("Feito para você",g.vazio?"o que a cena está ouvindo":"muda todo dia, conforme o que você ouve",resto.slice(6,20).map(x=>x.id),"feito");
 
   /* um dos artistas seguidos, um diferente por dia */
   const seg=(DADOS.seguindoArt||[]).map(AR).filter(a=>a&&a.ids.length>1);
@@ -1540,9 +1577,10 @@ VIEWS.artistaR=()=>{
   const seg=(DADOS.seguindoArt||[]).includes(a.k);
   const parc=[...a.parc.entries()].sort((x,y)=>y[1]-x[1]).map(([k])=>AR(k)).filter(Boolean).slice(0,10);
   let h='<button class="back" data-a="voltar">← voltar</button>';
-  h+='<section class="hero ar-head" style="--hero:url('+(a.vid?thumb(a.vid,"hqdefault"):a.capa||capaUrl(CAT[a.ids[0]]))+')"><div class="hero-art">'+fotoArt(a)+'</div>'+
-     '<div class="hero-txt"><span class="hero-tag">Artista</span><h1>'+esc(a.nome)+'</h1>'+
-     '<p>'+a.ids.length+(a.ids.length>1?" músicas":" música")+' no Underfy'+(parc.length?' · gravou com '+parc.length+(parc.length>1?" artistas":" artista"):'')+'</p></div>'+
+  const t1=CAT[a.ids[0]];
+  h+='<section class="hero ar-head" style="--hero:url('+((t1&&t1.capaLarga)||(a.vid?thumb(a.vid,"hqdefault"):a.capa||capaUrl(t1)))+')"><div class="hero-art">'+fotoArt(a)+'</div>'+
+     '<div class="hero-txt"><span class="hero-tag">'+(a.destaque?"Artista em ascensão":"Artista")+'</span><h1>'+esc(a.nome)+'</h1>'+
+     '<p>'+(a.cidade?esc(a.cidade)+(a.uf?", "+a.uf:"")+' · ':'')+a.ids.length+(a.ids.length>1?" músicas":" música")+' no Underfy'+(parc.length?' · gravou com '+parc.length+(parc.length>1?" artistas":" artista"):'')+'</p></div>'+
      '<div class="hero-acts"><button class="btn btn-primary" data-a="tocarArt" data-v="'+a.k+'">'+playIco+' Tocar</button>'+
      '<button class="btn '+(seg?"btn-ghost":"btn-cyan")+'" data-a="seguirArt" data-v="'+a.k+'">'+(seg?"Seguindo":"Seguir")+'</button></div></section>';
   h+='<h3 class="sec-h">Músicas</h3><div class="tracklist"'+fila("ar-"+a.k,a.ids)+'>'+a.ids.map((id,i)=>linhaItem({k:"faixa",id:id},i+1)).join("")+'</div>';
@@ -1560,8 +1598,19 @@ VIEWS.descobrir=()=>{
     '<button class="jbox" data-a="ir" data-v="eventos"><span class="em">📍</span><span><strong>Eventos</strong><span>o que rola perto</span></span></button>'+
     '<button class="jbox" data-a="ir" data-v="biblioteca"><span class="em">📚</span><span><strong>Biblioteca</strong><span>suas playlists e curtidas</span></span></button>'+
     '</div>';
+  const dzA=artistasPorFama().find(a=>a.destaque);
+  if(dzA){
+    const tz=CAT[dzA.ids[0]];
+    h+='<section class="week"><div class="week-bg"><img alt="" src="'+esc((tz&&tz.capaLarga)||capaUrl(tz))+'" style="width:100%;height:100%;object-fit:cover"></div><div class="week-in">'+
+      '<div class="week-av" style="overflow:hidden;padding:0">'+fotoArt(dzA)+'</div><div>'+
+      '<span class="week-tag">Artista em ascensão</span><h2>'+esc(dzA.nome)+'</h2>'+
+      '<p class="loc">'+(dzA.cidade?esc(dzA.cidade)+(dzA.uf?", "+dzA.uf:"")+' · ':'')+'música autoral no Underfy</p>'+
+      '<p>'+esc(tz?tz.t+" · "+tz.a:"")+'</p><div class="week-acts">'+
+      '<button class="btn btn-primary" data-a="tocarArt" data-v="'+dzA.k+'">'+playIco+' Ouvir agora</button>'+
+      '<button class="btn btn-ghost" data-a="artistaR" data-v="'+dzA.k+'">Ver perfil</button></div></div></div></section>';
+  }
   const sem=artistas[new Date().getDay()%artistas.length];
-  h+='<section class="week"><div class="week-bg">'+svgCover(sem.g+2)+'</div><div class="week-in">'+
+  if(!dzA) h+='<section class="week"><div class="week-bg">'+svgCover(sem.g+2)+'</div><div class="week-in">'+
     '<div class="week-av" style="background:'+GRAD[sem.g]+'">'+sem.ini+'</div><div>'+
     '<span class="week-tag">Artista da semana na plataforma</span><h2>'+esc(sem.nome)+'</h2>'+
     '<p class="loc">'+esc(sem.cidade)+', '+sem.uf+' · '+nfmt(sem.ouv)+' reproduções</p>'+
@@ -2317,6 +2366,9 @@ function pintarNp(t){
   $id("npSrc").textContent=NOME_FONTE[f]||"";
   const capa=$id("npCapa"); if(f!=="YOUTUBE"){ capa.src=capaUrl(t)||""; capa.hidden=!capa.src; } else capa.hidden=true;
   const ext=$id("npExt"); ext.href=linkOrigem(t); ext.hidden=!ext.href||f!=="YOUTUBE";
+  if(clipOn) desligarClipe();
+  const v=$id("npClip"); if(v.getAttribute("src")&&v.getAttribute("src")!==t.video){ v.removeAttribute("src"); try{ v.load(); }catch(e){} }
+  pintarClipeBtn(t);
   posicionarNp();
 }
 function pintarFaixa(t){
@@ -2439,7 +2491,7 @@ function prog(){
     if(!yt||!yt.getDuration) return;
     if(emAnuncio) return;
     c=yt.getCurrentTime()||0; d=yt.getDuration()||0;
-  } else { c=audio.currentTime||0; d=isFinite(audio.duration)?audio.duration:0; }
+  } else { c=audio.currentTime||0; d=isFinite(audio.duration)?audio.duration:0; syncClipe(false); }
   if(!d) return;
   $id("plFill").style.width=(c/d*100)+"%";
   $id("plNow").textContent=fmt(c);
@@ -2448,11 +2500,45 @@ function prog(){
 }
 
 /* ---------- arquivos de áudio (Underfy e fontes autorizadas) ---------- */
-audio.addEventListener("playing",()=>{ if(fonteAtual==="YOUTUBE") return; errosSeguidos=0; pausaManual=false; fimCarga(); setUI(true); });
-audio.addEventListener("pause",()=>{ if(fonteAtual!=="YOUTUBE") setUI(false); });
+audio.addEventListener("playing",()=>{ if(fonteAtual==="YOUTUBE") return; errosSeguidos=0; pausaManual=false; fimCarga(); setUI(true); syncClipe(true); });
+audio.addEventListener("pause",()=>{ if(fonteAtual!=="YOUTUBE"){ setUI(false); syncClipe(false); } });
 audio.addEventListener("waiting",()=>{ if(fonteAtual!=="YOUTUBE"){ $id("plPlay").classList.add("carregando"); } });
 audio.addEventListener("ended",()=>{ if(fonteAtual!=="YOUTUBE") proxima(1); });
 audio.addEventListener("error",()=>{ if(fonteAtual!=="YOUTUBE"&&audio.getAttribute("src")) falhaFaixa(T(atual),"arquivo"); });
+/* ---------- clipe ----------
+   O som sempre vem do arquivo de áudio (é ele que continua tocando com a tela bloqueada).
+   O clipe toca sem som, acompanhando o tempo do áudio. */
+let clipOn=false;
+function pintarClipeBtn(t){
+  const b=$id("npClipBtn"), tem=!!(t&&t.video&&fonteDe(t)!=="YOUTUBE");
+  b.hidden=!tem; if(!tem){ desligarClipe(); return; }
+  if(store.get("underfy.clipe")===true) ligarClipe(false);
+}
+function ligarClipe(crescer){
+  const t=T(atual); if(!t||!t.video) return;
+  const v=$id("npClip");
+  if(v.getAttribute("src")!==t.video){ v.src=t.video; }
+  v.hidden=false; clipOn=true; $id("npClipBtn").classList.add("on");
+  $id("npClipBtn").setAttribute("aria-label","Esconder o clipe");
+  if(crescer&&!$id("np").classList.contains("grande")) npGrande(true);
+  syncClipe(true);
+}
+function desligarClipe(){
+  const v=$id("npClip"); clipOn=false;
+  try{ v.pause(); }catch(e){} v.hidden=true;
+  const b=$id("npClipBtn"); b.classList.remove("on"); b.setAttribute("aria-label","Ver o clipe");
+}
+function syncClipe(forcar){
+  if(!clipOn) return;
+  const v=$id("npClip");
+  if(audio.paused){ if(!v.paused) v.pause(); return; }
+  if(v.paused) v.play().catch(()=>{});
+  if(v.readyState<1){ if(!v._esperando){ v._esperando=true; v.addEventListener("loadedmetadata",()=>{ v._esperando=false; syncClipe(true); },{once:true}); } return; }
+  if(v.seeking) return;   /* não reposiciona de novo enquanto o vídeo ainda está indo para o ponto certo */
+  const sk=v.seekable; if(!sk.length||sk.end(sk.length-1)<audio.currentTime) return;   /* servidor sem suporte a pular: deixa o clipe correr */
+  if(forcar||Math.abs((v.currentTime||0)-(audio.currentTime||0))>0.35){ try{ v.currentTime=audio.currentTime; }catch(e){} }
+}
+audio.addEventListener("seeked",()=>syncClipe(true));
 function pararArquivo(){ try{ audio.pause(); audio.removeAttribute("src"); audio.load(); }catch(e){} }
 function pararYouTube(){ try{ if(yt&&ytPronto) yt.stopVideo(); }catch(e){} }
 
@@ -2634,6 +2720,11 @@ function ligarPlayer(){
   document.getElementById("plSkip").onclick=apertarSkip;
   document.getElementById("npSize").onclick=()=>{ adAuto=false; npGrande(!$id("np").classList.contains("grande")); };
   document.getElementById("npX").onclick=fecharNp;
+  document.getElementById("npClipBtn").onclick=()=>{
+    if(clipOn){ desligarClipe(); store.set("underfy.clipe",false); if($id("np").classList.contains("grande")) npGrande(false); }
+    else { ligarClipe(true); store.set("underfy.clipe",true); }
+  };
+  document.getElementById("npClip").addEventListener("error",()=>{ if(clipOn){ desligarClipe(); toast("O clipe não abriu agora. A música continua tocando."); } });
   definirCanto(store.get("underfy.canto")||"c-br"); ligarArraste();
   const vol=document.getElementById("plVol"); vol.oninput=e=>definirVolume(+e.target.value);
   let antesMudo=VOL||85;

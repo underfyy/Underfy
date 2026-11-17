@@ -1,7 +1,7 @@
 /* Underfy — service worker.
    Sempre busca a versão nova na rede; o cache só entra quando não há internet.
    Assim, toda atualização que você subir no GitHub aparece na hora. */
-const CACHE = "underfy-v1";
+const CACHE = "underfy-v2";
 const SHELL = ["./", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {
@@ -20,7 +20,10 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   const r = e.request;
   if (r.method !== "GET") return;
-  if (new URL(r.url).origin !== self.location.origin) return;   // YouTube, Firebase e fontes passam direto
+  const u = new URL(r.url);
+  if (u.origin !== self.location.origin) return;   // YouTube, Firebase e fontes passam direto
+  // áudio e clipes vão direto ao servidor: são grandes e o navegador pede em pedaços (Range)
+  if (r.headers.has("range") || /\.(mp3|m4a|aac|wav|ogg|flac|mp4|m4v|webm)$/i.test(u.pathname)) return;
   e.respondWith(
     fetch(r)
       .then(res => {
